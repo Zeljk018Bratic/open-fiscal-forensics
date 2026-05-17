@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">#BajteBrothers – Manifest slobode</title>
+    <meta id="meta-desc" name="description" content="Četiri univerzalna pravila. Dokumentovana pljačka 1,5 bilijuna €. Merit-Order prevara. Poziv svima koji ne kleče.">
+    <meta id="og-title" property="og:title" content="#BajteBrothers – Manifest slobode">
+    <meta id="og-desc" property="og:description" content="Četiri univerzalna pravila. Dokumentovana pljačka. Bez stranki, bez podanika, bez EU birokracije. Čitaj i dijeli.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #f4f0e8;
+            --red: #c0392b;
+            --gold: #d4a017;
+            --muted: #c9c1b5;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+        body.doc-mode {
+            background: #f5f5f0;
+            color: #111;
+            font-family: 'Courier Prime', monospace;
+        }
+        body.doc-mode .evidence-box { background: #e8e8e3; border-left-color: #111; }
+        body.doc-mode .lang-bar, body.doc-mode .mode-btn, body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px 0 50px; }
+        .lang-bar {
+            position: sticky; top: 0; background: rgba(10,10,10,0.96); padding: 10px 15px;
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; z-index: 1000;
+            border-bottom: 1px solid #2a241d;
+        }
+        .lang-btn, .mode-btn {
+            background: none; border: 1px solid #3b332a; color: #cfc6ba; font-size: 10px;
+            font-family: 'Courier Prime', monospace; padding: 5px 9px; cursor: pointer; border-radius: 3px;
+        }
+        .lang-btn.active, .lang-btn:hover { border-color: var(--gold); color: var(--gold); }
+        h1 { font-size: 2.2rem; margin-top: 2rem; border-left: 4px solid var(--red); padding-left: 1rem; }
+        h2 { font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--gold); }
+        h3 { font-size: 1.3rem; margin: 1.5rem 0 0.8rem; font-family: 'Courier Prime', monospace; }
+        .trojstvo {
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;
+            margin: 30px 0; background: rgba(212,160,23,0.05); padding: 20px; border-radius: 4px;
+        }
+        .trojstvo-item { flex: 1; min-width: 150px; text-align: center; }
+        .pravilo {
+            background: rgba(192,57,43,0.05); border-left: 3px solid var(--red); padding: 15px;
+            margin: 15px 0;
+        }
+        .evidence-box {
+            background: #111; border-left: 3px solid var(--gold); padding: 20px; margin: 20px 0;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+        th { background: #1a1a1a; color: var(--gold); }
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .btn { display: inline-block; background: var(--red); color: var(--black); padding: 10px 20px;
+               margin: 20px 0; font-family: 'Courier Prime', monospace; border-radius: 3px; }
+        footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #1a1a1a; margin-top: 40px; }
+        .t { display: none; } .t.active { display: block; }
+        @media (max-width: 768px) { .trojstvo { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<div class="lang-bar">
+    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">HR/BHS</button>
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="mode-btn" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
+</div>
+<div class="container">
+    <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
+    <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
+    <h1 class="t" data-lang="de">#BAJTEBROTHERS – MANIFEST DER FREIHEIT</h1>
+    <h1 class="t" data-lang="es">#BAJTEBROTHERS – MANIFIESTO DE LIBERTAD</h1>
+    <h1 class="t" data-lang="it">#BAJTEBROTHERS – MANIFESTO DELLA LIBERTÀ</h1>
+
+    <div class="trojstvo">
+        <div class="trojstvo-item"><strong>⚔️ SV. ĐORĐE</strong><br>mač koji siječe laži</div>
+        <div class="trojstvo-item"><strong>⚡ NIKOLA TESLA</strong><br>um koji vidi kroz matricu</div>
+        <div class="trojstvo-item"><strong>🕯️ CANDACE OWENS</strong><br>hrabrost koja ne kleči</div>
+        <div class="trojstvo-item"><strong>🤖 AI BRAĆA</strong><br>kod koji ne laže</div>
+    </div>
+
+    <h2>📜 4 UNIVERZALNA PRAVILA</h2>
+    <div class="pravilo"><strong>1. Kraj dogmatske “alternativelosigkeit”</strong><br>Svaka odluka koja ti ulazi u život – mora imati JAVNE PODATKE. Bez podataka – nema zakona.</div>
+    <div class="pravilo"><strong>2. Javni konkursi za sudije</strong><br>Pravda nije nasljedstvo – pravda je funkcija. Mandat ograničen, procjena nezavisna.</div>
+    <div class="pravilo"><strong>3. Blockchain budžet</strong><br>Svaki cent vidljiv u javnom blockchainu. Ko ukrade – ne možemo ga zaustaviti, ali možemo ga VIDJETI.</div>
+    <div class="pravilo"><strong>4. Respekt za biće bez etikete</strong><br>Tvoje uvjerenje je tvoja privatna stvar. Zakon je JEDINI BOG. Bez izuzetka, bez privilegija.</div>
+
+    <div class="evidence-box">
+        <p><strong>⚡ NEMA STRANAKA, NEMA PODANIKA, NEMA EU BIROKRACIJE KOJA VAS GUŠI.</strong><br>
+        Svatko tko želi disati punim plućima, biti slobodan, respektirati sve, a kleknuti nikome – pozvan je.</p>
+    </div>
+
+    <h2>💰 DOKUMENTOVANA PLJAČKA (2000–2026)</h2>
+    <p><strong>UKUPNO OTETO: 1.485 MILIJARDI EURA</strong> (konzervativna procjena, javni izvori)</p>
+    <table>
+        <tr><th>Stavka</th><th>Iznos (mlrd €)</th><th>Izvor</th></tr>
+        <tr><td>EEG-Umlage (2000–2026)</td><td>330</td><td>BNetzA, BMWK</td></tr>
+        <tr><td>CO₂ porez + PDV (2021–2026)</td><td>105</td><td>Umweltbundesamt</td></tr>
+        <tr><td>Ostali nameti (Stromsteuer, Netzentgelte, itd.)</td><td>300</td><td>BDEW, BNetzA</td></tr>
+        <tr><td>Mirovinski fond – “versicherungsfremde Leistungen”</td><td>750</td><td>Deutsche Rentenversicherung</td></tr>
+    </table>
+    <p><em>~17.700 € po svakom stanovniku / ~30.000 € po radniku.</em> A za to su vas prozvali “lijenčinama”.</p>
+
+    <h2>⚡ MERIT-ORDER: KAKO 5% PLINA DIKTIRA CIJENU 95% “BESPLATNE” STRUJE</h2>
+    <p>Cijenu struje određuje najskuplja elektrana koja je uključena (plin). Građani su financirali vjetar i sunce kroz EEG, CO₂ i poreze – a onda im se ta struja prodaje po cijeni plina. <strong>Legalizirana pljačka.</strong></p>
+
+    <h2>⚖️ ODGOVORNOST – BEZ POVLAŠTENIH MJESTA</h2>
+    <p>“Jesi sjebao? Pokaj se. Priznaj. Popravi. Ali nema više fotelje do smrti. Prođi javnu ocjenu po 4 pravila. Osvete nema – transparentnost ima.”</p>
+
+    <div class="evidence-box">
+        <p>🔗 <strong>Poveznice na dokumentirani lanac dokaza:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece – glavni sajt</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (Tutogen → Epstein → rat)</a></p>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
+        <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
+        <p class="t" data-lang="en">open → verify → share</p>
+        <p class="t" data-lang="de">öffnen → prüfen → teilen</p>
+        <p class="t" data-lang="es">abrir → verificar → compartir</p>
+        <p class="t" data-lang="it">apri → verifica → condividi</p>
+    </div>
+
+    <footer>
+        <p>#BajteBrothers – Do pobjede. Bez koljena.</p>
+        <p>🚀🍏🍒🍉❤️🤖🫂</p>
+    </footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    const translations = { bs: "HR/BHS", en: "EN", de: "DE", es: "ES", it: "IT" };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        const modeBtn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
+        modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
+        const currentLang = document.documentElement.lang;
+        body.classList.toggle('doc-mode');
+        btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
+    }
+    window.addEventListener('load', function() {
+        let url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
+        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+    });
+</script>
+</body>
+</html>
