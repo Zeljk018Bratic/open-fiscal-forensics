@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="bs">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>#BAJTEBROTHERS – Blockchain budžet + Lanac 361</title>
-    <link rel="icon" type="image/png" href="bajtebrothers-logo.png">
-    <style>
-    /* styles unchanged */
-    .hero-logo{display:block;width:min(220px,55vw);max-width:320px;height:auto}
-    </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>#BAJTEBROTHERS – Blockchain budžet + Lanac 361</title>
+<link rel="icon" type="image/png" href="bajtebrothers-logo.png">
 </head>
 <body>
 <div class="lang-bar">
-    <span>🌐</span>
-    <button class="lang-btn active" data-lang="bs">HR/BHS</button>
-    <button class="lang-btn" data-lang="en">EN</button>
-    <button class="lang-btn" data-lang="de">DE</button>
-    <button class="lang-btn" data-lang="es">ES</button>
-    <button class="lang-btn" data-lang="it">IT</button>
-    <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
+  <button class="lang-btn active" data-lang="bs">HR/SRB/BS</button>
+  <button class="lang-btn" data-lang="en">EN</button>
+  <button class="lang-btn" data-lang="it">IT</button>
+  <button class="lang-btn" data-lang="de">DE</button>
+  <button class="lang-btn" data-lang="es">ES</button>
+  <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
-    <h1><span class="t active" data-lang="bs">#BAJTEBROTHERS – Blockchain budžet + Lanac 361</span><span class="t" data-lang="en">#BAJTEBROTHERS – Blockchain Budget + Chain 361</span></h1>
+  <h1><span class="t active" data-lang="bs">#BAJTEBROTHERS – Blockchain budžet + Lanac 361</span></h1>
 </div>
+<footer>
+  <div id="qr-canvas" aria-hidden="true"></div>
+</footer>
 <script src="lang.js"></script>
+<script src="qrcode.min.js"></script>
+<script>
+window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html';}try{var el=document.getElementById('qr-canvas');if(typeof QRCode!=='undefined'&&el)new QRCode(el,{text:url,width:160,height:160});else if(window.generateQrFallback)window.generateQrFallback('qr-canvas',url,160);}catch(e){console.warn(e);}});
+</script>
 </body>
 </html>

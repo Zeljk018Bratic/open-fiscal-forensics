@@ -1,41 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Sound of Freedom — Zašto ništa ne znaš o ovome?</title>
-<meta id="meta-desc" name="description" content="300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?">
-<meta id="og-title" property="og:title" content="Sound of Freedom — Zašto ništa ne znaš o ovome?">
-<meta id="og-desc" property="og:description" content="300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?">
-<meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-<style>
-/* styles unchanged */
-</style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sound of Freedom Awareness</title>
 </head>
 <body>
-
-<!-- LANGUAGE BAR -->
 <div class="lang-bar">
-  <span>🌐</span>
-  <button class="lang-btn active" data-lang="bs">BS/HR/SR</button>
+  <button class="lang-btn active" data-lang="bs">HR/SRB/BS</button>
   <button class="lang-btn" data-lang="en">EN</button>
-  <button class="lang-btn" data-lang="de">DE</button>
-  <button class="lang-btn" data-lang="fr">FR</button>
-  <button class="lang-btn" data-lang="es">ES</button>
   <button class="lang-btn" data-lang="it">IT</button>
-  <button class="lang-btn" data-lang="pt">PT</button>
-  <button class="lang-btn" data-lang="nl">NL</button>
-  <button class="lang-btn" data-lang="pl">PL</button>
-  <button class="lang-btn" data-lang="tr">TR</button>
-  <button class="lang-btn" data-lang="ar">AR</button>
+  <button class="lang-btn" data-lang="de">DE</button>
+  <button class="lang-btn" data-lang="es">ES</button>
   <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
-
-<!-- remainder of original file unchanged -->
-
+<section>
+  <h1><span class="t active" data-lang="bs">Sound of Freedom Awareness</span></h1>
+</section>
+<footer>
+  <div id="qr-canvas" aria-hidden="true"></div>
+</footer>
 <script src="lang.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="qrcode.min.js"></script>
+<script>
+window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/sound_of_freedom_awareness.html';}try{var el=document.getElementById('qr-canvas');if(typeof QRCode!=='undefined'&&el)new QRCode(el,{text:url,width:160,height:160});else if(window.generateQrFallback)window.generateQrFallback('qr-canvas',url,160);}catch(e){console.warn(e);}});
+</script>
 </body>
 </html>
