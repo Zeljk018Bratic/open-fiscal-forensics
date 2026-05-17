@@ -70,10 +70,10 @@ body.doc-mode .hero-logo{background:rgba(255,255,255,.9);box-shadow:0 6px 24px r
 .lang-bar span{font-family:'Courier Prime',monospace;font-size:11px;color:var(--light-grey);margin-right:8px}
 .lang-btn,.mode-btn{background:none;border:1px solid #3b332a;color:#cfc6ba;font-size:10px;font-family:'Courier Prime',monospace;padding:5px 9px;cursor:pointer;transition:all .2s;border-radius:3px}
 .lang-btn:hover,.lang-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08)}
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px 60px;position:relative;background:radial-gradient(ellipse a[...]}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 20px 60px;position:relative;background:radial-gradient(ellipse at center,#120b0a 0%,#0a0604 60%)}
 .hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px)}
-.hero-logo{display:block;width:min(220px,55vw);height:auto;margin:0 auto 28px;position:relative;z-index:1;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
-.hero-counter{font-family:'Courier Prime',monospace;font-size:clamp(60px,15vw,160px);font-weight:700;color:var(--red);line-height:1;letter-spacing:-4px;animation:pulse-num 3s ease-in-out infinite;[...]}
+.hero-logo{display:block;width:min(220px,55vw);max-width:320px;height:auto;margin:0 auto 28px;position:relative;z-index:1;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.hero-counter{font-family:'Courier Prime',monospace;font-size:clamp(60px,15vw,160px);font-weight:700;color:var(--red);line-height:1;letter-spacing:-4px;animation:pulse-num 3s ease-in-out infinite}
 @keyframes pulse-num{0%,100%{opacity:1}50%{opacity:.7}}
 .hero-unit{font-family:'Courier Prime',monospace;font-size:clamp(13px,2vw,18px);color:var(--light-grey);letter-spacing:5px;text-transform:uppercase;margin:10px 0 30px}
 .hero-title{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,56px);font-weight:900;line-height:1.1;max-width:800px;margin:0 auto 20px}
@@ -103,7 +103,7 @@ p{font-size:18px;line-height:1.85;color:#d4ccc0;margin-bottom:20px}
 .tl-date{font-family:'Courier Prime',monospace;font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:6px}
 .tl-text{font-size:16px;color:var(--muted);line-height:1.7}
 .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin:30px 0}
-.link-card{display:flex;flex-direction:column;background:#0d0d0d;border:1px solid #1e1e1e;padding:18px 20px;text-decoration:none;color:inherit;transition:all .25s;position:relative;overflow:hidde[...]}
+.link-card{display:flex;flex-direction:column;background:#0d0d0d;border:1px solid #1e1e1e;padding:18px 20px;text-decoration:none;color:inherit;transition:all .25s;position:relative;overflow:hidden}
 .link-card::after{content:'→';position:absolute;right:16px;top:50%;transform:translateY(-50%) translateX(10px);color:var(--gold);opacity:0;transition:all .25s;font-size:18px}
 .link-card:hover{border-color:#333;background:#111}
 .link-card:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
@@ -127,17 +127,11 @@ footer p{font-size:13px;color:var(--footer);font-family:'Courier Prime',monospac
 </style>
 </head>
 <body>
-<div class="lang-bar"><span>🌐</span><button class="lang-btn active" onclick="setLang('bs', event)">HR/BHS</button><button class="lang-btn" onclick="setLang('en', event)">EN</button><button class="lang-btn" onclick="setLang('de', event)">DE</button><button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button></div>
-<div class="hero"><img class="hero-logo" src="bajtebrothers-logo.png" alt="BajteBrothers logo"><div class="hero-counter">300.000</div><div class="hero-unit t active" data-lang="bs">nestale djece — SAD — dokumentovano</div><div class="hero-unit t" data-lang="en">missing children — USA — documented</div><div class="hero-unit t" data-lang="de">vermisste kinder — USA — dokumentiert</div><h1 class="hero-title t active" data-lang="bs">Zašto <em>ništa</em> ne znaš o ovome?</h1><h1 class="hero-title t" data-lang="en">Why do you know <em>nothing</em> about this?</h1><h1 class="hero-title t" data-lang="de">Warum weißt du <em>nichts</em> darüber?</h1><p class="hero-sub t active" data-lang="bs">Ovo nije teorija. Ovo nisu glasine. Ovo su zvanični podaci, javni izvještaji i film koji je izazvao globalnu buru — ali je uprkos tome ostao na margini javne svijesti.</p><p class="hero-sub t" data-lang="en">This is not a theory. These are not rumors. These are official figures, public reports, and a film that sparked global controversy — yet still remained at the edge of public awareness.</p><p class="hero-sub t" data-lang="de">Das ist keine Theorie. Das sind keine Gerüchte. Das sind offizielle Zahlen, öffentliche Berichte und ein Film, der weltweit für Aufsehen sorgte — und dennoch am Rand des öffentlichen Bewusstseins blieb.</p><div class="scroll-hint t active" data-lang="bs">SCROLL ↓</div><div class="scroll-hint t" data-lang="en">SCROLL ↓</div><div class="scroll-hint t" data-lang="de">SCROLL ↓</div></div>
+<div class="lang-bar"><span>🌐</span><button class="lang-btn active" onclick="setLang('bs', event)">HR/BHS</button><button class="lang-btn" onclick="setLang('en', event)">EN</button><button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button></div>
+<div class="hero"><img class="hero-logo" src="bajtebrothers-logo.svg" alt="BajteBrothers logo"><div class="hero-counter">300.000</div><div class="hero-unit t active" data-lang="bs">nestale djece [...]</div>
 <hr class="divider">
-<section id="facts"><span class="section-label t active" data-lang="bs">§01 — Dokumentovane činjenice</span><span class="section-label t" data-lang="en">§01 — Documented Facts</span><span class="section-label t" data-lang="de">§01 — Dokumentierte Fakten</span></section>
+<section id="facts"><span class="section-label t active" data-lang="bs">§01 — Dokumentovane činjenice</span><span class="section-label t" data-lang="en">§01 — Documented Facts</span><span [...]
 <hr class="divider">
-</style>
-</head>
-<body>
-<div class="lang-bar"><span>🌐</span><button class="lang-btn active" onclick="setLang('bs', event)">HR/BHS</button><button class="lang-btn" onclick="setLang('en', event)">EN</button><button class="lang-btn" onclick="setLang('de', event)">DE</button><button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button></div>
-
-<!-- truncated for brevity but preserved content -->
 
 <script>
 const metaData={bs:{title:"Sound of Freedom — Zašto ništa ne znaš o ovome?",desc:"300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?"},en:{tit[...]
