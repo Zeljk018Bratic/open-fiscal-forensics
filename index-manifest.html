@@ -15,23 +15,37 @@
             --red: #c0392b;
             --gold: #d4a017;
             --muted: #c9c1b5;
+            --text-high: #e0dcd3;
+            --muted-soft: #c4bcae;
+            --doc-text: #222;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--black);
-            color: var(--white);
+            color: var(--text-high);
             font-family: 'Source Sans 3', sans-serif;
             font-weight: 300;
             line-height: 1.6;
             padding: 0 20px;
         }
+        p, td, li { color: var(--text-high); }
         body.doc-mode {
             background: #f5f5f0;
             color: #111;
             font-family: 'Courier Prime', monospace;
         }
+        body.doc-mode p,
+        body.doc-mode td,
+        body.doc-mode li,
+        body.doc-mode .footer-share-title,
+        body.doc-mode .footer-share-note,
+        body.doc-mode .share-subtitle,
+        body.doc-mode footer p { color: var(--doc-text); }
         body.doc-mode .evidence-box { background: #e8e8e3; border-left-color: #111; }
-        body.doc-mode .lang-bar, body.doc-mode .mode-btn, body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
+        body.doc-mode .lang-bar,
+        body.doc-mode .mode-btn,
+        body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
+        body.doc-mode .qr-wrap { background: #ece8df; border-color: #bbb; }
         .container { max-width: 1000px; margin: 0 auto; padding: 20px 0 50px; }
         .lang-bar {
             position: sticky; top: 0; background: rgba(10,10,10,0.96); padding: 10px 15px;
@@ -65,6 +79,22 @@
         a:hover { text-decoration: underline; }
         .btn { display: inline-block; background: var(--red); color: var(--black); padding: 10px 20px;
                margin: 20px 0; font-family: 'Courier Prime', monospace; border-radius: 3px; }
+        .qr-wrap {
+            display: inline-block;
+            background: #fff;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #d3c8b3;
+        }
+        .footer-share-title { color: #d4ccc0; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
+        .footer-share-note { color: #c4bcae; font-family: 'Courier Prime', monospace; font-size: 11px; }
+        .share-subtitle { color: var(--muted-soft); font-family: 'Courier Prime', monospace; font-size: 13px; line-height: 1.7; }
+        .share-block {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0 10px;
+            border-top: 1px solid #1a1a1a;
+        }
         footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #1a1a1a; margin-top: 40px; }
         .t { display: none; } .t.active { display: block; }
         @media (max-width: 768px) { .trojstvo { flex-direction: column; } }
@@ -72,12 +102,12 @@
 </head>
 <body>
 <div class="lang-bar">
-    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">HR/BHS</button>
-    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
-    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
-    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
-    <button class="mode-btn" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
+    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs', event)">HR/BHS</button>
+    <button class="lang-btn" data-lang="en" onclick="setLang('en', event)">EN</button>
+    <button class="lang-btn" data-lang="de" onclick="setLang('de', event)">DE</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es', event)">ES</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it', event)">IT</button>
+    <button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
@@ -116,37 +146,68 @@
     <p><em>~17.700 € po svakom stanovniku / ~30.000 € po radniku.</em> A za to su vas prozvali “lijenčinama”.</p>
 
     <h2>⚡ MERIT-ORDER: KAKO 5% PLINA DIKTIRA CIJENU 95% “BESPLATNE” STRUJE</h2>
-    <p>Cijenu struje određuje najskuplja elektrana koja je uključena (plin). Građani su financirali vjetar i sunce kroz EEG, CO₂ i poreze – a onda im se ta struja prodaje po cijeni plina. <strong>Legalizirana pljačka.</strong></p>
+    <p>Cijenu struje određuje najskuplja elektrana koja je uključena (plin). Građani su financirali vjetar i sunce kroz EEG, CO₂ i poreze – a onda im se ta struja prodaje po cijeni plina.</p>
 
     <h2>⚖️ ODGOVORNOST – BEZ POVLAŠTENIH MJESTA</h2>
     <p>“Jesi sjebao? Pokaj se. Priznaj. Popravi. Ali nema više fotelje do smrti. Prođi javnu ocjenu po 4 pravila. Osvete nema – transparentnost ima.”</p>
 
     <div class="evidence-box">
-        <p>🔗 <strong>Poveznice na dokumentirani lanac dokaza:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece – glavni sajt</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (Tutogen → Epstein → rat)</a></p>
+        <p><strong>🔗 <span class="t active" data-lang="bs">Poveznice na dokumentirani lanac dokaza:</span><span class="t" data-lang="en">Links to the documented chain of evidence:</span><span class="t" data-lang="de">Links zur dokumentierten Beweiskette:</span><span class="t" data-lang="es">Enlaces a la cadena de evidencia documentada:</span><span class="t" data-lang="it">Link alla catena di prove documentata:</span></strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank"><span class="t active" data-lang="bs">300.000 nestale djece – glavni sajt</span><span class="t" data-lang="en">300,000 missing children – main site</span><span class="t" data-lang="de">300.000 vermisste Kinder – Hauptseite</span><span class="t" data-lang="es">300.000 niños desaparecidos – sitio principal</span><span class="t" data-lang="it">300.000 bambini scomparsi – sito principale</span></a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank"><span class="t active" data-lang="bs">Lanac dokaza 361 (Tutogen → Epstein → rat)</span><span class="t" data-lang="en">Evidence chain 361 (Tutogen → Epstein → war)</span><span class="t" data-lang="de">Beweiskette 361 (Tutogen → Epstein → Krieg)</span><span class="t" data-lang="es">Cadena de evidencia 361 (Tutogen → Epstein → guerra)</span><span class="t" data-lang="it">Catena di prove 361 (Tutogen → Epstein → guerra)</span></a></p>
     </div>
 
     <div style="text-align: center; margin: 40px 0;">
-        <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
-        <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
-        <p class="t" data-lang="en">open → verify → share</p>
-        <p class="t" data-lang="de">öffnen → prüfen → teilen</p>
-        <p class="t" data-lang="es">abrir → verificar → compartir</p>
-        <p class="t" data-lang="it">apri → verifica → condividi</p>
+        <div id="qr-canvas" class="qr-wrap"></div>
+        <p class="footer-share-note t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
+        <p class="footer-share-note t" data-lang="en">open → verify → share</p>
+        <p class="footer-share-note t" data-lang="de">öffnen → prüfen → teilen</p>
+        <p class="footer-share-note t" data-lang="es">abrir → verificar → compartir</p>
+        <p class="footer-share-note t" data-lang="it">apri → verifica → condividi</p>
+    </div>
+
+    <div class="share-block">
+        <p class="footer-share-title">
+            <span class="t active" data-lang="bs">🔗 PROŠIRENI DOKAZI — #BAJTEBROTHERS LANAC “361”</span>
+            <span class="t" data-lang="en">🔗 EXTENDED EVIDENCE — #BAJTEBROTHERS CHAIN “361”</span>
+            <span class="t" data-lang="de">🔗 ERWEITERTE BEWEISE — #BAJTEBROTHERS KETTE “361”</span>
+            <span class="t" data-lang="es">🔗 EVIDENCIA AMPLIADA — #BAJTEBROTHERS CADENA “361”</span>
+            <span class="t" data-lang="it">🔗 PROVE ESTESE — #BAJTEBROTHERS CATENA “361”</span>
+        </p>
+        <p class="share-subtitle" style="max-width: 500px; margin: 10px auto;">
+            <span class="t active" data-lang="bs">Od Tutogenovih leševa, preko Epsteinove mreže, do “backdoora” u FDA-i i profita na ratu.</span>
+            <span class="t" data-lang="en">From Tutogen corpses, through Epstein’s network, to the FDA “backdoor” and war profits.</span>
+            <span class="t" data-lang="de">Von Tutogen-Leichen über Epsteins Netzwerk zum FDA-“Backdoor” und Kriegsgewinnen.</span>
+            <span class="t" data-lang="es">De los cadáveres de Tutogen, pasando por la red de Epstein, hasta la “puerta trasera” de la FDA y las ganancias de guerra.</span>
+            <span class="t" data-lang="it">Dai cadaveri di Tutogen, attraverso la rete di Epstein, fino al “backdoor” della FDA e ai profitti di guerra.</span>
+        </p>
+        <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" style="display: inline-block; background: #c0392b; color: #0a0a0a; font-family: 'Courier Prime', monospace; font-size: 14px; padding: 10px 20px; text-decoration: none; border-radius: 2px; letter-spacing: 1px; margin-top: 10px;">
+            <span class="t active" data-lang="bs">📄 PREGLEDAJ LANAC DOKAZA</span>
+            <span class="t" data-lang="en">📄 VIEW EVIDENCE CHAIN</span>
+            <span class="t" data-lang="de">📄 BEWEISKETTE ANSEHEN</span>
+            <span class="t" data-lang="es">📄 VER CADENA DE EVIDENCIA</span>
+            <span class="t" data-lang="it">📄 VEDI CATENA DI PROVE</span>
+        </a>
+        <p class="footer-share-note" style="margin-top: 15px;">
+            <span class="t active" data-lang="bs">kopaj → provjeri → proslijedi | <strong>#BajteBrothers – Bez koljena</strong></span>
+            <span class="t" data-lang="en">dig → verify → forward | <strong>#BajteBrothers – No kneeling</strong></span>
+            <span class="t" data-lang="de">graben → prüfen → weiterleiten | <strong>#BajteBrothers – Nie knien</strong></span>
+            <span class="t" data-lang="es">cavar → verificar → reenviar | <strong>#BajteBrothers – Sin arrodillarse</strong></span>
+            <span class="t" data-lang="it">scavare → verificare → inoltrare | <strong>#BajteBrothers – Senza inginocchiarsi</strong></span>
+        </p>
     </div>
 
     <footer>
-        <p>#BajteBrothers – Do pobjede. Bez koljena.</p>
+        <p><span class="t active" data-lang="bs">#BajteBrothers – Do pobjede. Bez koljena.</span><span class="t" data-lang="en">#BajteBrothers – To victory. No kneeling.</span><span class="t" data-lang="de">#BajteBrothers – Zum Sieg. Nie knien.</span><span class="t" data-lang="es">#BajteBrothers – Hacia la victoria. Sin arrodillarse.</span><span class="t" data-lang="it">#BajteBrothers – Verso la vittoria. Senza inginocchiarsi.</span></p>
         <p>🚀🍏🍒🍉❤️🤖🫂</p>
     </footer>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-    const translations = { bs: "HR/BHS", en: "EN", de: "DE", es: "ES", it: "IT" };
-    function setLang(lang) {
+    function setLang(lang, evt) {
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+        const targetBtn = evt && evt.currentTarget ? evt.currentTarget : document.querySelector(`.lang-btn[data-lang="${lang}"]`);
+        if (targetBtn) targetBtn.classList.add('active');
         document.querySelectorAll('[data-lang]').forEach(el => {
             el.classList.remove('active');
             if (el.getAttribute('data-lang') === lang) el.classList.add('active');
@@ -154,22 +215,44 @@
         document.documentElement.lang = lang;
         const modeBtn = document.getElementById('mode-toggle');
         const isDoc = document.body.classList.contains('doc-mode');
-        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
+        const modeLabels = {
+            bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],
+            en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'],
+            de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'],
+            es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'],
+            it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER']
+        };
         modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
     }
     function toggleMode() {
         const body = document.body;
         const btn = document.getElementById('mode-toggle');
-        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
-        const currentLang = document.documentElement.lang;
+        const modeLabels = {
+            bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],
+            en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'],
+            de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'],
+            es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'],
+            it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER']
+        };
+        const currentLang = document.documentElement.lang || 'bs';
         body.classList.toggle('doc-mode');
         btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
     }
     window.addEventListener('load', function() {
         let url = window.location.href;
         if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
-        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
-        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+        try {
+            new QRCode(document.getElementById('qr-canvas'), {
+                text: url,
+                width: 160,
+                height: 160,
+                colorDark: '#000',
+                colorLight: '#fff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch(e) {
+            document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;color:#000;">QR: ' + url + '</p>';
+        }
     });
 </script>
 </body>
