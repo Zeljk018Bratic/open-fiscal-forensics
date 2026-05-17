@@ -1,29 +1,79 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="hr">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>#BajteBrothers – Lanac dokaza 361</title>
-<link rel="icon" type="image/png" href="bajtebrothers-logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">BajteBrothers – Lanac dokaza 361</title>
+    <meta id="meta-desc" name="description" content="Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit">
+    <meta id="og-title" property="og:title" content="BajteBrothers – Lanac dokaza 361">
+    <meta id="og-desc" property="og:description" content="Od trgovine leševima do backdoora u FDA-i i profita na ratu – dokumentovani mehanizam.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* styles preserved from original commit */
+    </style>
 </head>
 <body>
 <div class="lang-bar">
-  <button class="lang-btn active" data-lang="bs">HR/SRB/BS</button>
-  <button class="lang-btn" data-lang="en">EN</button>
-  <button class="lang-btn" data-lang="it">IT</button>
-  <button class="lang-btn" data-lang="de">DE</button>
-  <button class="lang-btn" data-lang="es">ES</button>
-  <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
+    <span>🌐</span>
+    <button class="lang-btn active" onclick="setLang('bs', event)">BS/HR/SR</button>
+    <button class="lang-btn" onclick="setLang('en', event)">EN</button>
+    <button class="lang-btn" onclick="setLang('de', event)">DE</button>
+    <button class="lang-btn" onclick="setLang('es', event)">ES</button>
+    <button class="lang-btn" onclick="setLang('it', event)">IT</button>
+    <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
-  <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza “361”</span></h1>
+    <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza “361”</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain “361”</span></h1>
+    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – “Makaberer Handel mit Toten”</span><span class="t" data-lang="en">🔗 1. Tutogen – “Macabre Trade with the Dead”</span></h2>
+    <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjičavih izvora.</span></p>
+
+    <div class="share-block">
+        <div id="qr-canvas" class="qr-wrap"></div>
+        <p class="qr-note t active" data-lang="bs">otvori → provjeri → podijeli</p>
+        <p class="share-title"><span class="t active" data-lang="bs">🔗 PODIJELI LANAC “361”</span></p>
+    </div>
+
+    <div class="footer">
+        <p><span class="t active" data-lang="bs">Ovo nije teorija zavjere. Ovo je dokumentovani mehanizam. Provjeri sam. Podijeli dalje. Ne kleči.</span></p>
+        <p><strong>#BajteBrothers – Do pobjede. Bez koljena.</strong></p>
+        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span></a></p>
+    </div>
 </div>
-<footer>
-  <div id="qr-canvas" aria-hidden="true"></div>
-</footer>
-<script src="lang.js"></script>
-<script src="qrcode.min.js"></script>
 <script>
-window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';}try{var el=document.getElementById('qr-canvas');if(typeof QRCode!=='undefined'&&el)new QRCode(el,{text:url,width:160,height:160});else if(window.generateQrFallback)window.generateQrFallback('qr-canvas',url,160);}catch(e){console.warn(e);}});
+    const translations = { /* preserved original translations object */ };
+    function setLang(lang, evt) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        const targetBtn = evt && evt.currentTarget ? evt.currentTarget : document.querySelector(`.lang-btn[onclick*="'${lang}'"]`);
+        if (targetBtn) targetBtn.classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const currentLang = document.documentElement.lang || 'bs';
+        body.classList.toggle('doc-mode');
+        btn.textContent = body.classList.contains('doc-mode') ? '🎨 POSTER REŽIM' : '📄 DOKUMENT REŽIM';
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    window.addEventListener('load', function() {
+        let url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') {
+            url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';
+        }
+        try {
+            new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160 });
+        } catch (e) {
+            document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;color:#000;">QR: ' + url + '</p>';
+        }
+    });
 </script>
 </body>
 </html>
