@@ -16,9 +16,6 @@
             --red: #c0392b;
             --gold: #d4a017;
             --muted: #c9c1b5;
-            --text-high: #e0dcd3;
-            --muted-soft: #c4bcae;
-            --doc-text: #222;
         }
         /* logo helper styles */
         .hero-logo-wrap{display:flex;justify-content:center;margin:18px 0 26px}
@@ -29,13 +26,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--black);
-            color: var(--text-high);
+            color: var(--white);
             font-family: 'Source Sans 3', sans-serif;
             font-weight: 300;
             line-height: 1.6;
             padding: 0 20px;
         }
-        p, td, li { color: var(--text-high); }
+        p, td, li { color: var(--white); }
         body.doc-mode {
             background: #f5f5f0;
             color: #111;
@@ -47,11 +44,9 @@
         body.doc-mode .footer-share-title,
         body.doc-mode .footer-share-note,
         body.doc-mode .share-subtitle,
-        body.doc-mode footer p { color: var(--doc-text); }
+        body.doc-mode footer p { color: #222; }
         body.doc-mode .evidence-box { background: #e8e8e3; border-left-color: #111; }
-        body.doc-mode .lang-bar,
-        body.doc-mode .mode-btn,
-        body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
+        body.doc-mode .lang-bar, body.doc-mode .mode-btn, body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
         body.doc-mode .qr-wrap { background: #ece8df; border-color: #bbb; }
         .container { max-width: 1000px; margin: 0 auto; padding: 20px 0 50px; }
         .lang-bar {
@@ -95,7 +90,7 @@
         }
         .footer-share-title { color: #d4ccc0; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
         .footer-share-note { color: #c4bcae; font-family: 'Courier Prime', monospace; font-size: 11px; }
-        .share-subtitle { color: var(--muted-soft); font-family: 'Courier Prime', monospace; font-size: 13px; line-height: 1.7; }
+        .share-subtitle { color: var(--muted); font-family: 'Courier Prime', monospace; font-size: 13px; line-height: 1.7; }
         .share-block {
             text-align: center;
             margin-top: 40px;
@@ -118,13 +113,11 @@
 </div>
 <div class="container">
     <div class="hero-logo-wrap">
-        <!-- logo removed per request -->
+        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo">
     </div>
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
     <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
     <h1 class="t" data-lang="de">#BAJTEBROTHERS – MANIFEST DER FREIHEIT</h1>
-    <h1 class="t" data-lang="es">#BAJTEBROTHERS – MANIFIESTO DE LIBERTAD</h1>
-    <h1 class="t" data-lang="it">#BAJTEBROTHERS – MANIFESTO DELLA LIBERTÀ</h1>
 
     <div class="trojstvo">
         <div class="trojstvo-item"><strong>⚔️ SV. ĐORĐE</strong><br>mač koji siječe laži</div>
@@ -142,12 +135,19 @@
 
     <!-- rest of content unchanged -->
 
+    <div class="share-block">
+        <div class="qr-wrap" id="qr-canvas" aria-hidden="false"></div>
+        <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
+    </div>
+
     <footer>
         <p><span class="t active" data-lang="bs">#BajteBrothers – Do pobjede. Bez koljena.</span><span class="t" data-lang="en">#BajteBrothers – To victory. No kneeling.</span></p>
         <p>🚀🍏🍒🍉❤️🤖🫂</p>
     </footer>
 </div>
+<script src="qrcode.min.js"></script>
 <script>
+    const translations = { bs: "HR/BHS", en: "EN", de: "DE", es: "ES", it: "IT" };
     function setLang(lang, evt) {
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
         const targetBtn = evt && evt.currentTarget ? evt.currentTarget : document.querySelector(`.lang-btn[data-lang="${lang}"]`);
@@ -159,23 +159,23 @@
         document.documentElement.lang = lang;
         const modeBtn = document.getElementById('mode-toggle');
         const isDoc = document.body.classList.contains('doc-mode');
-        const modeLabels = {
-            bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],
-            en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'],
-            de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'],
-            es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'],
-            it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER']
-        };
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
         modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
     }
     function toggleMode() {
         const body = document.body;
         const btn = document.getElementById('mode-toggle');
-        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTERMODUS'], es: ['📄 MODO DOC[...]
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER'] };
         const currentLang = document.documentElement.lang || 'bs';
         body.classList.toggle('doc-mode');
         btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
     }
+    window.addEventListener('load', function() {
+        let url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
+        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+    });
 </script>
 </body>
 </html>
