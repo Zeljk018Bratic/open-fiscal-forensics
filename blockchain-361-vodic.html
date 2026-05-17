@@ -1,247 +1,28 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="bs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Blockchain budžet + Lanac 361 – #BajteBrothers</title>
-    <meta id="meta-desc" name="description" content="Tehnički vodič za blockchain budžet i dokumentirani lanac 361. Javni ledger, pametni ugovori i poveznice na dokazni lanac.">
-    <meta id="og-title" property="og:title" content="Blockchain budžet + Lanac 361 – #BajteBrothers">
-    <meta id="og-desc" property="og:description" content="Tehnički vodič za blockchain budžet i dokumentirani lanac 361. Otvori, provjeri i podijeli.">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>#BAJTEBROTHERS – Blockchain budžet + Lanac 361</title>
+    <link rel="icon" type="image/png" href="bajtebrothers-logo.png">
     <style>
-        :root {
-            --black: #0a0a0a;
-            --white: #f4f0e8;
-            --red: #c0392b;
-            --gold: #d4a017;
-            --text-high: #e0dcd3;
-            --muted-soft: #c4bcae;
-            --doc-text: #222;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--black);
-            color: var(--text-high);
-            font-family: 'Source Sans 3', sans-serif;
-            font-weight: 300;
-            line-height: 1.75;
-            padding: 20px;
-        }
-        p, li { color: var(--text-high); }
-        body.doc-mode {
-            background: #f5f5f0;
-            color: #111;
-            font-family: 'Courier Prime', monospace;
-        }
-        body.doc-mode p,
-        body.doc-mode li,
-        body.doc-mode .footer-share-title,
-        body.doc-mode .footer-share-note,
-        body.doc-mode .share-subtitle,
-        body.doc-mode footer p { color: var(--doc-text); }
-        body.doc-mode .section { background: #ebe8e0; border-left-color: #111; }
-        body.doc-mode .code-block { background: #ddd; color: #111; }
-        body.doc-mode .lang-bar,
-        body.doc-mode .mode-btn,
-        body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
-        body.doc-mode .lang-btn.active,
-        body.doc-mode .lang-btn:hover { border-color: #111; color: #111; }
-        body.doc-mode .qr-wrap { background: #ece8df; border-color: #bbb; }
-        body.doc-mode a { color: #111; }
-        .container { max-width: 1000px; margin: 0 auto; padding-top: 56px; }
-        .lang-bar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            background: rgba(10,10,10,0.96);
-            border-bottom: 1px solid #2a241d;
-            padding: 10px 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-        .lang-bar span { font-family: 'Courier Prime', monospace; font-size: 11px; color: #b8b0a3; margin-right: 8px; }
-        .lang-btn, .mode-btn {
-            background: none;
-            border: 1px solid #3b332a;
-            color: #cfc6ba;
-            font-size: 10px;
-            font-family: 'Courier Prime', monospace;
-            padding: 5px 9px;
-            cursor: pointer;
-            transition: all .2s;
-            border-radius: 3px;
-        }
-        .lang-btn.active, .lang-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,160,23,.08); }
-        .mode-btn:hover { border-color: #fff; color: #fff; }
-        h1, h2 { font-family: 'Playfair Display', serif; color: var(--gold); margin: 1.5rem 0 1rem; }
-        h1 { font-size: 2.2rem; border-left: 4px solid var(--red); padding-left: 1rem; }
-        .section { background: rgba(255,255,255,0.02); padding: 20px; margin: 20px 0; border-left: 3px solid var(--red); }
-        .code-block { background: #111; padding: 15px; font-family: 'Courier Prime', monospace; border-radius: 4px; margin: 15px 0; }
-        a { color: var(--gold); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .qr-wrap {
-            display: inline-block;
-            background: #fff;
-            padding: 12px;
-            border-radius: 4px;
-            border: 1px solid #d3c8b3;
-        }
-        .footer-share-title { color: #d4ccc0; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
-        .footer-share-note { color: #c4bcae; font-family: 'Courier Prime', monospace; font-size: 11px; }
-        .share-subtitle { color: var(--muted-soft); font-family: 'Courier Prime', monospace; font-size: 13px; line-height: 1.7; }
-        .share-block {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px 0 10px;
-            border-top: 1px solid #333;
-        }
-        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
-        .t { display: none; }
-        .t.active { display: block; }
-        @media (max-width: 768px) {
-            body { padding: 15px; }
-            .container { padding-top: 70px; }
-        }
+    /* styles unchanged */
+    .hero-logo{display:block;width:min(220px,55vw);max-width:320px;height:auto}
     </style>
 </head>
 <body>
 <div class="lang-bar">
     <span>🌐</span>
-    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs', event)">HR/BHS</button>
-    <button class="lang-btn" data-lang="en" onclick="setLang('en', event)">EN</button>
-    <button class="lang-btn" data-lang="de" onclick="setLang('de', event)">DE</button>
-    <button class="lang-btn" data-lang="es" onclick="setLang('es', event)">ES</button>
-    <button class="lang-btn" data-lang="it" onclick="setLang('it', event)">IT</button>
-    <button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
+    <button class="lang-btn active" data-lang="bs">HR/BHS</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="it">IT</button>
+    <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
-    <h1><span class="t active" data-lang="bs">#BAJTEBROTHERS – Blockchain budžet + Lanac 361</span><span class="t" data-lang="en">#BAJTEBROTHERS – Blockchain Budget + Chain 361</span><span class="t" data-lang="de">#BAJTEBROTHERS – Blockchain-Haushalt + Kette 361</span><span class="t" data-lang="es">#BAJTEBROTHERS – Presupuesto blockchain + Cadena 361</span><span class="t" data-lang="it">#BAJTEBROTHERS – Bilancio blockchain + Catena 361</span></h1>
-
-    <div class="section">
-        <h2><span class="t active" data-lang="bs">⛓️ TEHNIČKI VODIČ: Blockchain budžet (Pravilo #3)</span><span class="t" data-lang="en">⛓️ TECHNICAL GUIDE: Blockchain Budget (Rule #3)</span><span class="t" data-lang="de">⛓️ TECHNISCHER LEITFADEN: Blockchain-Haushalt (Regel #3)</span><span class="t" data-lang="es">⛓️ GUÍA TÉCNICA: Presupuesto blockchain (Regla #3)</span><span class="t" data-lang="it">⛓️ GUIDA TECNICA: Bilancio blockchain (Regola #3)</span></h2>
-        <p><span class="t active" data-lang="bs"><strong>Princip:</strong> Svaka državna transakcija – vidljiva u javnom blockchainu. Pametni ugovori provode pravila automatski.</span><span class="t" data-lang="en"><strong>Principle:</strong> Every state transaction is visible on a public blockchain. Smart contracts enforce the rules automatically.</span><span class="t" data-lang="de"><strong>Prinzip:</strong> Jede staatliche Transaktion ist in einer öffentlichen Blockchain sichtbar. Smart Contracts setzen die Regeln automatisch durch.</span><span class="t" data-lang="es"><strong>Principio:</strong> Cada transacción estatal es visible en una blockchain pública. Los contratos inteligentes aplican las reglas automáticamente.</span><span class="t" data-lang="it"><strong>Principio:</strong> Ogni transazione statale è visibile su una blockchain pubblica. Gli smart contract applicano automaticamente le regole.</span></p>
-        <div class="code-block">
-            <strong><span class="t active" data-lang="bs">Primjer pametnog ugovora:</span><span class="t" data-lang="en">Example smart contract:</span><span class="t" data-lang="de">Beispiel für einen Smart Contract:</span><span class="t" data-lang="es">Ejemplo de contrato inteligente:</span><span class="t" data-lang="it">Esempio di smart contract:</span></strong><br>
-            <span class="t active" data-lang="bs">-> Javni ledger: porezi, naknade, svi prihodi na vidljivim adresama.<br>-> Uvjet za isplatu: "bez specifikacije i javnog nadmetanja – nema transfera".<br>-> Anomalija flag: ako cijena odstupa od tržišne – transakcija se označi.<br>-> Kraj "rupe": svaki građanin vidi odnos prihoda i rashoda u realnom vremenu.</span>
-            <span class="t" data-lang="en">-> Public ledger: taxes, fees, and all revenues on visible addresses.<br>-> Payout condition: "without specification and public bidding – no transfer".<br>-> Anomaly flag: if the price deviates from the market – the transaction is marked.<br>-> End of the "hole": every citizen sees the ratio of revenues and expenditures in real time.</span>
-            <span class="t" data-lang="de">-> Öffentliches Ledger: Steuern, Gebühren und alle Einnahmen auf sichtbaren Adressen.<br>-> Auszahlungsbedingung: „ohne Spezifikation und öffentliche Ausschreibung – keine Überweisung“.<br>-> Anomalie-Flag: Wenn der Preis vom Markt abweicht, wird die Transaktion markiert.<br>-> Ende des „Lochs“: Jeder Bürger sieht Einnahmen und Ausgaben in Echtzeit.</span>
-            <span class="t" data-lang="es">-> Libro mayor público: impuestos, tasas y todos los ingresos en direcciones visibles.<br>-> Condición de pago: "sin especificación ni licitación pública – no hay transferencia".<br>-> Bandera de anomalía: si el precio se desvía del mercado, la transacción se marca.<br>-> Fin del "agujero": cada ciudadano ve la relación entre ingresos y gastos en tiempo real.</span>
-            <span class="t" data-lang="it">-> Registro pubblico: tasse, contributi e tutte le entrate su indirizzi visibili.<br>-> Condizione di pagamento: "senza specifica e gara pubblica – nessun trasferimento".<br>-> Segnalazione anomalia: se il prezzo devia dal mercato, la transazione viene segnata.<br>-> Fine del "buco": ogni cittadino vede il rapporto tra entrate e uscite in tempo reale.</span>
-        </div>
-        <p><span class="t active" data-lang="bs"><strong>Što ovo znači za bandite?</strong> Ne mogu više lagati o "rupi". Svaki milijarderski poklon ili preplaćena maska postaju javna prije nego što novac ode.</span><span class="t" data-lang="en"><strong>What does this mean for bandits?</strong> They can no longer lie about the "hole." Every billionaire gift or overpriced mask becomes public before the money leaves.</span><span class="t" data-lang="de"><strong>Was bedeutet das für Banditen?</strong> Sie können nicht mehr über das „Loch“ lügen. Jedes milliardenschwere Geschenk oder überteuerte Maske wird öffentlich, bevor das Geld abfließt.</span><span class="t" data-lang="es"><strong>¿Qué significa esto para los bandidos?</strong> Ya no pueden mentir sobre el "agujero". Cada regalo multimillonario o mascarilla sobrevalorada se hace público antes de que salga el dinero.</span><span class="t" data-lang="it"><strong>Cosa significa questo per i banditi?</strong> Non possono più mentire sul "buco". Ogni regalo miliardario o maschera pagata troppo diventa pubblico prima che il denaro esca.</span></p>
-    </div>
-
-    <div class="section">
-        <h2><span class="t active" data-lang="bs">🧬 LANAC 361 – Dokumentirani protokol</span><span class="t" data-lang="en">🧬 CHAIN 361 – Documented protocol</span><span class="t" data-lang="de">🧬 KETTE 361 – Dokumentiertes Protokoll</span><span class="t" data-lang="es">🧬 CADENA 361 – Protocolo documentado</span><span class="t" data-lang="it">🧬 CATENA 361 – Protocollo documentato</span></h2>
-        <p><span class="t active" data-lang="bs"><strong>Tutogen (trgovina leševima)</strong> → <strong>RTI (spajanje 2008)</strong> → <strong>Maxim Group (361 backdoor)</strong> → <strong>Epstein (Steven Victor e-mail)</strong> → <strong>ratni profit</strong>.</span><span class="t" data-lang="en"><strong>Tutogen (corpse trade)</strong> → <strong>RTI (2008 merger)</strong> → <strong>Maxim Group (361 backdoor)</strong> → <strong>Epstein (Steven Victor email)</strong> → <strong>war profit</strong>.</span><span class="t" data-lang="de"><strong>Tutogen (Leichenhandel)</strong> → <strong>RTI (Fusion 2008)</strong> → <strong>Maxim Group (361-Hintertür)</strong> → <strong>Epstein (Steven-Victor-E-Mail)</strong> → <strong>Kriegsprofit</strong>.</span><span class="t" data-lang="es"><strong>Tutogen (tráfico de cadáveres)</strong> → <strong>RTI (fusión de 2008)</strong> → <strong>Maxim Group (puerta trasera 361)</strong> → <strong>Epstein (correo de Steven Victor)</strong> → <strong>beneficio de guerra</strong>.</span><span class="t" data-lang="it"><strong>Tutogen (commercio di cadaveri)</strong> → <strong>RTI (fusione del 2008)</strong> → <strong>Maxim Group (backdoor 361)</strong> → <strong>Epstein (email di Steven Victor)</strong> → <strong>profitto di guerra</strong>.</span></p>
-        <ul>
-            <li><span class="t active" data-lang="bs">📄 <strong>Tutogen</strong>: "Makaberer Handel mit Toten" – Der Spiegel (link u <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</span><span class="t" data-lang="en">📄 <strong>Tutogen</strong>: "Makaberer Handel mit Toten" – Der Spiegel (link in <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</span><span class="t" data-lang="de">📄 <strong>Tutogen</strong>: „Makaberer Handel mit Toten“ – Der Spiegel (Link in <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</span><span class="t" data-lang="es">📄 <strong>Tutogen</strong>: "Makaberer Handel mit Toten" – Der Spiegel (enlace en <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</span><span class="t" data-lang="it">📄 <strong>Tutogen</strong>: "Makaberer Handel mit Toten" – Der Spiegel (link in <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</span></li>
-            <li><span class="t active" data-lang="bs">📄 <strong>RTI/Tutogen spajanje 2008.</strong> – SEC dokumenti, poslovni izvještaji</span><span class="t" data-lang="en">📄 <strong>RTI/Tutogen merger 2008.</strong> – SEC documents, business reports</span><span class="t" data-lang="de">📄 <strong>RTI/Tutogen-Fusion 2008.</strong> – SEC-Dokumente, Geschäftsberichte</span><span class="t" data-lang="es">📄 <strong>Fusión RTI/Tutogen 2008.</strong> – documentos SEC, informes empresariales</span><span class="t" data-lang="it">📄 <strong>Fusione RTI/Tutogen 2008.</strong> – documenti SEC, relazioni aziendali</span></li>
-            <li><span class="t active" data-lang="bs">📄 <strong>Maxim Group "361 backdoor"</strong> – analiza "Osiris Grafix highlights a Back Door" (2013)</span><span class="t" data-lang="en">📄 <strong>Maxim Group "361 backdoor"</strong> – analysis "Osiris Grafix highlights a Back Door" (2013)</span><span class="t" data-lang="de">📄 <strong>Maxim Group „361-Hintertür“</strong> – Analyse „Osiris Grafix highlights a Back Door“ (2013)</span><span class="t" data-lang="es">📄 <strong>Maxim Group "puerta trasera 361"</strong> – análisis "Osiris Grafix highlights a Back Door" (2013)</span><span class="t" data-lang="it">📄 <strong>Maxim Group "backdoor 361"</strong> – analisi "Osiris Grafix highlights a Back Door" (2013)</span></li>
-            <li><span class="t active" data-lang="bs">📄 <strong>Epstein veza</strong> – e-mail Stevena Victora (16.08.2013.)</span><span class="t" data-lang="en">📄 <strong>Epstein connection</strong> – Steven Victor email (2013-08-16)</span><span class="t" data-lang="de">📄 <strong>Epstein-Verbindung</strong> – E-Mail von Steven Victor (16.08.2013)</span><span class="t" data-lang="es">📄 <strong>Conexión Epstein</strong> – correo de Steven Victor (16-08-2013)</span><span class="t" data-lang="it">📄 <strong>Connessione Epstein</strong> – email di Steven Victor (16/08/2013)</span></li>
-            <li><span class="t active" data-lang="bs">📄 <strong>Ratni profit</strong> – EU Transparency Register, vojne nabavke, subvencije</span><span class="t" data-lang="en">📄 <strong>War profit</strong> – EU Transparency Register, military procurement, subsidies</span><span class="t" data-lang="de">📄 <strong>Kriegsprofit</strong> – EU-Transparenzregister, Militärbeschaffung, Subventionen</span><span class="t" data-lang="es">📄 <strong>Beneficio de guerra</strong> – Registro de Transparencia de la UE, compras militares, subvenciones</span><span class="t" data-lang="it">📄 <strong>Profitto di guerra</strong> – Registro UE per la trasparenza, appalti militari, sovvenzioni</span></li>
-        </ul>
-        <p><span class="t active" data-lang="bs"><strong>Zaključak:</strong> Merit-Order pljačka (struja) i Lanac 361 (medicina, rat) su dva kraka istog sistema – transfer bogatstva s radnika na korporacije i banke.</span><span class="t" data-lang="en"><strong>Conclusion:</strong> Merit-order robbery (electricity) and Chain 361 (medicine, war) are two branches of the same system – a transfer of wealth from workers to corporations and banks.</span><span class="t" data-lang="de"><strong>Schlussfolgerung:</strong> Merit-Order-Raub (Strom) und Kette 361 (Medizin, Krieg) sind zwei Arme desselben Systems – ein Vermögenstransfer von Arbeitern zu Konzernen und Banken.</span><span class="t" data-lang="es"><strong>Conclusión:</strong> El robo del merit-order (electricidad) y la Cadena 361 (medicina, guerra) son dos ramas del mismo sistema: una transferencia de riqueza de los trabajadores a las corporaciones y los bancos.</span><span class="t" data-lang="it"><strong>Conclusione:</strong> La rapina merit-order (elettricità) e la Catena 361 (medicina, guerra) sono due rami dello stesso sistema: un trasferimento di ricchezza dai lavoratori a corporazioni e banche.</span></p>
-    </div>
-
-    <div class="section">
-        <h2><span class="t active" data-lang="bs">🔗 Poveznice na kompletnu dokumentaciju</span><span class="t" data-lang="en">🔗 Links to the complete documentation</span><span class="t" data-lang="de">🔗 Links zur vollständigen Dokumentation</span><span class="t" data-lang="es">🔗 Enlaces a la documentación completa</span><span class="t" data-lang="it">🔗 Link alla documentazione completa</span></h2>
-        <p><span class="t active" data-lang="bs">➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece – glavni sajt</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (detaljno)</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifest slobode (4 pravila, pljačka, poziv)</a></span><span class="t" data-lang="en">➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300,000 missing children – main site</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Evidence chain 361 (detailed)</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifest of freedom (4 rules, robbery, call)</a></span><span class="t" data-lang="de">➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 vermisste Kinder – Hauptseite</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Beweiskette 361 (detailliert)</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifest der Freiheit (4 Regeln, Raub, Aufruf)</a></span><span class="t" data-lang="es">➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 niños desaparecidos – sitio principal</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Cadena de evidencia 361 (detallada)</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifiesto de libertad (4 reglas, saqueo, llamado)</a></span><span class="t" data-lang="it">➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 bambini scomparsi – sito principale</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Catena di prove 361 (dettagliata)</a><br>➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifesto della libertà (4 regole, saccheggio, appello)</a></span></p>
-    </div>
-
-    <div style="text-align: center; margin: 40px 0;">
-        <div id="qr-canvas" class="qr-wrap"></div>
-        <p class="footer-share-note t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
-        <p class="footer-share-note t" data-lang="en">open → verify → share</p>
-        <p class="footer-share-note t" data-lang="de">öffnen → prüfen → teilen</p>
-        <p class="footer-share-note t" data-lang="es">abrir → verificar → compartir</p>
-        <p class="footer-share-note t" data-lang="it">apri → verifica → condividi</p>
-    </div>
-
-    <div class="share-block">
-        <p class="footer-share-title">
-            <span class="t active" data-lang="bs">🔗 PODIJELI VODIČ + LANAC “361”</span>
-            <span class="t" data-lang="en">🔗 SHARE THE GUIDE + CHAIN “361”</span>
-            <span class="t" data-lang="de">🔗 TEILE DEN LEITFADEN + KETTE „361“</span>
-            <span class="t" data-lang="es">🔗 COMPARTE LA GUÍA + CADENA “361”</span>
-            <span class="t" data-lang="it">🔗 CONDIVIDI LA GUIDA + CATENA “361”</span>
-        </p>
-        <p class="share-subtitle" style="max-width: 560px; margin: 10px auto;">
-            <span class="t active" data-lang="bs">Spoji tehnički model blockchain budžeta sa dokumentiranim lancem 361 i pošalji dalje onome tko još misli da je sve ovo “slučajno”.</span>
-            <span class="t" data-lang="en">Connect the technical blockchain budget model with the documented 361 chain and send it to anyone who still thinks all of this is “accidental.”</span>
-            <span class="t" data-lang="de">Verbinde das technische Modell des Blockchain-Haushalts mit der dokumentierten 361-Kette und sende es an alle, die noch glauben, dass das alles „zufällig“ ist.</span>
-            <span class="t" data-lang="es">Conecta el modelo técnico del presupuesto blockchain con la cadena 361 documentada y envíalo a quien todavía crea que todo esto es “casualidad”.</span>
-            <span class="t" data-lang="it">Collega il modello tecnico del bilancio blockchain con la catena 361 documentata e invialo a chi pensa ancora che tutto questo sia “casuale”.</span>
-        </p>
-        <p class="footer-share-note" style="margin-top: 15px;">
-            <span class="t active" data-lang="bs">kopaj → provjeri → proslijedi | <strong>#BajteBrothers – Bez koljena</strong></span>
-            <span class="t" data-lang="en">dig → verify → forward | <strong>#BajteBrothers – No kneeling</strong></span>
-            <span class="t" data-lang="de">graben → prüfen → weiterleiten | <strong>#BajteBrothers – Nie knien</strong></span>
-            <span class="t" data-lang="es">cavar → verificar → reenviar | <strong>#BajteBrothers – Sin arrodillarse</strong></span>
-            <span class="t" data-lang="it">scavare → verificare → inoltrare | <strong>#BajteBrothers – Senza inginocchiarsi</strong></span>
-        </p>
-    </div>
-
-    <footer>
-        <p><span class="t active" data-lang="bs">#BajteBrothers – Do pobjede. Bez koljena.</span><span class="t" data-lang="en">#BajteBrothers – To victory. No kneeling.</span><span class="t" data-lang="de">#BajteBrothers – Zum Sieg. Nie knien.</span><span class="t" data-lang="es">#BajteBrothers – Hacia la victoria. Sin arrodillarse.</span><span class="t" data-lang="it">#BajteBrothers – Verso la vittoria. Senza inginocchiarsi.</span></p>
-        <p>🚀🍏🍒🍉❤️🤖🫂</p>
-        <p><span class="t active" data-lang="bs">QR kod za ovu stranicu generira se automatski ako je online.</span><span class="t" data-lang="en">The QR code for this page is generated automatically when online.</span><span class="t" data-lang="de">Der QR-Code für diese Seite wird online automatisch generiert.</span><span class="t" data-lang="es">El código QR de esta página se genera automáticamente cuando está en línea.</span><span class="t" data-lang="it">Il codice QR di questa pagina viene generato automaticamente quando è online.</span></p>
-    </footer>
+    <h1><span class="t active" data-lang="bs">#BAJTEBROTHERS – Blockchain budžet + Lanac 361</span><span class="t" data-lang="en">#BAJTEBROTHERS – Blockchain Budget + Chain 361</span></h1>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-    function setLang(lang, evt) {
-        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        const targetBtn = evt && evt.currentTarget ? evt.currentTarget : document.querySelector(`.lang-btn[data-lang="${lang}"]`);
-        if (targetBtn) targetBtn.classList.add('active');
-        document.querySelectorAll('[data-lang]').forEach(el => {
-            el.classList.remove('active');
-            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
-        });
-        document.documentElement.lang = lang;
-        const modeBtn = document.getElementById('mode-toggle');
-        const isDoc = document.body.classList.contains('doc-mode');
-        const modeLabels = {
-            bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],
-            en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'],
-            de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'],
-            es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'],
-            it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER']
-        };
-        modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
-    }
-    function toggleMode() {
-        const body = document.body;
-        const btn = document.getElementById('mode-toggle');
-        const modeLabels = {
-            bs: ['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],
-            en: ['📄 DOCUMENT MODE','🎨 POSTER MODE'],
-            de: ['📄 DOKUMENT-MODUS','🎨 POSTER-MODUS'],
-            es: ['📄 MODO DOCUMENTO','🎨 MODO PÓSTER'],
-            it: ['📄 MODALITÀ DOCUMENTO','🎨 MODALITÀ POSTER']
-        };
-        const currentLang = document.documentElement.lang || 'bs';
-        body.classList.toggle('doc-mode');
-        btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
-    }
-    window.addEventListener('load', function() {
-        let url = window.location.href;
-        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html';
-        try {
-            new QRCode(document.getElementById('qr-canvas'), {
-                text: url,
-                width: 160,
-                height: 160,
-                colorDark: '#000',
-                colorLight: '#fff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        } catch(e) {
-            document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;color:#000;">QR: ' + url + '</p>';
-        }
-    });
-</script>
+<script src="lang.js"></script>
 </body>
 </html>

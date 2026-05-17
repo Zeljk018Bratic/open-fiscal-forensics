@@ -127,22 +127,16 @@ footer p{font-size:13px;color:var(--footer);font-family:'Courier Prime',monospac
 </style>
 </head>
 <body>
-<div class="lang-bar"><span>🌐</span><button class="lang-btn active" onclick="setLang('bs', event)">HR/BHS</button><button class="lang-btn" onclick="setLang('en', event)">EN</button><button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button></div>
-<div class="hero"><img class="hero-logo" src="bajtebrothers-logo.svg" alt="BajteBrothers logo"><div class="hero-counter">300.000</div><div class="hero-unit t active" data-lang="bs">nestale djece [...]</div>
+<div class="lang-bar"><span>🌐</span><button class="lang-btn" data-lang="bs">HR/BHS</button><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button></div>
+<div class="hero"><img class="hero-logo" src="bajtebrothers-logo.png" alt="BajteBrothers logo"><div class="hero-counter">300.000</div><div class="hero-unit t active" data-lang="bs">nestale djece [...]</div>
 <hr class="divider">
-<section id="facts"><span class="section-label t active" data-lang="bs">§01 — Dokumentovane činjenice</span><span class="section-label t" data-lang="en">§01 — Documented Facts</span><span [...]
+<section id="facts"><span class="section-label t active" data-lang="bs">§01 — Dokumentovane činjenice</span><span class="section-label t" data-lang="en">§01 — Documented Facts</span><span class="section-label t" data-lang="de">§01 — Dokumentierte Fakten</span></section>
 <hr class="divider">
 
-<script>
-const metaData={bs:{title:"Sound of Freedom — Zašto ništa ne znaš o ovome?",desc:"300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?"},en:{tit[...]
-function setLang(lang,e){document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.remove('active'));if(e&&e.target)e.target.classList.add('active');document.querySelectorAll('[data-lang][...]
-let currentLang='bs';
-const modeLabels={bs:['📄 DOKUMENT REŽIM','🎨 POSTER REŽIM'],en:['📄 DOCUMENT MODE','🎨 POSTER MODE'],de:['📄 DOKUMENTMODUS','🎨 POSTERMODUS']};
-function toggleMode(){const body=document.body;const btn=document.getElementById('mode-toggle');body.classList.toggle('doc-mode');btn.textContent=body.classList.contains('doc-mode')?modeLabels[cu[...]
-</script>
+<script src="lang.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}try{new QRCode([...]
+window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}try{new QRCode(document.createElement('div'),{"text":url});}catch(e){console.warn(e);} });
 </script>
 </body>
 </html>
