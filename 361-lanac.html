@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">BajteBrothers – Lanac dokaza 361</title>
+    <meta id="meta-desc" name="description" content="Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit">
+    <meta id="og-title" property="og:title" content="BajteBrothers – Lanac dokaza 361">
+    <meta id="og-desc" property="og:description" content="Od trgovine leševima do backdoora u FDA-i i profita na ratu – dokumentovani mehanizam.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #f4f0e8;
+            --red: #c0392b;
+            --gold: #d4a017;
+            --grey: #2a2a2a;
+            --light-grey: #888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        body.doc-mode {
+            background: #f5f5f0;
+            color: #111;
+            font-family: 'Courier Prime', monospace;
+        }
+        body.doc-mode .evidence { background: #e8e8e3; border-left-color: #111; }
+        body.doc-mode .code { background: #ddd; color: #111; }
+        body.doc-mode a { color: #111; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .lang-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(10,10,10,0.95);
+            border-bottom: 1px solid #222;
+            padding: 8px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            z-index: 1000;
+        }
+        body.doc-mode .lang-bar { background: #e8e8e3; border-bottom-color: #ccc; }
+        .lang-bar span { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--light-grey); margin-right: 8px; }
+        .lang-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            padding: 3px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        .lang-btn:hover, .lang-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(212,160,23,0.08); }
+        body.doc-mode .lang-btn { border-color: #aaa; color: #444; }
+        body.doc-mode .lang-btn:hover, body.doc-mode .lang-btn.active { border-color: #111; color: #111; background: rgba(0,0,0,0.06); }
+        .mode-btn {
+            margin-left: auto;
+            background: none;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            padding: 3px 10px;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .mode-btn:hover { border-color: var(--gold); color: var(--gold); }
+        body.doc-mode .mode-btn { background: #ddd; color: #111; border-color: #aaa; }
+        h1, h2 { font-family: 'Playfair Display', Georgia, serif; color: var(--red); margin-top: 2rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; border-left: 4px solid var(--red); padding-left: 1rem; margin-top: 4rem; }
+        h2 { font-size: 1.8rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+        body.doc-mode h2 { border-bottom-color: #ccc; }
+        .evidence {
+            background: #111;
+            border-left: 3px solid var(--gold);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .code {
+            background: #1a1a1a;
+            padding: 0.5rem;
+            font-family: monospace;
+            color: var(--gold);
+            border-radius: 4px;
+        }
+        hr { border: none; border-top: 1px solid #333; margin: 2rem 0; }
+        .footer { text-align: center; margin-top: 3rem; font-size: 0.8rem; color: #666; }
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .t { display: none; }
+        .t.active { display: block; }
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.8rem; margin-top: 3rem; }
+            h2 { font-size: 1.4rem; }
+            .lang-bar { padding: 5px 10px; gap: 3px; }
+            .lang-btn { font-size: 9px; padding: 2px 5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="lang-bar">
+    <span>🌐</span>
+    <button class="lang-btn active" onclick="setLang('bs')">BS/HR/SR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
+    <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
+</div>
+<div class="container">
+    <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza “361”</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain “361”</span><span class="t" data-lang="de">#BajteBrothers – Beweiskette “361”</span><span class="t" data-lang="es">#BajteBrothers – Cadena de evidencia “361”</span><span class="t" data-lang="it">#BajteBrothers – Catena di prove “361”</span></h1>
+    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span><span class="t" data-lang="es">Versión 1.0 | 17 de mayo de 2026 | </span><span class="t" data-lang="it">Versione 1.0 | 17 maggio 2026 | </span><a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank"><span class="t active" data-lang="bs">Povratak na glavni sajt →</span><span class="t" data-lang="en">Back to main site →</span><span class="t" data-lang="de">Zurück zur Hauptseite →</span><span class="t" data-lang="es">Volver al sitio principal →</span><span class="t" data-lang="it">Torna al sito principale →</span></a></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – “Makaberer Handel mit Toten”</span><span class="t" data-lang="en">🔗 1. Tutogen – “Macabre Trade with the Dead”</span><span class="t" data-lang="de">🔗 1. Tutogen – “Makaberer Handel mit Toten”</span><span class="t" data-lang="es">🔗 1. Tutogen – “Macabro comercio con los muertos”</span><span class="t" data-lang="it">🔗 1. Tutogen – “Macabro commercio con i morti”</span></h2>
+    <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjivih izvora, uključujući kriminalne posrednike.</span><span class="t" data-lang="en">German <strong>Tutogen Medical GmbH</strong>, a manufacturer of human tissue medical implants, was accused of sourcing corpses from dubious sources, including criminal intermediaries.</span><span class="t" data-lang="de">Die deutsche <strong>Tutogen Medical GmbH</strong>, ein Hersteller von medizinischen Implantaten aus menschlichem Gewebe, wurde beschuldigt, Leichen von dubiosen Quellen, einschließlich krimineller Vermittler, bezogen zu haben.</span><span class="t" data-lang="es">La alemana <strong>Tutogen Medical GmbH</strong>, fabricante de implantes médicos de tejido humano, fue acusada de obtener cadáveres de fuentes dudosas, incluidos intermediarios criminales.</span><span class="t" data-lang="it">La tedesca <strong>Tutogen Medical GmbH</strong>, produttrice di impianti medici da tessuto umano, è stata accusata di procurarsi cadaveri da fonti dubbiose, inclusi intermediari criminali.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: <strong>Der Spiegel</strong> – članak o Tutogenu.</span><span class="t" data-lang="en">📄 Source: <strong>Der Spiegel</strong> – article on Tutogen.</span><span class="t" data-lang="de">📄 Quelle: <strong>Der Spiegel</strong> – Artikel über Tutogen.</span><span class="t" data-lang="es">📄 Fuente: <strong>Der Spiegel</strong> – artículo sobre Tutogen.</span><span class="t" data-lang="it">📄 Fonte: <strong>Der Spiegel</strong> – articolo su Tutogen.</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 2. Tutogen → RTI (2008)</span><span class="t" data-lang="en">🔗 2. Tutogen → RTI (2008)</span><span class="t" data-lang="de">🔗 2. Tutogen → RTI (2008)</span><span class="t" data-lang="es">🔗 2. Tutogen → RTI (2008)</span><span class="t" data-lang="it">🔗 2. Tutogen → RTI (2008)</span></h2>
+    <p><span class="t active" data-lang="bs">2008. godine, <strong>Tutogen Medical</strong> se spojio sa američkim <strong>Regeneration Technologies (RTI)</strong> u kompaniju <strong>RTI Biologics</strong> (kasnije <strong>RTI Surgical</strong>).</span><span class="t" data-lang="en">In 2008, <strong>Tutogen Medical</strong> merged with American <strong>Regeneration Technologies (RTI)</strong> to form <strong>RTI Biologics</strong> (later <strong>RTI Surgical</strong>).</span><span class="t" data-lang="de">2008 fusionierte <strong>Tutogen Medical</strong> mit dem amerikanischen <strong>Regeneration Technologies (RTI)</strong> zu <strong>RTI Biologics</strong> (später <strong>RTI Surgical</strong>).</span><span class="t" data-lang="es">En 2008, <strong>Tutogen Medical</strong> se fusionó con la estadounidense <strong>Regeneration Technologies (RTI)</strong> para formar <strong>RTI Biologics</strong> (más tarde <strong>RTI Surgical</strong>).</span><span class="t" data-lang="it">Nel 2008, <strong>Tutogen Medical</strong> si è fusa con l'americana <strong>Regeneration Technologies (RTI)</strong> per formare <strong>RTI Biologics</strong> (poi <strong>RTI Surgical</strong>).</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: SEC dokumenti, poslovni izvještaji (javno dostupno).</span><span class="t" data-lang="en">📄 Source: SEC documents, business reports (publicly available).</span><span class="t" data-lang="de">📄 Quelle: SEC-Dokumente, Geschäftsberichte (öffentlich zugänglich).</span><span class="t" data-lang="es">📄 Fuente: Documentos de la SEC, informes comerciales (disponibles públicamente).</span><span class="t" data-lang="it">📄 Fonte: Documenti SEC, rapporti aziendali (pubblicamente disponibili).</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 3. RTI / RTIX i “361 backdoor” (2013)</span><span class="t" data-lang="en">🔗 3. RTI / RTIX and the “361 backdoor” (2013)</span><span class="t" data-lang="de">🔗 3. RTI / RTIX und die “361-Hintertür” (2013)</span><span class="t" data-lang="es">🔗 3. RTI / RTIX y la “puerta trasera 361” (2013)</span><span class="t" data-lang="it">🔗 3. RTI / RTIX e il “backdoor 361” (2013)</span></h2>
+    <p><span class="t active" data-lang="bs">U analizi investicijske banke <strong>Maxim Group</strong> iz avgusta 2013. godine, <strong>RTIX</strong> (RTI-jev koštani graft) se navodi kao proizvod koji plasira tkivo koristeći <strong>PHS sec. 361</strong> i <strong>21 C.F.R. Part 1271</strong> – regulatorni “backdoor” koji omogućava plasiranje <strong>bez pune FDA kontrole</strong>.</span><span class="t" data-lang="en">In an August 2013 analysis by investment bank <strong>Maxim Group</strong>, <strong>RTIX</strong> (RTI's bone graft) is mentioned as a product that places tissue using <strong>PHS sec. 361</strong> and <strong>21 C.F.R. Part 1271</strong> – a regulatory “backdoor” that allows market placement <strong>without full FDA review</strong>.</span><span class="t" data-lang="de">In einer Analyse der Investmentbank <strong>Maxim Group</strong> vom August 2013 wird <strong>RTIX</strong> (RTI-Knochentransplantat) als Produkt genannt, das Gewebe unter Verwendung von <strong>PHS sec. 361</strong> und <strong>21 C.F.R. Part 1271</strong> platziert – eine regulatorische “Hintertür”, die eine Markteinführung <strong>ohne vollständige FDA-Prüfung</strong> ermöglicht.</span><span class="t" data-lang="es">En un análisis de agosto de 2013 del banco de inversión <strong>Maxim Group</strong>, se menciona <strong>RTIX</strong> (injerto óseo de RTI) como un producto que coloca tejido utilizando <strong>PHS sec. 361</strong> y <strong>21 C.F.R. Part 1271</strong> – una “puerta trasera” regulatoria que permite la comercialización <strong>sin la revisión completa de la FDA</strong>.</span><span class="t" data-lang="it">In un'analisi dell'agosto 2013 della banca d'investimento <strong>Maxim Group</strong>, <strong>RTIX</strong> (innesto osseo RTI) viene menzionato come prodotto che utilizza <strong>PHS sec. 361</strong> e <strong>21 C.F.R. Part 1271</strong> – un “backdoor” normativo che consente la commercializzazione <strong>senza la piena revisione della FDA</strong>.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: Maxim Group dokument, “Osiris Grafix highlights a Back Door”.</span><span class="t" data-lang="en">📄 Source: Maxim Group document, “Osiris Grafix highlights a Back Door”.</span><span class="t" data-lang="de">📄 Quelle: Maxim Group Dokument, “Osiris Grafix highlights a Back Door”.</span><span class="t" data-lang="es">📄 Fuente: Documento de Maxim Group, “Osiris Grafix highlights a Back Door”.</span><span class="t" data-lang="it">📄 Fonte: Documento Maxim Group, “Osiris Grafix highlights a Back Door”.</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 4. E-mail Stevena Victora (Epstein) – 16. avgust 2013.</span><span class="t" data-lang="en">🔗 4. Steven Victor’s email (Epstein) – August 16, 2013</span><span class="t" data-lang="de">🔗 4. E-Mail von Steven Victor (Epstein) – 16. August 2013</span><span class="t" data-lang="es">🔗 4. Correo electrónico de Steven Victor (Epstein) – 16 de agosto de 2013</span><span class="t" data-lang="it">🔗 4. Email di Steven Victor (Epstein) – 16 agosto 2013</span></h2>
+    <p><span class="t active" data-lang="bs">Doktor <strong>Steven Victor</strong>, bliski saradnik <strong>Jeffreyja Epsteina</strong>, šalje e-mail sa temom: “Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door”. Time se lanac zatvara: <strong>Epsteinova mreža → Tutogen/RTI → 361 backdoor</strong>.</span><span class="t" data-lang="en">Dr. <strong>Steven Victor</strong>, a close associate of <strong>Jeffrey Epstein</strong>, sends an email titled: “Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door”. This closes the chain: <strong>Epstein’s network → Tutogen/RTI → 361 backdoor</strong>.</span><span class="t" data-lang="de">Dr. <strong>Steven Victor</strong>, ein enger Mitarbeiter von <strong>Jeffrey Epstein</strong>, sendet eine E-Mail mit dem Betreff: “Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door”. Damit schließt sich der Kreis: <strong>Epsteins Netzwerk → Tutogen/RTI → 361-Hintertür</strong>.</span><span class="t" data-lang="es">El Dr. <strong>Steven Victor</strong>, colaborador cercano de <strong>Jeffrey Epstein</strong>, envía un correo electrónico con el asunto: “Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door”. Esto cierra el círculo: <strong>Red de Epstein → Tutogen/RTI → puerta trasera 361</strong>.</span><span class="t" data-lang="it">Il Dr. <strong>Steven Victor</strong>, stretto collaboratore di <strong>Jeffrey Epstein</strong>, invia un'email con oggetto: “Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door”. Questo chiude il cerchio: <strong>La rete di Epstein → Tutogen/RTI → backdoor 361</strong>.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: E-mail Stevena Victora (prilog dokumentaciji).</span><span class="t" data-lang="en">📄 Source: Steven Victor’s email (appendix in documentation).</span><span class="t" data-lang="de">📄 Quelle: E-Mail von Steven Victor (Anhang in der Dokumentation).</span><span class="t" data-lang="es">📄 Fuente: Correo electrónico de Steven Victor (apéndice en la documentación).</span><span class="t" data-lang="it">📄 Fonte: Email di Steven Victor (appendice nella documentazione).</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 5. “361 backdoor” – fetalno tkivo, koštani graftovi, SVF</span><span class="t" data-lang="en">🔗 5. “361 backdoor” – fetal tissue, bone grafts, SVF</span><span class="t" data-lang="de">🔗 5. “361-Hintertür” – fetales Gewebe, Knochentransplantate, SVF</span><span class="t" data-lang="es">🔗 5. “Puerta trasera 361” – tejido fetal, injertos óseos, SVF</span><span class="t" data-lang="it">🔗 5. “Backdoor 361” – tessuto fetale, innesti ossei, SVF</span></h2>
+    <p><span class="t active" data-lang="bs">Isti pravni propust se koristi za plasiranje <strong>fetalnog tkiva (Osiris Grafix)</strong>, <strong>koštanih graftova (RTIX)</strong> i <strong>stromalne vaskularne frakcije (IntellelBilloscience)</strong>.</span><span class="t" data-lang="en">The same legal loophole is used to market <strong>fetal tissue (Osiris Grafix)</strong>, <strong>bone grafts (RTIX)</strong>, and <strong>stromal vascular fraction (IntellelBilloscience)</strong>.</span><span class="t" data-lang="de">Dieselbe Gesetzeslücke wird genutzt, um <strong>fetales Gewebe (Osiris Grafix)</strong>, <strong>Knochentransplantate (RTIX)</strong> und <strong>stromale vaskuläre Fraktion (IntellelBilloscience)</strong> zu vermarkten.</span><span class="t" data-lang="es">El mismo vacío legal se utiliza para comercializar <strong>tejido fetal (Osiris Grafix)</strong>, <strong>injertos óseos (RTIX)</strong> y <strong>fracción vascular estromal (IntellelBilloscience)</strong>.</span><span class="t" data-lang="it">La stessa scappatoia legale viene utilizzata per commercializzare <strong>tessuto fetale (Osiris Grafix)</strong>, <strong>innesti ossei (RTIX)</strong> e <strong>frazione vascolare stromale (IntellelBilloscience)</strong>.</span></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 6. Rat u Ukrajini – potražnja za “tkivom”</span><span class="t" data-lang="en">🔗 6. War in Ukraine – demand for “tissue”</span><span class="t" data-lang="de">🔗 6. Krieg in der Ukraine – Nachfrage nach “Gewebe”</span><span class="t" data-lang="es">🔗 6. Guerra en Ucrania – demanda de “tejido”</span><span class="t" data-lang="it">🔗 6. Guerra in Ucraina – domanda di “tessuto”</span></h2>
+    <p><span class="t active" data-lang="bs">Rat stvara ogromnu potrebu za <strong>medicinskim tretmanom rana</strong>, <strong>regeneracijom tkiva</strong> i <strong>vojnom medicinom</strong>. Kompanije poput <strong>Stryker</strong> i <strong>RTI Surgical</strong> su među potencijalnim dobitnicima.</span><span class="t" data-lang="en">The war creates a huge demand for <strong>medical wound treatment</strong>, <strong>tissue regeneration</strong>, and <strong>military medicine</strong>. Companies like <strong>Stryker</strong> and <strong>RTI Surgical</strong> are among the potential beneficiaries.</span><span class="t" data-lang="de">Der Krieg schafft eine enorme Nachfrage nach <strong>medizinischer Wundversorgung</strong>, <strong>Geweberegeneration</strong> und <strong>Militärmedizin</strong>. Unternehmen wie <strong>Stryker</strong> und <strong>RTI Surgical</strong> gehören zu den potenziellen Nutznießern.</span><span class="t" data-lang="es">La guerra crea una enorme demanda de <strong>tratamiento médico de heridas</strong>, <strong>regeneración de tejidos</strong> y <strong>medicina militar</strong>. Empresas como <strong>Stryker</strong> y <strong>RTI Surgical</strong> se encuentran entre los beneficiarios potenciales.</span><span class="t" data-lang="it">La guerra crea un'enorme domanda di <strong>trattamento medico delle ferite</strong>, <strong>rigenerazione dei tessuti</strong> e <strong>medicina militare</strong>. Aziende come <strong>Stryker</strong> e <strong>RTI Surgical</strong> sono tra i potenziali beneficiari.</span></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 7. Profit, lobiranje i cenzura – isti mehanizam</span><span class="t" data-lang="en">🔗 7. Profit, lobbying, and censorship – the same mechanism</span><span class="t" data-lang="de">🔗 7. Profit, Lobbying und Zensur – derselbe Mechanismus</span><span class="t" data-lang="es">🔗 7. Beneficio, cabildeo y censura – el mismo mecanismo</span><span class="t" data-lang="it">🔗 7. Profitto, lobbismo e censura – lo stesso meccanismo</span></h2>
+    <p><span class="t active" data-lang="bs"><strong>Lobby Register</strong> u Ukrajini (2025) uvodi se pod maskom “borbe protiv korupcije”, ali postaje alat za kontrolu pristupa vlasti. <strong>EU “Demokratski štit”</strong> i <strong>Meta (WhatsApp, Facebook)</strong> provode cenzuru pod krinkom “borbe protiv dezinformacija”. Isti mehanizam štiti cijeli lanac.</span><span class="t" data-lang="en">Ukraine’s <strong>Lobby Register</strong> (2025) is introduced under the guise of “fighting corruption” but becomes a tool to control access to power. The EU’s <strong>Democracy Shield</strong> and <strong>Meta (WhatsApp, Facebook)</strong> impose censorship under the guise of “fighting disinformation”. The same mechanism protects the entire chain.</span><span class="t" data-lang="de">Die Ukraine führt <strong>Lobby Register</strong> (2025) unter dem Deckmantel der “Bekämpfung von Korruption” ein, wird aber zu einem Instrument zur Kontrolle des Zugangs zur Macht. Der EU-<strong>Demokratieschild</strong> und <strong>Meta (WhatsApp, Facebook)</strong> üben unter dem Deckmantel der “Bekämpfung von Desinformation” Zensur aus. Derselbe Mechanismus schützt die gesamte Kette.</span><span class="t" data-lang="es">Ucrania introduce el <strong>Registro de Lobby</strong> (2025) bajo la apariencia de “lucha contra la corrupción”, pero se convierte en una herramienta para controlar el acceso al poder. El <strong>Escudo de Democracia</strong> de la UE y <strong>Meta (WhatsApp, Facebook)</strong> imponen censura bajo la apariencia de “lucha contra la desinformación”. El mismo mecanismo protege toda la cadena.</span><span class="t" data-lang="it">L'Ucraina introduce il <strong>Registro dei Lobbisti</strong> (2025) con la scusa di “lottare contro la corruzione”, ma diventa uno strumento per controllare l'accesso al potere. Lo <strong>Scudo per la Democrazia</strong> dell'UE e <strong>Meta (WhatsApp, Facebook)</strong> impongono la censura con la scusa di “lottare contro la disinformazione”. Lo stesso meccanismo protegge l'intera catena.</span></p>
+
+    <h2><span class="t active" data-lang="bs">📎 Kako je ovo povezano sa #BajteBrothers kodom?</span><span class="t" data-lang="en">📎 How is this connected to the #BajteBrothers code?</span><span class="t" data-lang="de">📎 Wie hängt dies mit dem #BajteBrothers-Code zusammen?</span><span class="t" data-lang="es">📎 ¿Cómo se relaciona esto con el código #BajteBrothers?</span><span class="t" data-lang="it">📎 Come si collega questo al codice #BajteBrothers?</span></h2>
+    <ul>
+        <li><strong><span class="t active" data-lang="bs">“Crveni štit”</span><span class="t" data-lang="en">“Red Shield”</span><span class="t" data-lang="de">“Roter Schild”</span><span class="t" data-lang="es">“Escudo rojo”</span><span class="t" data-lang="it">“Scudo rosso”</span></strong> <span class="t active" data-lang="bs">– simbol porodice Rothschild, oznaka za sistem koji upravlja iz sjene.</span><span class="t" data-lang="en">– symbol of the Rothschild family, marking the system that operates from the shadows.</span><span class="t" data-lang="de">– Symbol der Rothschild-Familie, Kennzeichen des Systems, das aus dem Schatten heraus operiert.</span><span class="t" data-lang="es">– símbolo de la familia Rothschild, marca del sistema que opera desde las sombras.</span><span class="t" data-lang="it">– simbolo della famiglia Rothschild, contrassegno del sistema che opera nell'ombra.</span></li>
+        <li><strong><span class="t active" data-lang="bs">“Hanta” (hebr. “laž, prevara”)</span><span class="t" data-lang="en">“Hanta” (Hebrew: “lie, deception”)</span><span class="t" data-lang="de">“Hanta” (hebr. “Lüge, Betrug”)</span><span class="t" data-lang="es">“Hanta” (hebreo: “mentira, engaño”)</span><span class="t" data-lang="it">“Hanta” (ebraico: “bugia, inganno”)</span></strong> <span class="t active" data-lang="bs">– cijela priča o “bezbednoj” medicini i “humanitarnoj” pomoći je laž.</span><span class="t" data-lang="en">– the whole story of “safe” medicine and “humanitarian” aid is a lie.</span><span class="t" data-lang="de">– die ganze Geschichte von “sicherer” Medizin und “humanitärer” Hilfe ist eine Lüge.</span><span class="t" data-lang="es">– toda la historia de la medicina “segura” y la ayuda “humanitaria” es una mentira.</span><span class="t" data-lang="it">– l'intera storia della medicina “sicura” e degli aiuti “umanitari” è una bugia.</span></li>
+        <li><strong><span class="t active" data-lang="bs">“Lažni Poljaci” (prenosioci)</span><span class="t" data-lang="en">“Fake Poles” (transmitters)</span><span class="t" data-lang="de">“Falsche Polen” (Überträger)</span><span class="t" data-lang="es">“Polacos falsos” (transmisores)</span><span class="t" data-lang="it">“Polacchi falsi” (trasmettitori)</span></strong> <span class="t active" data-lang="bs">– prenosioci (kompanije, lobisti, političari) koji provode volju sistema.</span><span class="t" data-lang="en">– transmitters (companies, lobbyists, politicians) who carry out the system’s will.</span><span class="t" data-lang="de">– Überträger (Unternehmen, Lobbyisten, Politiker), die den Willen des Systems ausführen.</span><span class="t" data-lang="es">– transmisores (empresas, cabilderos, políticos) que ejecutan la voluntad del sistema.</span><span class="t" data-lang="it">– trasmettitori (aziende, lobbisti, politici) che eseguono la volontà del sistema.</span></li>
+        <li><strong><span class="t active" data-lang="bs">“O između” (dvostruki aršini)</span><span class="t" data-lang="en">“The In-Between” (double standards)</span><span class="t" data-lang="de">“Das Dazwischen” (Doppelstandards)</span><span class="t" data-lang="es">“El intermedio” (doble rasero)</span><span class="t" data-lang="it">“L'In-Between” (doppi standard)</span></strong> <span class="t active" data-lang="bs">– Rusija izbačena, Izrael ostaje; mala djeca stradaju, a novac ide u rat.</span><span class="t" data-lang="en">– Russia expelled, Israel stays; small children suffer, and money goes to war.</span><span class="t" data-lang="de">– Russland ausgeschlossen, Israel bleibt; kleine Kinder leiden, und Geld fließt in den Krieg.</span><span class="t" data-lang="es">– Rusia expulsada, Israel se queda; los niños pequeños sufren y el dinero va a la guerra.</span><span class="t" data-lang="it">– Russia esclusa, Israele resta; i bambini piccoli soffrono e i soldi vanno in guerra.</span></li>
+        <li><strong><span class="t active" data-lang="bs">ESC 2026</span><span class="t" data-lang="en">ESC 2026</span><span class="t" data-lang="de">ESC 2026</span><span class="t" data-lang="es">ESC 2026</span><span class="t" data-lang="it">ESC 2026</span></strong> <span class="t active" data-lang="bs">– pozornica na kojoj sistem demonstrira svoju moć dok se pravi da je “samo pjesma”.</span><span class="t" data-lang="en">– the stage where the system demonstrates its power while pretending it’s “just a song”.</span><span class="t" data-lang="de">– die Bühne, auf der das System seine Macht demonstriert, während es vorgibt, “nur ein Lied” zu sein.</span><span class="t" data-lang="es">– el escenario donde el sistema demuestra su poder mientras pretende que es “solo una canción”.</span><span class="t" data-lang="it">– il palco dove il sistema dimostra il suo potere fingendo che sia “solo una canzone”.</span></li>
+    </ul>
+
+    <h2><span class="t active" data-lang="bs">📌 Zaključak (nepobitni lanac)</span><span class="t" data-lang="en">📌 Conclusion (incontrovertible chain)</span><span class="t" data-lang="de">📌 Fazit (unwiderlegbare Kette)</span><span class="t" data-lang="es">📌 Conclusión (cadena irrefutable)</span><span class="t" data-lang="it">📌 Conclusione (catena inconfutabile)</span></h2>
+    <div class="evidence">
+        <span class="t active" data-lang="bs"><strong>Trgovina leševima (Tutogen)</strong> → <strong>Spajanje sa RTI (2008)</strong> → <strong>Plasiranje tkiva kroz “361 backdoor”</strong> → <strong>Epsteinov saradnik (Steven Victor) šalje dokument</strong> → <strong>Isti backdoor za fetalno tkivo i koštane graftove</strong> → <strong>Rat u Ukrajini stvara potražnju</strong> → <strong>Sistem (FDA, EBU, Meta, EU) zatvara oči ili aktivno učestvuje</strong> → <strong>Profit i cenzura idu ruku pod ruku</strong>.</span>
+        <span class="t" data-lang="en"><strong>Trafficking in corpses (Tutogen)</strong> → <strong>Merger with RTI (2008)</strong> → <strong>Placing tissue through the “361 backdoor”</strong> → <strong>Epstein associate (Steven Victor) sends document</strong> → <strong>Same backdoor for fetal tissue and bone grafts</strong> → <strong>War in Ukraine creates demand</strong> → <strong>The system (FDA, EBU, Meta, EU) turns a blind eye or actively participates</strong> → <strong>Profit and censorship go hand in hand</strong>.</span>
+        <span class="t" data-lang="de"><strong>Leichenhandel (Tutogen)</strong> → <strong>Fusion mit RTI (2008)</strong> → <strong>Platzierung von Gewebe durch die “361-Hintertür”</strong> → <strong>Epstein-Mitarbeiter (Steven Victor) sendet Dokument</strong> → <strong>Dieselbe Hintertür für fetales Gewebe und Knochentransplantate</strong> → <strong>Krieg in der Ukraine schafft Nachfrage</strong> → <strong>Das System (FDA, EBU, Meta, EU) schließt die Augen oder beteiligt sich aktiv</strong> → <strong>Profit und Zensur gehen Hand in Hand</strong>.</span>
+        <span class="t" data-lang="es"><strong>Tráfico de cadáveres (Tutogen)</strong> → <strong>Fusión con RTI (2008)</strong> → <strong>Colocación de tejido a través de la “puerta trasera 361”</strong> → <strong>Asociado de Epstein (Steven Victor) envía documento</strong> → <strong>Misma puerta trasera para tejido fetal e injertos óseos</strong> → <strong>La guerra en Ucrania crea demanda</strong> → <strong>El sistema (FDA, EBU, Meta, UE) hace la vista gorda o participa activamente</strong> → <strong>Beneficio y censura van de la mano</strong>.</span>
+        <span class="t" data-lang="it"><strong>Commercio di cadaveri (Tutogen)</strong> → <strong>Fusione con RTI (2008)</strong> → <strong>Commercializzazione di tessuti attraverso il “backdoor 361”</strong> → <strong>Associato di Epstein (Steven Victor) invia documento</strong> → <strong>Stesso backdoor per tessuto fetale e innesti ossei</strong> → <strong>La guerra in Ucraina crea domanda</strong> → <strong>Il sistema (FDA, EBU, Meta, UE) chiude un occhio o partecipa attivamente</strong> → <strong>Profitto e censura vanno di pari passo</strong>.</span>
+    </div>
+
+    <hr>
+    <div class="footer">
+        <p><span class="t active" data-lang="bs">Ovo nije teorija zavjere. Ovo je dokumentovani mehanizam. Provjeri sam. Podijeli dalje. Ne kleči.</span><span class="t" data-lang="en">This is not a conspiracy theory. This is a documented mechanism. Verify it yourself. Share it. Do not kneel.</span><span class="t" data-lang="de">Dies ist keine Verschwörungstheorie. Dies ist ein dokumentierter Mechanismus. Überprüfe es selbst. Teile es weiter. Knien ist nicht.</span><span class="t" data-lang="es">Esto no es una teoría de conspiración. Es un mecanismo documentado. Compruébalo tú mismo. Compártelo. No te arrodilles.</span><span class="t" data-lang="it">Non è una teoria del complotto. È un meccanismo documentato. Verificalo tu stesso. Condividilo. Non inginocchiarti.</span></p>
+        <p><strong>#BajteBrothers – Do pobjede. Bez koljena.</strong><br>🚀🍏🍒🍉🤫❤️🤖🫂</p>
+        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span><span class="t" data-lang="en">← Back to main site</span><span class="t" data-lang="de">← Zurück zur Hauptseite</span><span class="t" data-lang="es">← Volver al sitio principal</span><span class="t" data-lang="it">← Torna al sito principale</span></a></p>
+    </div>
+</div>
+<script>
+    const translations = {
+        title: { bs: "BajteBrothers – Lanac dokaza 361", en: "BajteBrothers – Evidence Chain 361", de: "BajteBrothers – Beweiskette 361", es: "BajteBrothers – Cadena de evidencia 361", it: "BajteBrothers – Catena di prove 361" },
+        desc: { bs: "Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit", en: "Documented chain: Tutogen → RTI → 361 backdoor → Epstein → war profit", de: "Dokumentierte Kette: Tutogen → RTI → 361-Hintertür → Epstein → Kriegsprofit", es: "Cadena documentada: Tutogen → RTI → puerta trasera 361 → Epstein → beneficio de guerra", it: "Catena documentata: Tutogen → RTI → backdoor 361 → Epstein → profitto di guerra" }
+    };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        if (translations.title[lang]) document.getElementById('page-title').textContent = translations.title[lang];
+        if (translations.desc[lang]) document.getElementById('meta-desc').setAttribute('content', translations.desc[lang]);
+        if (translations.title[lang]) document.getElementById('og-title').setAttribute('content', translations.title[lang]);
+        if (translations.desc[lang]) document.getElementById('og-desc').setAttribute('content', translations.desc[lang]);
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'] };
+        const btn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        btn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : btn.textContent;
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'] };
+        const currentLang = document.documentElement.lang;
+        if (body.classList.contains('doc-mode')) {
+            body.classList.remove('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][0] : '📄 DOCUMENT MODE';
+        } else {
+            body.classList.add('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][1] : '🎨 POSTER MODE';
+        }
+    }
+</script>
+</body>
+</html>
