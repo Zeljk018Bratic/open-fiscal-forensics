@@ -9,71 +9,202 @@
     <meta id="og-desc" property="og:description" content="Od trgovine leševima do backdoora u FDA-i i profita na ratu – dokumentovani mehanizam.">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* styles preserved from original commit */
+        :root {
+            --black: #0a0a0a;
+            --white: #f4f0e8;
+            --red: #c0392b;
+            --gold: #d4a017;
+            --grey: #2a2a2a;
+            --light-grey: #888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        body.doc-mode {
+            background: #f5f5f0;
+            color: #111;
+            font-family: 'Courier Prime', monospace;
+        }
+        body.doc-mode .evidence { background: #e8e8e3; border-left-color: #111; }
+        body.doc-mode .code { background: #ddd; color: #111; }
+        body.doc-mode a { color: #111; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .lang-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(10,10,10,0.95);
+            border-bottom: 1px solid #222;
+            padding: 8px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            z-index: 1000;
+        }
+        body.doc-mode .lang-bar { background: #e8e8e3; border-bottom-color: #ccc; }
+        .lang-bar span { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--light-grey); margin-right: 8px; }
+        .lang-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            padding: 3px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        .lang-btn:hover, .lang-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(212,160,23,0.08); }
+        body.doc-mode .lang-btn { border-color: #aaa; color: #444; }
+        body.doc-mode .lang-btn:hover, body.doc-mode .lang-btn.active { border-color: #111; color: #111; background: rgba(0,0,0,0.06); }
+        .mode-btn {
+            margin-left: auto;
+            background: none;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            padding: 3px 10px;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .mode-btn:hover { border-color: var(--gold); color: var(--gold); }
+        body.doc-mode .mode-btn { background: #ddd; color: #111; border-color: #aaa; }
+        h1, h2 { font-family: 'Playfair Display', Georgia, serif; color: var(--red); margin-top: 2rem; margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; border-left: 4px solid var(--red); padding-left: 1rem; margin-top: 4rem; }
+        h2 { font-size: 1.8rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+        body.doc-mode h2 { border-bottom-color: #ccc; }
+        .evidence {
+            background: #111;
+            border-left: 3px solid var(--gold);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .code {
+            background: #1a1a1a;
+            padding: 0.5rem;
+            font-family: monospace;
+            color: var(--gold);
+            border-radius: 4px;
+        }
+        hr { border: none; border-top: 1px solid #333; margin: 2rem 0; }
+        .footer { text-align: center; margin-top: 3rem; font-size: 0.8rem; color: #666; }
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .t { display: none; }
+        .t.active { display: block; }
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.8rem; margin-top: 3rem; }
+            h2 { font-size: 1.4rem; }
+            .lang-bar { padding: 5px 10px; gap: 3px; }
+            .lang-btn { font-size: 9px; padding: 2px 5px; }
+        }
     </style>
 </head>
 <body>
 <div class="lang-bar">
     <span>🌐</span>
-    <button class="lang-btn active" onclick="setLang('bs', event)">BS/HR/SR</button>
-    <button class="lang-btn" onclick="setLang('en', event)">EN</button>
-    <button class="lang-btn" onclick="setLang('de', event)">DE</button>
-    <button class="lang-btn" onclick="setLang('es', event)">ES</button>
-    <button class="lang-btn" onclick="setLang('it', event)">IT</button>
+    <button class="lang-btn active" onclick="setLang('bs')">BS/HR/SR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
     <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
-    <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza “361”</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain “361”</span></h1>
-    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span></p>
+    <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza “361”</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain “361”</span><span class="t" data-lang="de">#BajteBrothers – Beweiskette “361”</span></h1>
+    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span></p>
 
     <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – “Makaberer Handel mit Toten”</span><span class="t" data-lang="en">🔗 1. Tutogen – “Macabre Trade with the Dead”</span></h2>
-    <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjičavih izvora.</span></p>
+    <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjivih izvora.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: <strong>Der Spiegel</strong> – članak o Tutogenu.</span><span class="t" data-lang="en">📄 Source: <strong>Der Spiegel</strong> – article on Tutogen.</span></div>
 
-    <div class="share-block">
-        <div id="qr-canvas" class="qr-wrap"></div>
-        <p class="qr-note t active" data-lang="bs">otvori → provjeri → podijeli</p>
-        <p class="share-title"><span class="t active" data-lang="bs">🔗 PODIJELI LANAC “361”</span></p>
+    <h2><span class="t active" data-lang="bs">🔗 2. Tutogen → RTI (2008)</span><span class="t" data-lang="en">🔗 2. Tutogen → RTI (2008)</span></h2>
+    <p><span class="t active" data-lang="bs">2008. godine, <strong>Tutogen Medical</strong> se spojio sa američkim <strong>Regeneration Technologies (RTI)</strong> u kompaniju <strong>RTI Biologics</strong>.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: SEC dokumenti, poslovni izvještaji (javno dostupno).</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 3. RTI / RTIX i “361 backdoor” (2013)</span><span class="t" data-lang="en">🔗 3. RTI / RTIX and the “361 backdoor” (2013)</span></h2>
+    <p><span class="t active" data-lang="bs">U analizi investicijske banke <strong>Maxim Group</strong> iz avgusta 2013. godine, <strong>RTIX</strong> (RTI-jev koštani graft) se navodi kao proizvod s posebnim tržišnim parametrima.</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: Maxim Group dokument, “Osiris Grafix highlights a Back Door”.</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 4. E-mail Stevena Victora (Epstein) – 16. avgust 2013.</span><span class="t" data-lang="en">🔗 4. Steven Victor’s email (Epstein) – August 16, 2013</span></h2>
+    <p><span class="t active" data-lang="bs">Doktor <strong>Steven Victor</strong>, bliski saradnik <strong>Jeffreyja Epsteina</strong>, šalje e-mail sa temom: “Maxim Group: Regenerative Cell...”</span></p>
+    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: E-mail Stevena Victora (prilog dokumentaciji).</span></div>
+
+    <h2><span class="t active" data-lang="bs">🔗 5. “361 backdoor” – fetalno tkivo, koštani graftovi, SVF</span><span class="t" data-lang="en">🔗 5. “361 backdoor” – fetal tissue, bone grafts, SVF</span></h2>
+    <p><span class="t active" data-lang="bs">Isti pravni propust se koristi za plasiranje <strong>fetalnog tkiva (Osiris Grafix)</strong>, <strong>koštanih graftova (RTIX)</strong> i <strong>stromal vascular fraction (SVF)</strong>.</span></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 6. Rat u Ukrajini – potražnja za “tkivom”</span><span class="t" data-lang="en">🔗 6. War in Ukraine – demand for “tissue”</span></h2>
+    <p><span class="t active" data-lang="bs">Rat stvara ogromnu potrebu za <strong>medicinskim tretmanom rana</strong>, <strong>regeneracijom tkiva</strong> i <strong>vojnom medicinom</strong>.</span></p>
+
+    <h2><span class="t active" data-lang="bs">🔗 7. Profit, lobiranje i cenzura – isti mehanizam</span><span class="t" data-lang="en">🔗 7. Profit, lobbying, and censorship – the same mechanism</span></h2>
+    <p><span class="t active" data-lang="bs">Lobby Register u Ukrajini (2025) uvodi se pod maskom “borbe protiv korupcije”, ali postaje alat za kontrolu pristupa vlasti.</span></p>
+
+    <h2><span class="t active" data-lang="bs">📎 Kako je ovo povezano sa #BajteBrothers kodom?</span><span class="t" data-lang="en">📎 How is this connected to the #BajteBrothers code?</span></h2>
+    <ul>
+        <li><strong><span class="t active" data-lang="bs">“Crveni štit”</span><span class="t" data-lang="en">“Red Shield”</span></li>
+        <li><strong><span class="t active" data-lang="bs">“Hanta” (hebr. “laž, prevara”)</span><span class="t" data-lang="en">“Hanta” (Hebrew: “lie, deception”)</span></li>
+        <li><strong><span class="t active" data-lang="bs">“Lažni Poljaci” (prenosioci)</span><span class="t" data-lang="en">“Fake Poles” (transmitters)</span></li>
+        <li><strong><span class="t active" data-lang="bs">“O između” (dvostruki aršini)</span><span class="t" data-lang="en">“The In-Between” (double standards)</span></li>
+        <li><strong><span class="t active" data-lang="bs">ESC 2026</span><span class="t" data-lang="en">ESC 2026</span></li>
+    </ul>
+
+    <h2><span class="t active" data-lang="bs">📌 Zaključak (nepobitni lanac)</span><span class="t" data-lang="en">📌 Conclusion (incontrovertible chain)</span></h2>
+    <div class="evidence">
+        <span class="t active" data-lang="bs"><strong>Trgovina leševima (Tutogen)</strong> → <strong>Spajanje sa RTI (2008)</strong> → <strong>Plasiranje tkiva kroz “361 backdoor”</strong></span>
+        <span class="t" data-lang="en"><strong>Trafficking in corpses (Tutogen)</strong> → <strong>Merger with RTI (2008)</strong> → <strong>Placing tissue through the “361 backdoor”</strong></span>
     </div>
 
+    <hr>
     <div class="footer">
-        <p><span class="t active" data-lang="bs">Ovo nije teorija zavjere. Ovo je dokumentovani mehanizam. Provjeri sam. Podijeli dalje. Ne kleči.</span></p>
-        <p><strong>#BajteBrothers – Do pobjede. Bez koljena.</strong></p>
-        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span></a></p>
+        <p><span class="t active" data-lang="bs">Ovo nije teorija zavjere. Ovo je dokumentovani mehanizam. Provjeri sam. Podijeli dalje. Ne kleči.</span><span class="t" data-lang="en">This is not a conspiracy theory. This is a documented mechanism. Verify for yourself. Share. No kneeling.</span></p>
+        <p><strong>#BajteBrothers – Do pobjede. Bez koljena.</strong><br>🚀🍏🍒🍉🤫❤️🤖🫂</p>
+        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span><span class="t" data-lang="en">← Back to main site</span></a></p>
     </div>
 </div>
 <script>
-    const translations = { /* preserved original translations object */ };
-    function setLang(lang, evt) {
+    const translations = {
+        title: { bs: "BajteBrothers – Lanac dokaza 361", en: "BajteBrothers – Evidence Chain 361", de: "BajteBrothers – Beweiskette 361", es: "BajteBrothers – Cadena de evidencia 361", it: "BajteBrothers – Catena di prove 361" },
+        desc: { bs: "Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit", en: "Documented chain: Tutogen → RTI → 361 backdoor → Epstein → war profit" },
+    };
+    function setLang(lang) {
         document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-        const targetBtn = evt && evt.currentTarget ? evt.currentTarget : document.querySelector(`.lang-btn[onclick*="'${lang}'"]`);
-        if (targetBtn) targetBtn.classList.add('active');
+        event.target.classList.add('active');
         document.querySelectorAll('[data-lang]').forEach(el => {
             el.classList.remove('active');
             if (el.getAttribute('data-lang') === lang) el.classList.add('active');
         });
         document.documentElement.lang = lang;
+        if (translations.title[lang]) document.getElementById('page-title').textContent = translations.title[lang];
+        if (translations.desc[lang]) document.getElementById('meta-desc').setAttribute('content', translations.desc[lang]);
+        if (translations.title[lang]) document.getElementById('og-title').setAttribute('content', translations.title[lang]);
+        if (translations.desc[lang]) document.getElementById('og-desc').setAttribute('content', translations.desc[lang]);
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'] };
+        const btn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        btn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : btn.textContent;
     }
     function toggleMode() {
         const body = document.body;
         const btn = document.getElementById('mode-toggle');
-        const currentLang = document.documentElement.lang || 'bs';
-        body.classList.toggle('doc-mode');
-        btn.textContent = body.classList.contains('doc-mode') ? '🎨 POSTER REŽIM' : '📄 DOKUMENT REŽIM';
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'] };
+        const currentLang = document.documentElement.lang;
+        if (body.classList.contains('doc-mode')) {
+            body.classList.remove('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][0] : '📄 DOCUMENT MODE';
+        } else {
+            body.classList.add('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][1] : '🎨 POSTER MODE';
+        }
     }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-    window.addEventListener('load', function() {
-        let url = window.location.href;
-        if (url.startsWith('file://') || url === 'about:blank') {
-            url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';
-        }
-        try {
-            new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160 });
-        } catch (e) {
-            document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;color:#000;">QR: ' + url + '</p>';
-        }
-    });
 </script>
 </body>
 </html>
