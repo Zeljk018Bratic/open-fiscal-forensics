@@ -65,9 +65,22 @@
         a:hover { text-decoration: underline; }
         .btn { display: inline-block; background: var(--red); color: var(--black); padding: 10px 20px;
                margin: 20px 0; font-family: 'Courier Prime', monospace; border-radius: 3px; }
+        p { font-size: 18px; }
+        .qr-wrap, #qr-canvas {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+        }
+        #qr-canvas img { display: block; width: 100%; height: 100%; max-width: 200px; max-height: 200px; }
         footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #1a1a1a; margin-top: 40px; }
         .t { display: none; } .t.active { display: block; }
-        @media (max-width: 768px) { .trojstvo { flex-direction: column; } }
+        @media (max-width: 768px) { .trojstvo { flex-direction: column; } .qr-wrap, #qr-canvas { width: 160px; height: 160px; } }
     </style>
 </head>
 <body>
@@ -128,7 +141,9 @@
     </div>
 
     <div style="text-align: center; margin: 40px 0;">
-        <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
+        <div class="qr-wrap" aria-label="QR code linking to this page">
+            <div id="qr-canvas" aria-label="QR code linking to this page"></div>
+        </div>
         <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
         <p class="t" data-lang="en">open → verify → share</p>
         <p class="t" data-lang="de">öffnen → prüfen → teilen</p>
@@ -138,10 +153,10 @@
 
     <footer>
         <p>#BajteBrothers – Do pobjede. Bez koljena.</p>
-        <p>🚀🍏🍒🍉❤️🤖🫂</p>
+        <p aria-hidden="true">🚀🍏🍒🍉❤️🤖🫂</p>
     </footer>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="qrcode.min.js"></script>
 <script>
     const translations = { bs: "HR/BHS", en: "EN", de: "DE", es: "ES", it: "IT" };
     function setLang(lang) {
@@ -165,11 +180,32 @@
         body.classList.toggle('doc-mode');
         btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
     }
+    function renderRobustQr(targetId, fallbackUrl) {
+        var qrCanvas = document.getElementById(targetId);
+        if (!qrCanvas) return;
+        var url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') {
+            url = fallbackUrl;
+        }
+        qrCanvas.setAttribute('aria-label', 'QR code linking to this page');
+        try {
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: 3 };
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+                opts.correctLevel = QRCode.CorrectLevel.H;
+            }
+            qrCanvas.innerHTML = '';
+            new QRCode(qrCanvas, opts);
+            var qrImage = qrCanvas.querySelector('img');
+            if (qrImage) {
+                qrImage.alt = 'QR code for ' + url;
+            }
+        } catch (error) {
+            qrCanvas.innerHTML = '<a href="' + url + '" rel="noopener noreferrer">Open this page: ' + url + '</a>';
+            console.warn('QR generation failed', error);
+        }
+    }
     window.addEventListener('load', function() {
-        let url = window.location.href;
-        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
-        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
-        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+        renderRobustQr('qr-canvas', 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html');
     });
 </script>
 </body>
