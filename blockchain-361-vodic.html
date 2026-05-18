@@ -85,10 +85,35 @@
             qrWrap.style.textAlign = 'center';
             var canvas = document.createElement('div');
             canvas.id = 'qr-canvas';
+            canvas.setAttribute('aria-label', 'QR kod za dijeljenje ove stranice');
+            canvas.style.display = 'inline-block';
+            canvas.style.background = 'white';
+            canvas.style.padding = '12px';
+            canvas.style.borderRadius = '4px';
+            canvas.style.border = '2px solid #eee';
+            canvas.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
             qrWrap.appendChild(canvas);
             el.insertBefore(qrWrap, el.children[1]);
-            new QRCode(document.getElementById('qr-canvas'), { text: window.location.href, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
-        }catch(e){console.warn('QR failed',e)}
+            var url = window.location.href;
+            if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html';
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+                opts.correctLevel = QRCode.CorrectLevel.H;
+            } else {
+                opts.correctLevel = 3;
+            }
+            new QRCode(canvas, opts);
+        }catch(e){
+            console.warn('QR failed', e);
+            var canvas2 = document.getElementById('qr-canvas');
+            if (canvas2) {
+                var p2 = document.createElement('p');
+                p2.style.cssText = 'font-size:10px;padding:10px;';
+                p2.textContent = 'QR: ' + url;
+                canvas2.innerHTML = '';
+                canvas2.appendChild(p2);
+            }
+        }
     })();
 </script>
 </body>

@@ -86,7 +86,8 @@
             background: #fff;
             padding: 12px;
             border-radius: 4px;
-            border: 1px solid #d3c8b3;
+            border: 2px solid #eee;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
         .footer-share-title { color: #d4ccc0; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
         .footer-share-note { color: #c4bcae; font-family: 'Courier Prime', monospace; font-size: 11px; }
@@ -113,7 +114,9 @@
 </div>
 <div class="container">
     <div class="hero-logo-wrap">
-        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo">
+        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+        <span style="display:none;font-family:'Courier Prime',monospace;font-size:1.1rem;font-weight:700;color:#d4a017;letter-spacing:2px;" aria-label="BajteBrothers">#BAJTEBROTHERS</span>
     </div>
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
     <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
@@ -136,7 +139,7 @@
     <!-- rest of content unchanged -->
 
     <div class="share-block">
-        <div class="qr-wrap" id="qr-canvas" aria-hidden="false"></div>
+        <div class="qr-wrap" id="qr-canvas" aria-label="QR kod za dijeljenje ove stranice"></div>
         <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
     </div>
 
@@ -174,14 +177,18 @@
         let url = window.location.href;
         if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
         try {
-            var opts = { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff' };
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
             if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
                 opts.correctLevel = QRCode.CorrectLevel.H;
             } else {
                 opts.correctLevel = 3;
             }
             new QRCode(document.getElementById('qr-canvas'), opts);
-        } catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
+        } catch(e) {
+            console.warn('QR failed', e);
+            var elFb = document.getElementById('qr-canvas');
+            if (elFb) { var pFb = document.createElement('p'); pFb.style.cssText = 'font-size:10px;padding:10px;'; pFb.textContent = 'QR: ' + url; elFb.innerHTML = ''; elFb.appendChild(pFb); }
+        }
     });
 </script>
 </body>
