@@ -206,5 +206,46 @@
         }
     }
 </script>
+<script src="qrcode.min.js"></script>
+<script>
+    window.addEventListener('load', function() {
+        var url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';
+        var qrSection = document.createElement('div');
+        qrSection.style.cssText = 'margin-top:30px;padding-top:20px;border-top:1px solid #333;text-align:center;';
+        var qrLabel = document.createElement('p');
+        qrLabel.setAttribute('aria-hidden', 'true');
+        qrLabel.style.cssText = 'font-family:\'Courier Prime\',monospace;font-size:11px;color:#666;letter-spacing:3px;margin-bottom:16px;';
+        qrLabel.textContent = '#BAJTEBROTHERS — SCAN & SHARE';
+        var canvas = document.createElement('div');
+        canvas.id = 'qr-canvas';
+        canvas.setAttribute('aria-label', 'QR kod za dijeljenje ove stranice');
+        canvas.style.cssText = 'display:inline-block;background:white;padding:12px;border-radius:4px;border:2px solid #eee;box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+        qrSection.appendChild(qrLabel);
+        qrSection.appendChild(canvas);
+        document.querySelector('.container').appendChild(qrSection);
+        try {
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+                opts.correctLevel = QRCode.CorrectLevel.H;
+            } else {
+                opts.correctLevel = 3;
+            }
+            new QRCode(canvas, opts);
+        } catch(e) {
+            console.warn('QR failed', e);
+            var pFb = document.createElement('p');
+            pFb.style.cssText = 'font-size:10px;padding:10px;';
+            var aFb = document.createElement('a');
+            aFb.href = url;
+            aFb.style.color = '#d4a017';
+            aFb.textContent = url;
+            pFb.textContent = 'QR: ';
+            pFb.appendChild(aFb);
+            canvas.innerHTML = '';
+            canvas.appendChild(pFb);
+        }
+    });
+</script>
 </body>
 </html>
