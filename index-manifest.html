@@ -173,15 +173,17 @@
     window.addEventListener('load', function() {
         let url = window.location.href;
         if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        var qrEl = document.getElementById('qr-canvas');
+        if (!qrEl) {
+            qrEl = document.createElement('div');
+            qrEl.id = 'qr-canvas';
+            document.body.appendChild(qrEl);
+        }
         try {
-            var opts = { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff' };
-            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
-                opts.correctLevel = QRCode.CorrectLevel.H;
-            } else {
-                opts.correctLevel = 3;
-            }
-            new QRCode(document.getElementById('qr-canvas'), opts);
-        } catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
+            if (typeof QRCode === 'undefined') throw new Error('QRCode unavailable');
+            var level = (QRCode && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') ? QRCode.CorrectLevel.H : 0;
+            new QRCode(qrEl, { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: level });
+        } catch(e) { qrEl.innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
     });
 </script>
 </body>

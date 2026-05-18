@@ -874,27 +874,35 @@ function toggleMode() {
 </script>
 
 <!-- QR CODE LIBRARY -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="qrcode.min.js"></script>
 
 <script>
 // Generate QR after page loads
 window.addEventListener('load', function() {
   var url = window.location.href;
-  // If opened locally, use GitHub URL
   if (url.startsWith('file://') || url === 'about:blank') {
     url = 'https://zeljk018bratic.github.io/sound-of-freedom/';
   }
+  var qrEl = document.getElementById('qr-canvas');
+  if (!qrEl) {
+    qrEl = document.createElement('div');
+    qrEl.id = 'qr-canvas';
+    document.body.appendChild(qrEl);
+  }
   try {
-    new QRCode(document.getElementById('qr-canvas'), {
+    if (typeof QRCode === 'undefined') throw new Error('QRCode unavailable');
+    var level = (QRCode && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') ? QRCode.CorrectLevel.H : 0;
+    new QRCode(qrEl, {
       text: url,
       width: 160,
       height: 160,
       colorDark: '#000000',
       colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
+      correctLevel: level
     });
   } catch(e) {
-    document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;color:#666;padding:10px;">QR: ' + url + '</p>';
+    qrEl.innerHTML = '<p style="font-size:10px;color:#666;padding:10px;">QR: ' + url + '</p>';
+    console.warn('QR failed', e);
   }
 });
 </script>
