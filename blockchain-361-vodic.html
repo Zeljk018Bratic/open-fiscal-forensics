@@ -77,19 +77,27 @@
 </div>
 <script src="qrcode.min.js"></script>
 <script>
-    (function(){
-        try{
-            var el = document.getElementsByClassName('container')[0];
+    window.addEventListener('load', function(){
+        var url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html';
+        var el = document.getElementsByClassName('container')[0];
+        var qrEl = document.getElementById('qr-canvas');
+        if (!qrEl && el) {
             var qrWrap = document.createElement('div');
             qrWrap.style.marginTop = '18px';
             qrWrap.style.textAlign = 'center';
-            var canvas = document.createElement('div');
-            canvas.id = 'qr-canvas';
-            qrWrap.appendChild(canvas);
+            qrEl = document.createElement('div');
+            qrEl.id = 'qr-canvas';
+            qrWrap.appendChild(qrEl);
             el.insertBefore(qrWrap, el.children[1]);
-            new QRCode(document.getElementById('qr-canvas'), { text: window.location.href, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
-        }catch(e){console.warn('QR failed',e)}
-    })();
+        }
+        if (!qrEl) return;
+        try{
+            if (typeof QRCode === 'undefined') throw new Error('QRCode unavailable');
+            var level = (QRCode && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') ? QRCode.CorrectLevel.H : 0;
+            new QRCode(qrEl, { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: level });
+        }catch(e){ qrEl.innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed',e); }
+    });
 </script>
 </body>
 </html>
