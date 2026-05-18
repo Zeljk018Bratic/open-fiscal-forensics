@@ -85,10 +85,20 @@
             qrWrap.style.textAlign = 'center';
             var canvas = document.createElement('div');
             canvas.id = 'qr-canvas';
+            canvas.setAttribute('role', 'img');
+            canvas.setAttribute('aria-label', 'QR kod za dijeljenje ove stranice');
             qrWrap.appendChild(canvas);
             el.insertBefore(qrWrap, el.children[1]);
-            new QRCode(document.getElementById('qr-canvas'), { text: window.location.href, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
-        }catch(e){console.warn('QR failed',e)}
+            var opts = { text: window.location.href, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+                opts.correctLevel = QRCode.CorrectLevel.H;
+            } else { opts.correctLevel = 3; }
+            new QRCode(document.getElementById('qr-canvas'), opts);
+        }catch(e){
+            var fb=document.getElementById('qr-canvas');
+            if(fb){var p=document.createElement('p');p.style.cssText='font-size:10px;padding:10px;color:#666;';p.textContent='QR: '+window.location.href;fb.innerHTML='';fb.appendChild(p);}
+            console.warn('QR failed',e);
+        }
     })();
 </script>
 </body>
