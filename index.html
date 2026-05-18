@@ -36,9 +36,65 @@ body{background:var(--black);color:var(--white);font-family:'Source Sans 3',sans
 const metaData={bs:{title:"Sound of Freedom — Zašto ništa ne znaš o ovome?",desc:"300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?"},en:{title:"Sound of Freedom — Why you don't know about this?",desc:"300,000 missing children..."}};
 function setLang(lang,e){document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.remove('active'));if(e&&e.target)e.target.classList.add('active');document.querySelectorAll('[data-lang]').forEach(el=>{el.classList.remove('active');if(el.getAttribute('data-lang')===lang)el.classList.add('active')});document.documentElement.lang=lang;}
 </script>
+
+<!-- Robust QR + pages canonical init -->
 <script src="qrcode.min.js"></script>
+
 <script>
-window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}try{new QRCode(document.getElementById('qr-canvas'),{text:url,width:160,height:160,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});}catch(e){console.warn('QR failed',e);}});
+// Ensure default language is applied so translated content is visible
+window.addEventListener('DOMContentLoaded', function(){
+  try { if (typeof setLang === 'function') setLang('bs', null); } catch(e){ console.warn('setLang failed', e); }
+});
+
+function getCanonicalPagesUrl() {
+  try {
+    var pagesBase = 'https://zeljk018bratic.github.io/sound-of-freedom';
+    var href = window.location.href || '';
+    var host = window.location.hostname || '';
+
+    if (href.startsWith('file://') || href === 'about:blank' || host.includes('raw.githack') || host.includes('raw.githubusercontent')) {
+      var parts = (window.location.pathname || '').split('/');
+      var file = parts.filter(Boolean).pop() || '';
+      return pagesBase + (file ? '/' + file : '/');
+    }
+
+    if (host === 'github.com') {
+      var segs = window.location.pathname.split('/');
+      var blobIndex = segs.indexOf('blob');
+      if (blobIndex !== -1 && segs.length > blobIndex + 2) {
+        var filePath = segs.slice(blobIndex + 2).join('/');
+        return pagesBase + '/' + filePath;
+      }
+    }
+
+    if (host === 'zeljk018bratic.github.io') return href;
+    var path = window.location.pathname || '/';
+    return pagesBase + (path === '/' ? '/' : path);
+  } catch (e) {
+    return 'https://zeljk018bratic.github.io/sound-of-freedom/';
+  }
+}
+
+(function createRobustQr(id, rawUrl, size){
+  var el = document.getElementById(id);
+  if (!el) return;
+  var url = rawUrl || getCanonicalPagesUrl();
+  try {
+    var opts = { text: url, width: size || 200, height: size || 200, colorDark: '#000', colorLight: '#fff' };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else {
+      opts.correctLevel = 3;
+    }
+    new QRCode(el, opts);
+    var img = el.querySelector && el.querySelector('img');
+    if (img) { img.alt = 'QR code: ' + url; img.setAttribute('aria-label','QR code to open this page'); }
+  } catch (err) {
+    el.innerHTML = '<a href="' + url + '" style="font-size:13px;color:#ddd;">Open: ' + url + '</a>';
+    console.warn('QR generation failed', err);
+  }
+})('qr-canvas', null, 200);
 </script>
+
 </body>
 </html>
