@@ -113,7 +113,8 @@
 </div>
 <div class="container">
     <div class="hero-logo-wrap">
-        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo">
+        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo" onerror="this.style.display='none';var f=document.getElementById('logo-text-fallback');if(f)f.style.display='inline-block';">
+        <span id="logo-text-fallback" style="display:none;font-family:'Courier Prime',monospace;font-size:1.2rem;color:#d4a017;letter-spacing:2px;">BajteBrothers</span>
     </div>
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
     <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
@@ -174,14 +175,14 @@
         let url = window.location.href;
         if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
         try {
-            var opts = { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff' };
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
             if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
                 opts.correctLevel = QRCode.CorrectLevel.H;
             } else {
                 opts.correctLevel = 3;
             }
             new QRCode(document.getElementById('qr-canvas'), opts);
-        } catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
+        } catch(e) { var el=document.getElementById('qr-canvas');if(el){var p=document.createElement('p');p.style.cssText='font-size:10px;padding:10px;';p.textContent='QR: '+url;el.innerHTML='';el.appendChild(p);} console.warn('QR failed', e); }
     });
 </script>
 </body>

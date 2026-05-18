@@ -799,7 +799,7 @@ body.doc-mode .mirror-btn:hover { color: #333; border-color: #333; }
   <!-- QR SECTION -->
   <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #1a1a1a;">
     <p style="font-family: 'Courier Prime', monospace; font-size: 11px; color: #444; letter-spacing: 3px; margin-bottom: 16px;">#BAJTEBROTHERS — SCAN & SHARE</p>
-    <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
+    <div id="qr-canvas" role="img" aria-label="QR kod za dijeljenje ove stranice" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
     <p style="font-family: 'Courier Prime', monospace; font-size: 10px; color: #333; margin-top: 12px; letter-spacing: 2px;">scan → provjeri → proslijedi</p>
   </div>
 </footer>
@@ -873,28 +873,29 @@ function toggleMode() {
 }
 </script>
 
-<!-- QR CODE LIBRARY -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+<script src="qrcode.min.js"></script>
 <script>
-// Generate QR after page loads
 window.addEventListener('load', function() {
   var url = window.location.href;
-  // If opened locally, use GitHub URL
   if (url.startsWith('file://') || url === 'about:blank') {
     url = 'https://zeljk018bratic.github.io/sound-of-freedom/';
   }
   try {
-    new QRCode(document.getElementById('qr-canvas'), {
-      text: url,
-      width: 160,
-      height: 160,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
+    var opts = { text: url, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff' };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else {
+      opts.correctLevel = 3;
+    }
+    new QRCode(document.getElementById('qr-canvas'), opts);
   } catch(e) {
-    document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;color:#666;padding:10px;">QR: ' + url + '</p>';
+    var el = document.getElementById('qr-canvas');
+    if (typeof window.generateQrFallback === 'function') {
+      window.generateQrFallback('qr-canvas', url, 200);
+    } else if (el) {
+      var p=document.createElement('p');p.style.cssText='font-size:10px;color:#666;padding:10px;';p.textContent='QR: '+url;el.innerHTML='';el.appendChild(p);
+    }
+    console.warn('QR failed', e);
   }
 });
 </script>
