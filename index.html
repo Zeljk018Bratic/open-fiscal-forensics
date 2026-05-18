@@ -27,18 +27,34 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--black);color:var(--white);font-family:'Source Sans 3',sans-serif;font-weight:300;overflow-x:hidden}
-/* styles truncated for brevity in editor but preserved in repo */
 </style>
 </head>
 <body>
-<!-- main content truncated in editor view but preserved in repo -->
-<script>
-const metaData={bs:{title:"Sound of Freedom — Zašto ništa ne znaš o ovome?",desc:"300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?"},en:{title:"Sound of Freedom — Why you don't know about this?",desc:"300,000 missing children..."}};
-function setLang(lang,e){document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.remove('active'));if(e&&e.target)e.target.classList.add('active');document.querySelectorAll('[data-lang]').forEach(el=>{el.classList.remove('active');if(el.getAttribute('data-lang')===lang)el.classList.add('active')});document.documentElement.lang=lang;}
-</script>
+<div class="lang-bar"><span>🌐</span><button class="lang-btn active" onclick="setLang('bs', event)">HR/BHS</button><button class="lang-btn" onclick="setLang('en', event)">EN</button></div>
+<div class="hero"><div class="hero-counter">300.000</div><div class="hero-unit t active" data-lang="bs">nestale djece</div></div>
+<hr class="divider">
+<section id="facts"><span class="section-label t active" data-lang="bs">§01 — Dokumentovane činjenice</span></section>
+<hr class="divider">
+<div class="share-block"><div class="qr-wrap" id="qr-canvas" aria-hidden="false"></div></div>
 <script src="qrcode.min.js"></script>
 <script>
-window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}try{new QRCode(document.getElementById('qr-canvas'),{text:url,width:160,height:160,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});}catch(e){console.warn('QR failed',e);}});
+// Robust QR generation for index.html
+window.addEventListener('load', function(){
+  var url = window.location.href;
+  if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/';
+  try {
+    var opts = { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff' };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else { opts.correctLevel = 3; }
+    new QRCode(document.getElementById('qr-canvas'), opts);
+  } catch(e) {
+    // fallback: use helper or show text image
+    if (typeof window.generateQrFallback === 'function') { window.generateQrFallback('qr-canvas', url, 160); }
+    else { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;color:#666;">QR: '+url+'</p>'; }
+    console.warn('QR failed', e);
+  }
+});
 </script>
 </body>
 </html>
