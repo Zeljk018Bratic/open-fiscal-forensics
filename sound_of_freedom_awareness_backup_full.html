@@ -873,30 +873,45 @@ function toggleMode() {
 }
 </script>
 
-<!-- QR CODE LIBRARY -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- QR CODE LIBRARY (local shim + robust init) -->
+<script src="qrcode.min.js"></script>
 
 <script>
-// Generate QR after page loads
-window.addEventListener('load', function() {
-  var url = window.location.href;
-  // If opened locally, use GitHub URL
-  if (url.startsWith('file://') || url === 'about:blank') {
-    url = 'https://zeljk018bratic.github.io/sound-of-freedom/';
-  }
+// Robust QR init: fallback-safe, uses local qrcode.min.js, larger canvas, and accessibility attrs
+(function createRobustQr(id, rawUrl, size){
   try {
-    new QRCode(document.getElementById('qr-canvas'), {
+    var url = rawUrl || window.location.href;
+    if (url.startsWith('file://') || url === 'about:blank') {
+      url = 'https://zeljk018bratic.github.io/sound-of-freedom/';
+    }
+    var opts = {
       text: url,
-      width: 160,
-      height: 160,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-  } catch(e) {
-    document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;color:#666;padding:10px;">QR: ' + url + '</p>';
+      width: size || 200,
+      height: size || 200,
+      colorDark: '#000',
+      colorLight: '#fff'
+    };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else {
+      opts.correctLevel = 3; // numeric fallback for some QR libs
+    }
+    new QRCode(document.getElementById(id), opts);
+    var el = document.getElementById(id);
+    var img = el && el.querySelector && el.querySelector('img');
+    if (img) {
+      img.alt = 'QR code: ' + url;
+      img.setAttribute('aria-label', 'QR code to open this page');
+    }
+  } catch (err) {
+    var el2 = document.getElementById(id);
+    if (el2) {
+      el2.innerHTML = '<a href="' + url + '" style="font-size:13px;color:#333;">Open: ' + url + '</a>';
+    }
+    console.warn('QR generation failed', err);
   }
-});
+})('qr-canvas', null, 200);
 </script>
+
 </body>
 </html>
