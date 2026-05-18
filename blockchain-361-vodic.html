@@ -29,7 +29,10 @@
         a { color: var(--gold); text-decoration: none; }
         a:hover { text-decoration: underline; }
         footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
+        .qr-wrap, #qr-canvas { display: inline-block; background: #fff; padding: 12px; border-radius: 6px; border: 2px solid rgba(0,0,0,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 200px; height: 200px; }
+        p { font-size: 18px; }
         @media (max-width: 768px) { body { padding: 15px; } }
+        @media (max-width: 600px) { .qr-wrap, #qr-canvas { width: 160px; height: 160px; } }
     </style>
 </head>
 <body>
@@ -81,14 +84,30 @@
         try{
             var el = document.getElementsByClassName('container')[0];
             var qrWrap = document.createElement('div');
+            qrWrap.className = 'qr-wrap';
             qrWrap.style.marginTop = '18px';
             qrWrap.style.textAlign = 'center';
             var canvas = document.createElement('div');
             canvas.id = 'qr-canvas';
+            canvas.setAttribute('aria-label', 'QR code to open this page');
             qrWrap.appendChild(canvas);
             el.insertBefore(qrWrap, el.children[1]);
-            new QRCode(document.getElementById('qr-canvas'), { text: window.location.href, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H });
-        }catch(e){console.warn('QR failed',e)}
+            var url = window.location.href;
+            if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html';
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+                opts.correctLevel = QRCode.CorrectLevel.H;
+            } else {
+                opts.correctLevel = 3;
+            }
+            new QRCode(document.getElementById('qr-canvas'), opts);
+            var img = canvas.querySelector('img');
+            if (img) { img.alt = 'QR code: ' + url; img.setAttribute('aria-label', 'QR code to open this page'); }
+        }catch(e){
+            var el2 = document.getElementById('qr-canvas');
+            if (el2) el2.innerHTML = '<a href="' + window.location.href + '" style="font-size:12px;color:#333;">Open: ' + window.location.href + '</a>';
+            console.warn('QR generation failed', e);
+        }
     })();
 </script>
 </body>
