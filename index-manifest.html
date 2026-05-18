@@ -86,7 +86,8 @@
             background: #fff;
             padding: 12px;
             border-radius: 4px;
-            border: 1px solid #d3c8b3;
+            border: 2px solid #d3c8b3;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
         }
         .footer-share-title { color: #d4ccc0; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; }
         .footer-share-note { color: #c4bcae; font-family: 'Courier Prime', monospace; font-size: 11px; }
@@ -113,7 +114,8 @@
 </div>
 <div class="container">
     <div class="hero-logo-wrap">
-        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo">
+        <img src="bajtebrothers-logo.png" alt="BajteBrothers" class="hero-logo" onerror="this.style.display='none';var fb=document.getElementById('logo-fallback');if(fb)fb.style.display='inline-block';">
+        <span id="logo-fallback" style="display:none;font-family:'Playfair Display',serif;font-size:1.5rem;color:#d4a017;font-weight:700;letter-spacing:1px;">#BajteBrothers</span>
     </div>
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
     <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
@@ -173,15 +175,19 @@
     window.addEventListener('load', function() {
         let url = window.location.href;
         if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        var qrEl = document.getElementById('qr-canvas');
+        if (!qrEl) return;
         try {
-            var opts = { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff' };
+            var opts = { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' };
             if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
                 opts.correctLevel = QRCode.CorrectLevel.H;
             } else {
                 opts.correctLevel = 3;
             }
-            new QRCode(document.getElementById('qr-canvas'), opts);
-        } catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
+            new QRCode(qrEl, opts);
+            var img = qrEl.querySelector('img');
+            if (img) img.alt = 'QR code — scan to share this page';
+        } catch(e) { qrEl.innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; console.warn('QR failed', e); }
     });
 </script>
 </body>

@@ -38,7 +38,7 @@ function setLang(lang,e){document.querySelectorAll('.lang-btn').forEach(btn=>btn
 </script>
 <script src="qrcode.min.js"></script>
 <script>
-window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}try{new QRCode(document.getElementById('qr-canvas'),{text:url,width:160,height:160,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});}catch(e){console.warn('QR failed',e);}});
+window.addEventListener('load',function(){var url=window.location.href;if(url.startsWith('file://')||url==='about:blank'){url='https://zeljk018bratic.github.io/sound-of-freedom/';}var qrEl=document.getElementById('qr-canvas');if(!qrEl)return;try{var opts={text:url,width:200,height:200,colorDark:'#000',colorLight:'#fff'};if(typeof QRCode!=='undefined'&&QRCode.CorrectLevel&&typeof QRCode.CorrectLevel.H!=='undefined'){opts.correctLevel=QRCode.CorrectLevel.H;}else{opts.correctLevel=3;}new QRCode(qrEl,opts);var img=qrEl.querySelector('img');if(img)img.alt='QR code — scan to share this page';}catch(e){qrEl.innerHTML='<p style="font-size:10px;color:#666;padding:10px;">QR: '+url+'</p>';console.warn('QR failed',e);}});
 </script>
 </body>
 </html>
