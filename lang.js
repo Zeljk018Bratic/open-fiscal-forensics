@@ -72,7 +72,7 @@ window.LANG_CONFIG = {
   },
   pages: {
     awareness: {
-      file: 'sound_of_freedom_awareness.html',
+      file: 'index.html',
       meta: {
         title: {
           bs: 'Sound of Freedom — Zašto ništa ne znaš o ovome?',

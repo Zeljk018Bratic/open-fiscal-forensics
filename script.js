@@ -7,7 +7,18 @@
   const pageKey = document.body?.dataset?.page || 'index';
   const pageConfig = (cfg.pages && cfg.pages[pageKey]) || {};
 
+  function getLangFromQuery() {
+    try {
+      const queryLang = (new URLSearchParams(window.location.search).get('lang') || '').toLowerCase();
+      return supported.includes(queryLang) ? queryLang : '';
+    } catch (_err) {
+      return '';
+    }
+  }
+
   function getLang() {
+    const fromQuery = getLangFromQuery();
+    if (fromQuery) return fromQuery;
     const stored = localStorage.getItem('bb_lang');
     return supported.includes(stored) ? stored : fallbackLang;
   }
@@ -46,6 +57,32 @@
     }
   }
 
+  function setLangQuery(lang) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      window.history.replaceState({}, '', next);
+    } catch (_err) {
+      // no-op
+    }
+  }
+
+  function setLangOnInternalLinks(lang) {
+    document.querySelectorAll('a.nav-link[href], a.logo-link[href]').forEach((link) => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+      try {
+        const url = new URL(href, window.location.href);
+        if (url.origin !== window.location.origin) return;
+        url.searchParams.set('lang', lang);
+        link.setAttribute('href', `${url.pathname}${url.search}${url.hash}`);
+      } catch (_err) {
+        // no-op
+      }
+    });
+  }
+
   function applyLanguage(lang) {
     const current = supported.includes(lang) ? lang : fallbackLang;
 
@@ -82,6 +119,8 @@
     document.documentElement.lang = current;
     localStorage.setItem('bb_lang', current);
     setMeta(current);
+    setLangQuery(current);
+    setLangOnInternalLinks(current);
   }
 
   function getCanonicalUrl() {
