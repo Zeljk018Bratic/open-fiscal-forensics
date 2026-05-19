@@ -893,7 +893,11 @@ function createRobustQr(id, rawUrl, size) {
       img.setAttribute('aria-label', 'QR code to open this page');
     }
   } catch(err) {
-    el.innerHTML = '<a href="' + url + '" style="font-size:13px;color:#333;">Open: ' + url + '</a>';
+    var a = document.createElement('a');
+    a.href = url;
+    a.style.cssText = 'font-size:13px;color:#333;';
+    a.textContent = 'Open: ' + url;
+    el.appendChild(a);
   }
 }
 </script>
