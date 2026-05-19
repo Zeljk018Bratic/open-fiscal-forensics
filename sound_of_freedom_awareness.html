@@ -1,26 +1,901 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirecting…</title>
-  <meta http-equiv="refresh" content="0; url=index.html">
-  <script>
-    (function () {
-      try {
-        var params = new URLSearchParams(window.location.search);
-        var lang = (params.get('lang') || '').toLowerCase();
-        var supported = ['bs', 'de', 'en', 'es', 'it', 'fr'];
-        var target = new URL('index.html', window.location.href);
-        if (supported.indexOf(lang) !== -1) target.searchParams.set('lang', lang);
-        window.location.replace(target.pathname + target.search + target.hash);
-      } catch (_err) {
-        window.location.replace('index.html');
-      }
-    })();
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Sound of Freedom — Zašto ništa ne znaš o ovome?</title>
+<meta id="meta-desc" name="description" content="Dokumentovani izvještaji o nestaloj djeci i sistemskim propustima.">
+<meta id="og-title" property="og:title" content="Sound of Freedom — Zašto ništa ne znaš o ovome?">
+<meta id="og-desc" property="og:description" content="Dokumentovani izvještaji o nestaloj djeci i sistemskim propustima.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="bajtebrothers-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a;
+  --white: #f4f0e8;
+  --red: #c0392b;
+  --gold: #d4a017;
+  --grey: #2a2a2a;
+  --light-grey: #888;
+  --accent: #e8d5b0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* TRANSLATION CLASSES */
+.t { display: none; }
+.t.active { display: inline; }
+.tb { display: none; }
+.tb.active { display: block; }
+
+/* DOCUMENT MODE */
+body.doc-mode { background: #f5f5f0; color: #111; font-family: 'Courier Prime', monospace; }
+body.doc-mode .hero { background: #f5f5f0; border-bottom: 2px solid #111; }
+body.doc-mode .hero::before { display: none; }
+body.doc-mode .hero-counter { color: #111; text-shadow: none; }
+body.doc-mode .hero-unit { color: #444; }
+body.doc-mode .hero-title { color: #111; }
+body.doc-mode .hero-title em { color: #111; text-decoration: underline; font-style: italic; }
+body.doc-mode .hero-sub { color: #333; }
+body.doc-mode p { color: #222; }
+body.doc-mode h2 { color: #111; }
+body.doc-mode .stat-box { background: #eee; }
+body.doc-mode .stat-box:hover { background: #e5e5e0; }
+body.doc-mode .stat-num { color: #111; }
+body.doc-mode .stat-label { color: #444; }
+body.doc-mode .blockquote { background: #e8e8e3; border-left-color: #111; }
+body.doc-mode .blockquote p { color: #111; }
+body.doc-mode .link-card { background: #eee; border-color: #ccc; color: #111; }
+body.doc-mode .link-card:hover { background: #e0e0db; border-color: #888; }
+body.doc-mode .link-title { color: #111; }
+body.doc-mode .link-tag { color: #555; }
+body.doc-mode .warning-box { background: #e8e4d8; border-color: #555; }
+body.doc-mode .section-label { color: #555; }
+body.doc-mode .lang-bar { background: #e8e8e3; border-bottom-color: #ccc; }
+body.doc-mode .lang-btn { border-color: #aaa; color: #444; }
+body.doc-mode .lang-btn:hover, body.doc-mode .lang-btn.active { border-color: #111; color: #111; background: rgba(0,0,0,0.06); }
+body.doc-mode .tl-item::before { background: #333; }
+body.doc-mode .timeline::before { background: linear-gradient(180deg, #333, transparent); }
+body.doc-mode .tl-date { color: #555; }
+body.doc-mode .tl-text { color: #333; }
+body.doc-mode .big-question { color: #111; }
+body.doc-mode .big-question span { color: #333; text-decoration: underline; }
+body.doc-mode .question-section { background: #ebe8e0; }
+body.doc-mode .film-section { background: #ede9e0; }
+body.doc-mode .digital-id-section { background: #e8e0e0; }
+body.doc-mode footer { border-top-color: #ccc; }
+body.doc-mode footer p { color: #666; }
+body.doc-mode .divider { border-top-color: #ccc; }
+body.doc-mode .stat-grid { background: transparent; }
+body.doc-mode .scroll-hint { color: #999; }
+body.doc-mode .mode-btn { background: #ddd; color: #111; border-color: #aaa; }
+
+/* LANGUAGE BAR */
+.lang-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(10,10,10,0.95);
+  border-bottom: 1px solid #222;
+  padding: 8px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.lang-bar span { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--light-grey); margin-right: 8px; }
+.lang-btn {
+  background: none;
+  border: 1px solid #333;
+  color: #aaa;
+  font-size: 11px;
+  font-family: 'Courier Prime', monospace;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+.lang-btn:hover, .lang-btn.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(212,160,23,0.08);
+}
+.mode-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #333;
+  color: #666;
+  font-size: 10px;
+  font-family: 'Courier Prime', monospace;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.mode-btn:hover { border-color: var(--light-grey); color: var(--light-grey); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 100px 20px 60px;
+  position: relative;
+  background: radial-gradient(ellipse at center, #1a0a0a 0%, #0a0a0a 70%);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px);
+}
+.hero-counter {
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(60px, 15vw, 160px);
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: -4px;
+  animation: pulse-num 3s ease-in-out infinite;
+  text-shadow: 0 0 80px rgba(192,57,43,0.4);
+  position: relative;
+}
+@keyframes pulse-num { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.hero-unit {
+  font-family: 'Courier Prime', monospace;
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--light-grey);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin: 10px 0 30px;
+  position: relative;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 5vw, 56px);
+  font-weight: 900;
+  line-height: 1.1;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  position: relative;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-sub {
+  font-size: clamp(14px, 2vw, 18px);
+  color: #aaa;
+  max-width: 600px;
+  line-height: 1.7;
+  margin: 0 auto 40px;
+  position: relative;
+}
+.scroll-hint {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 4px;
+  animation: blink 2s infinite;
+  position: relative;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+/* SECTIONS */
+section { padding: 80px 20px; max-width: 900px; margin: 0 auto; }
+
+/* STAT GRID */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 40px;
+}
+@media (min-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 800px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+.stat-box {
+  background: #111;
+  padding: 30px;
+  border-top: 3px solid var(--gold);
+  border-radius: 4px;
+  transition: transform 0.2s, background 0.2s;
+}
+.stat-box:hover { transform: translateY(-2px); background: #161616; }
+.stat-num { font-size: 2.5rem; font-family: 'Courier Prime', monospace; color: var(--gold); line-height: 1; }
+.stat-label { color: #aaa; font-size: 0.9rem; margin-top: 8px; line-height: 1.5; }
+
+/* BLOCKQUOTE */
+.blockquote {
+  background: #111;
+  border-left: 4px solid var(--red);
+  padding: 30px;
+  margin: 30px 0;
+  border-radius: 0 4px 4px 0;
+}
+.blockquote p { color: #ccc; font-size: 1.1rem; line-height: 1.7; font-style: italic; }
+
+/* LINK GRID */
+.link-grid { display: grid; gap: 15px; }
+@media (min-width: 600px) { .link-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 800px) { .link-grid { grid-template-columns: repeat(3, 1fr); } }
+.link-card {
+  background: #111;
+  border: 1px solid #222;
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 4px;
+  display: block;
+  transition: border-color 0.2s, background 0.2s;
+}
+.link-card:hover { border-color: var(--gold); background: #141414; }
+.link-title { font-family: 'Courier Prime', monospace; font-size: 0.9rem; color: var(--gold); margin-bottom: 6px; }
+.link-desc { font-size: 0.85rem; color: #888; line-height: 1.5; margin-bottom: 8px; }
+.link-tag { font-size: 0.75rem; color: #666; font-family: 'Courier Prime', monospace; }
+
+/* WARNING BOX */
+.warning-box {
+  background: rgba(192,57,43,0.08);
+  border: 1px solid rgba(192,57,43,0.3);
+  padding: 25px;
+  border-radius: 4px;
+  margin: 30px 0;
+}
+.warning-box p { color: #ccc; line-height: 1.7; }
+
+/* SECTION LABEL */
+.section-label {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  display: block;
+}
+
+/* TIMELINE */
+.timeline {
+  border-left: 2px solid #222;
+  padding-left: 30px;
+  margin: 30px 0;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 40px;
+  background: linear-gradient(180deg, var(--red), transparent);
+}
+.tl-item { position: relative; margin-bottom: 30px; }
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -35px; top: 6px;
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+.tl-date { font-family: 'Courier Prime', monospace; font-size: 11px; color: #444; letter-spacing: 2px; text-transform: uppercase; }
+.tl-text { color: #ccc; margin-top: 5px; line-height: 1.6; }
+
+/* BIG QUESTION */
+.big-question {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 8vw, 72px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 30px 0;
+  color: var(--white);
+}
+.big-question span { color: var(--gold); display: block; font-size: 0.5em; font-weight: 300; }
+
+/* SPECIAL SECTIONS */
+.question-section { background: radial-gradient(ellipse at center, #1a0303 0%, #0a0a0a 60%); }
+.film-section { background: #111; }
+.digital-id-section { background: rgba(192,57,43,0.04); }
+
+/* DIVIDER */
+.divider { border-top: 1px solid #1a1a1a; margin: 60px auto; max-width: 200px; }
+
+/* HEADINGS */
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4vw, 40px);
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--white);
+}
+h3 { font-family: 'Courier Prime', monospace; font-size: 1rem; color: var(--gold); margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase; }
+p { color: #bbb; line-height: 1.7; margin-bottom: 16px; }
+
+/* FOOTER */
+footer { text-align: center; padding: 60px 20px 40px; border-top: 1px solid #111; }
+footer p { color: #444; font-size: 0.85rem; margin: 5px 0; }
+</style>
 </head>
 <body>
-  <p>Redirecting to <a href="index.html">index.html</a>…</p>
+
+<!-- LANGUAGE BAR -->
+<div class="lang-bar">
+  <span>🌐</span>
+  <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">BS/HR/SR</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
+  <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+  <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+  <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-counter">300.000</div>
+  <div class="hero-unit">
+    <span class="t active" data-lang="bs">NESTALE DJECE</span><span class="t" data-lang="en">MISSING CHILDREN</span><span class="t" data-lang="de">VERMISSTE KINDER</span><span class="t" data-lang="es">NIÑOS DESAPARECIDOS</span><span class="t" data-lang="it">BAMBINI SCOMPARSI</span><span class="t" data-lang="fr">ENFANTS DISPARUS</span>
+  </div>
+  <h1 class="hero-title">
+    <span class="t active" data-lang="bs">Sound of Freedom — <em>Zašto ništa ne znaš o ovome?</em></span>
+    <span class="t" data-lang="en">Sound of Freedom — <em>Why do you know nothing about this?</em></span>
+    <span class="t" data-lang="de">Sound of Freedom — <em>Warum weißt du nichts darüber?</em></span>
+    <span class="t" data-lang="es">Sound of Freedom — <em>¿Por qué no sabes nada de esto?</em></span>
+    <span class="t" data-lang="it">Sound of Freedom — <em>Perché non sai nulla di questo?</em></span>
+    <span class="t" data-lang="fr">Sound of Freedom — <em>Pourquoi ne sais-tu rien de cela&nbsp;?</em></span>
+  </h1>
+  <p class="hero-sub">
+    <span class="t active" data-lang="bs">Zvanični izvještaji, sudski dosijei i svjedočanja: provjeri dokumente i donesi svoj zaključak.</span>
+    <span class="t" data-lang="en">Official reports, court files, and sworn testimony: verify the documents and decide for yourself.</span>
+    <span class="t" data-lang="de">Offizielle Berichte, Gerichtsakten und eidesstattliche Aussagen: prüfe die Dokumente selbst.</span>
+    <span class="t" data-lang="es">Informes oficiales, expedientes judiciales y testimonios: verifica los documentos y decide por ti mismo.</span>
+    <span class="t" data-lang="it">Rapporti ufficiali, atti giudiziari e testimonianze giurate: verifica i documenti da solo.</span>
+    <span class="t" data-lang="fr">Rapports officiels, dossiers judiciaires et témoignages sous serment&nbsp;: vérifie les documents toi-même.</span>
+  </p>
+  <div class="scroll-hint">▼ SCROLL ▼</div>
+</div>
+
+<!-- STATS SECTION -->
+<section>
+  <span class="section-label">
+    <span class="t active" data-lang="bs">STATISTIKE — JAVNI IZVORI</span><span class="t" data-lang="en">STATISTICS — PUBLIC SOURCES</span><span class="t" data-lang="de">STATISTIKEN — ÖFFENTLICHE QUELLEN</span><span class="t" data-lang="es">ESTADÍSTICAS — FUENTES PÚBLICAS</span><span class="t" data-lang="it">STATISTICHE — FONTI PUBBLICHE</span><span class="t" data-lang="fr">STATISTIQUES — SOURCES PUBLIQUES</span>
+  </span>
+  <h2>
+    <span class="t active" data-lang="bs">Brojevi koje mainstream ne prikazuje</span>
+    <span class="t" data-lang="en">Numbers the mainstream won't show</span>
+    <span class="t" data-lang="de">Zahlen, die der Mainstream nicht zeigt</span>
+    <span class="t" data-lang="es">Cifras que el mainstream no muestra</span>
+    <span class="t" data-lang="it">Numeri che il mainstream non mostra</span>
+    <span class="t" data-lang="fr">Des chiffres que le grand public ne montre pas</span>
+  </h2>
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-num">800.000</div>
+      <div class="stat-label">
+        <span class="t active" data-lang="bs">nestale u SAD godišnje</span><span class="t" data-lang="en">missing per year in US</span><span class="t" data-lang="de">jährlich verschwunden in USA</span><span class="t" data-lang="es">desaparecen en EEUU por año</span><span class="t" data-lang="it">scomparsi negli USA ogni anno</span><span class="t" data-lang="fr">disparaissent par an aux USA</span>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">1 od 6</div>
+      <div class="stat-label">
+        <span class="t active" data-lang="bs">nestala djeca su trafficking žrtve</span><span class="t" data-lang="en">missing children are trafficking victims</span><span class="t" data-lang="de">verschwundene Kinder sind Trafficking-Opfer</span><span class="t" data-lang="es">niños desaparecidos son víctimas de trata</span><span class="t" data-lang="it">bambini scomparsi sono vittime di tratta</span><span class="t" data-lang="fr">enfants disparaissent sont victimes de traite</span>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">80%</div>
+      <div class="stat-label">
+        <span class="t active" data-lang="bs">neće biti ni prijavljeno</span><span class="t" data-lang="en">will go unreported</span><span class="t" data-lang="de">wird nicht mal gemeldet</span><span class="t" data-lang="es">no serán reportados</span><span class="t" data-lang="it">non verranno segnalati</span><span class="t" data-lang="fr">ne seront pas signalés</span>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">0</div>
+      <div class="stat-label">
+        <span class="t active" data-lang="bs">mainstream medija o ovome</span><span class="t" data-lang="en">mainstream media about this</span><span class="t" data-lang="de">Mainstream-Medien darüber</span><span class="t" data-lang="es">medios convencionales sobre esto</span><span class="t" data-lang="it">media mainstream su questo</span><span class="t" data-lang="fr">médias grand public à ce sujet</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning-box" style="margin-top:40px;">
+    <p>
+      <span class="t active" data-lang="bs">Izvor: FBI National Crime Information Center (NCIC), NCMEC (National Center for Missing &amp; Exploited Children), Europol — sve javno dostupno.</span>
+      <span class="t" data-lang="en">Sources: FBI National Crime Information Center (NCIC), NCMEC (National Center for Missing &amp; Exploited Children), Europol — all publicly available.</span>
+      <span class="t" data-lang="de">Quellen: FBI National Crime Information Center (NCIC), NCMEC, Europol — alle öffentlich zugänglich.</span>
+      <span class="t" data-lang="es">Fuentes: FBI NCIC, NCMEC, Europol — todas disponibles públicamente.</span>
+      <span class="t" data-lang="it">Fonti: FBI NCIC, NCMEC, Europol — tutte disponibili pubblicamente.</span>
+      <span class="t" data-lang="fr">Sources : FBI NCIC, NCMEC, Europol — toutes disponibles publiquement.</span>
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUESTION SECTION -->
+<div class="question-section">
+  <section>
+    <span class="section-label">
+      <span class="t active" data-lang="bs">KLJUČNO PITANJE</span><span class="t" data-lang="en">THE KEY QUESTION</span><span class="t" data-lang="de">DIE KERNFRAGE</span><span class="t" data-lang="es">LA PREGUNTA CLAVE</span><span class="t" data-lang="it">LA DOMANDA CHIAVE</span><span class="t" data-lang="fr">LA QUESTION CLÉ</span>
+    </span>
+    <div class="big-question">
+      <span class="t active" data-lang="bs">Zašto to<span>ne znaš?</span></span>
+      <span class="t" data-lang="en">Why don't<span>you know?</span></span>
+      <span class="t" data-lang="de">Warum weißt<span>du das nicht?</span></span>
+      <span class="t" data-lang="es">¿Por qué<span>no lo sabes?</span></span>
+      <span class="t" data-lang="it">Perché non<span>lo sai?</span></span>
+      <span class="t" data-lang="fr">Pourquoi ne<span>le sais-tu pas?</span></span>
+    </div>
+    <p>
+      <span class="t active" data-lang="bs">Podaci o nestaloj djeci postoje u javnim bazama podataka još od 1980-ih. NCMEC, FBI, Europol i Interpol objavljuju redovne godišnje izvještaje. Ni jedan od ovih izvještaja nije dospio na naslovne stranice — nikada.</span>
+      <span class="t" data-lang="en">Data on missing children has existed in public databases since the 1980s. NCMEC, FBI, Europol and Interpol publish regular annual reports. Not one of these reports has ever made front pages — never.</span>
+      <span class="t" data-lang="de">Daten über vermisste Kinder existieren seit den 1980er Jahren in öffentlichen Datenbanken. NCMEC, FBI, Europol und Interpol veröffentlichen regelmäßige Jahresberichte. Kein einziger dieser Berichte hat je die Titelseiten erreicht — niemals.</span>
+      <span class="t" data-lang="es">Los datos sobre niños desaparecidos existen en bases de datos públicas desde los años 80. NCMEC, FBI, Europol e Interpol publican informes anuales regulares. Ninguno de estos informes ha llegado jamás a las portadas.</span>
+      <span class="t" data-lang="it">I dati sui bambini scomparsi esistono nelle banche dati pubbliche dagli anni '80. NCMEC, FBI, Europol e Interpol pubblicano rapporti annuali regolari. Nessuno di questi rapporti è mai arrivato in prima pagina — mai.</span>
+      <span class="t" data-lang="fr">Les données sur les enfants disparus existent dans des bases de données publiques depuis les années 1980. NCMEC, FBI, Europol et Interpol publient des rapports annuels réguliers. Aucun de ces rapports n'a jamais fait la une — jamais.</span>
+    </p>
+    <p>
+      <span class="t active" data-lang="bs">Algoritmi na društvenim mrežama sustavno smanjuju doseg sadržaja koji govori o traffickingu. Meta, YouTube i Twitter/X imaju prijavljene slučajeve brisanja dokumentarnog materijala bez obrazloženja.</span>
+      <span class="t" data-lang="en">Algorithms on social media systematically reduce the reach of content discussing trafficking. Meta, YouTube and Twitter/X have reported cases of removing documentary material without explanation.</span>
+      <span class="t" data-lang="de">Algorithmen in sozialen Medien reduzieren systematisch die Reichweite von Inhalten über Menschenhandel. Meta, YouTube und Twitter/X haben gemeldete Fälle der Löschung von Dokumentarmaterial ohne Erklärung.</span>
+      <span class="t" data-lang="es">Los algoritmos de redes sociales reducen sistemáticamente el alcance del contenido sobre trata. Meta, YouTube y Twitter/X tienen casos reportados de eliminación de material documental sin explicación.</span>
+      <span class="t" data-lang="it">Gli algoritmi dei social media riducono sistematicamente la portata dei contenuti che parlano di traffico. Meta, YouTube e Twitter/X hanno casi segnalati di rimozione di materiale documentario senza spiegazioni.</span>
+      <span class="t" data-lang="fr">Les algorithmes des réseaux sociaux réduisent systématiquement la portée des contenus traitant de la traite. Meta, YouTube et Twitter/X ont des cas signalés de suppression de matériel documentaire sans explication.</span>
+    </p>
+  </section>
+</div>
+
+<hr class="divider">
+
+<!-- TIMELINE SECTION -->
+<section>
+  <span class="section-label">
+    <span class="t active" data-lang="bs">HRONOLOGIJA KLJUČNIH DOGAĐAJA</span><span class="t" data-lang="en">TIMELINE OF KEY EVENTS</span><span class="t" data-lang="de">CHRONOLOGIE DER SCHLÜSSELEREIGNISSE</span><span class="t" data-lang="es">CRONOLOGÍA DE EVENTOS CLAVE</span><span class="t" data-lang="it">CRONOLOGIA DEGLI EVENTI CHIAVE</span><span class="t" data-lang="fr">CHRONOLOGIE DES ÉVÉNEMENTS CLÉS</span>
+  </span>
+  <h2>
+    <span class="t active" data-lang="bs">Šta se desilo i kada</span>
+    <span class="t" data-lang="en">What happened and when</span>
+    <span class="t" data-lang="de">Was ist wann passiert</span>
+    <span class="t" data-lang="es">Qué sucedió y cuándo</span>
+    <span class="t" data-lang="it">Cosa è successo e quando</span>
+    <span class="t" data-lang="fr">Ce qui s'est passé et quand</span>
+  </h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">2005</div>
+      <div class="tl-text">
+        <strong>Tutogen Medical GmbH</strong> —
+        <span class="t active" data-lang="bs">trafficking u leševima, ekskluzivno otkrivanje — Der Spiegel. Ljude su koristili kao sirovinu bez pristanka.</span>
+        <span class="t" data-lang="en">trafficking in cadavers, exclusive investigation — Der Spiegel. Human bodies used as raw material without consent.</span>
+        <span class="t" data-lang="de">Handel mit Leichen, exklusive Enthüllung — Der Spiegel. Menschliche Körper wurden ohne Einwilligung als Rohmaterial genutzt.</span>
+        <span class="t" data-lang="es">tráfico de cadáveres, investigación exclusiva — Der Spiegel. Cuerpos humanos usados como materia prima sin consentimiento.</span>
+        <span class="t" data-lang="it">traffico di cadaveri, inchiesta esclusiva — Der Spiegel. Corpi umani usati come materia prima senza consenso.</span>
+        <span class="t" data-lang="fr">trafic de cadavres, enquête exclusive — Der Spiegel. Des corps humains utilisés comme matière première sans consentement.</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2008</div>
+      <div class="tl-text">
+        <strong>Tutogen + RTI Biologics</strong> —
+        <span class="t active" data-lang="bs">spajanje vrijednosti $150M. SEC dosijei javno dostupni. Kompanija nastavlja rad pod novim imenom.</span>
+        <span class="t" data-lang="en">$150M merger deal. SEC filings publicly available. Company continues under new name.</span>
+        <span class="t" data-lang="de">Fusion im Wert von 150 Mio. $. SEC-Einreichungen öffentlich zugänglich. Unternehmen läuft unter neuem Namen weiter.</span>
+        <span class="t" data-lang="es">acuerdo de fusión por $150M. Documentos SEC disponibles públicamente. La empresa continúa bajo nuevo nombre.</span>
+        <span class="t" data-lang="it">fusione da $150M. Documenti SEC disponibili pubblicamente. L'azienda continua sotto nuovo nome.</span>
+        <span class="t" data-lang="fr">fusion à 150 M$. Dossiers SEC disponibles publiquement. L'entreprise continue sous un nouveau nom.</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2013</div>
+      <div class="tl-text">
+        <strong>361 Backdoor</strong> —
+        <span class="t active" data-lang="bs">Maxim Group finansijska analiza, Steven Victor e-mail — interni dokumenti koji opisuju zaobilaženje FDA regulativa putem 361 HCT/P klasifikacije.</span>
+        <span class="t" data-lang="en">Maxim Group financial analysis, Steven Victor email — internal documents describing circumvention of FDA regulations via 361 HCT/P classification.</span>
+        <span class="t" data-lang="de">Maxim Group Finanzanalyse, Steven Victor E-Mail — interne Dokumente über Umgehung von FDA-Vorschriften via 361 HCT/P-Klassifizierung.</span>
+        <span class="t" data-lang="es">análisis financiero de Maxim Group, email de Steven Victor — documentos internos que describen la elusión de regulaciones FDA mediante clasificación 361 HCT/P.</span>
+        <span class="t" data-lang="it">analisi finanziaria Maxim Group, email Steven Victor — documenti interni che descrivono l'aggiramento delle normative FDA tramite classificazione 361 HCT/P.</span>
+        <span class="t" data-lang="fr">analyse financière Maxim Group, email Steven Victor — documents internes décrivant le contournement des réglementations FDA via la classification 361 HCT/P.</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2023</div>
+      <div class="tl-text">
+        <strong>Sound of Freedom (film)</strong> —
+        <span class="t active" data-lang="bs">220+ miliona dolara zarade globalno. Blokiran od većine mainstream medija. YouTube je privremeno uklonio trailer.</span>
+        <span class="t" data-lang="en">220+ million dollars grossed globally. Blocked by most mainstream media. YouTube temporarily removed the trailer.</span>
+        <span class="t" data-lang="de">220+ Millionen Dollar weltweit eingespielt. Von den meisten Mainstream-Medien blockiert. YouTube entfernte den Trailer vorübergehend.</span>
+        <span class="t" data-lang="es">más de 220 millones de dólares recaudados globalmente. Bloqueado por la mayoría de medios mainstream. YouTube eliminó temporalmente el tráiler.</span>
+        <span class="t" data-lang="it">220+ milioni di dollari incassati globalmente. Bloccato dalla maggior parte dei media mainstream. YouTube ha rimosso temporaneamente il trailer.</span>
+        <span class="t" data-lang="fr">220+ millions de dollars de recettes mondiales. Bloqué par la plupart des médias grand public. YouTube a temporairement supprimé la bande-annonce.</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2024</div>
+      <div class="tl-text">
+        <strong>Tim Ballard / OUR</strong> —
+        <span class="t active" data-lang="bs">Operation Underground Railroad — optužnice i kontroverze. Ballard napušta organizaciju. Istraga traje.</span>
+        <span class="t" data-lang="en">Operation Underground Railroad — charges and controversies. Ballard leaves organization. Investigation ongoing.</span>
+        <span class="t" data-lang="de">Operation Underground Railroad — Anklage und Kontroversen. Ballard verlässt die Organisation. Ermittlungen dauern an.</span>
+        <span class="t" data-lang="es">Operation Underground Railroad — cargos y controversias. Ballard abandona la organización. Investigación en curso.</span>
+        <span class="t" data-lang="it">Operation Underground Railroad — accuse e controversie. Ballard lascia l'organizzazione. Indagine in corso.</span>
+        <span class="t" data-lang="fr">Operation Underground Railroad — accusations et controverses. Ballard quitte l'organisation. L'enquête se poursuit.</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025</div>
+      <div class="tl-text">
+        <strong>EU Lobby Register / Meta / Democracy Shield</strong> —
+        <span class="t active" data-lang="bs">Koordinirana EU lobistička kampanja, Meta cenzura sadržaja o traffickingu, uvođenje "Democracy Shield" okvira za selektivnu moderaciju.</span>
+        <span class="t" data-lang="en">Coordinated EU lobbying campaign, Meta censorship of trafficking content, introduction of "Democracy Shield" framework for selective moderation.</span>
+        <span class="t" data-lang="de">Koordinierte EU-Lobbykampagne, Meta-Zensur von Trafficking-Inhalten, Einführung des "Democracy Shield"-Rahmens zur selektiven Moderation.</span>
+        <span class="t" data-lang="es">Campaña coordinada de lobbying en la UE, censura de Meta sobre contenido de trata, introducción del marco "Democracy Shield" para moderación selectiva.</span>
+        <span class="t" data-lang="it">Campagna di lobbying UE coordinata, censura Meta dei contenuti sul traffico, introduzione del framework "Democracy Shield" per la moderazione selettiva.</span>
+        <span class="t" data-lang="fr">Campagne de lobbying coordonnée dans l'UE, censure Meta du contenu sur la traite, introduction du cadre "Democracy Shield" pour une modération sélective.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FILM SECTION -->
+<div class="film-section">
+  <section>
+    <span class="section-label">
+      <span class="t active" data-lang="bs">FILM — DOKUMENTACIJA</span><span class="t" data-lang="en">FILM — DOCUMENTATION</span><span class="t" data-lang="de">FILM — DOKUMENTATION</span><span class="t" data-lang="es">PELÍCULA — DOCUMENTACIÓN</span><span class="t" data-lang="it">FILM — DOCUMENTAZIONE</span><span class="t" data-lang="fr">FILM — DOCUMENTATION</span>
+    </span>
+    <h2>Sound of Freedom (2023)</h2>
+    <p>
+      <span class="t active" data-lang="bs">Film baziran na stvarnim događajima — prikazuje operacije spašavanja djece. Zaradio je više od 220 miliona dolara uz budžet od 14.5 miliona — bez podrške velikih studija i gotovo bez mainstream medijskog pokrivanja.</span>
+      <span class="t" data-lang="en">A film based on real events — depicting child rescue operations. Earned over 220 million dollars with a budget of 14.5 million — without major studio support and almost no mainstream media coverage.</span>
+      <span class="t" data-lang="de">Ein Film basierend auf realen Ereignissen — zeigt Kinderschutzoperationen. Verdiente über 220 Millionen Dollar bei einem Budget von 14,5 Millionen — ohne Unterstützung großer Studios und fast ohne Mainstream-Medienberichterstattung.</span>
+      <span class="t" data-lang="es">Una película basada en hechos reales — muestra operaciones de rescate de niños. Recaudó más de 220 millones de dólares con un presupuesto de 14,5 millones — sin apoyo de grandes estudios y casi sin cobertura mediática.</span>
+      <span class="t" data-lang="it">Un film basato su eventi reali — mostra operazioni di salvataggio di bambini. Ha incassato oltre 220 milioni di dollari con un budget di 14,5 milioni — senza supporto dei grandi studi e quasi senza copertura mediatica.</span>
+      <span class="t" data-lang="fr">Un film basé sur des événements réels — montrant des opérations de sauvetage d'enfants. A rapporté plus de 220 millions de dollars avec un budget de 14,5 millions — sans soutien des grands studios et presque sans couverture médiatique.</span>
+    </p>
+    <h3>
+      <span class="t active" data-lang="bs">Pogledaj film</span><span class="t" data-lang="en">Watch the film</span><span class="t" data-lang="de">Film ansehen</span><span class="t" data-lang="es">Ver la película</span><span class="t" data-lang="it">Guarda il film</span><span class="t" data-lang="fr">Voir le film</span>
+    </h3>
+    <div class="link-grid">
+      <a href="https://www.youtube.com/watch?v=qDnFf6e9nrI" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-title">Sound of Freedom (2023) — Official Trailer</div>
+        <div class="link-desc">
+          <span class="t active" data-lang="bs">Zvanični trailer filma na YouTube-u</span><span class="t" data-lang="en">Official film trailer on YouTube</span><span class="t" data-lang="de">Offizieller Filmtrailer auf YouTube</span><span class="t" data-lang="es">Tráiler oficial de la película en YouTube</span><span class="t" data-lang="it">Trailer ufficiale del film su YouTube</span><span class="t" data-lang="fr">Bande-annonce officielle du film sur YouTube</span>
+        </div>
+        <div class="link-tag">▶ YouTube</div>
+      </a>
+      <a href="https://rumble.com/search/all?q=sound+of+freedom" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-title">Sound of Freedom — Rumble Search</div>
+        <div class="link-desc">
+          <span class="t active" data-lang="bs">Pretraži Sound of Freedom na Rumble platformi</span><span class="t" data-lang="en">Search for Sound of Freedom on Rumble platform</span><span class="t" data-lang="de">Sound of Freedom auf Rumble suchen</span><span class="t" data-lang="es">Buscar Sound of Freedom en la plataforma Rumble</span><span class="t" data-lang="it">Cerca Sound of Freedom su Rumble</span><span class="t" data-lang="fr">Rechercher Sound of Freedom sur Rumble</span>
+        </div>
+        <div class="link-tag">▶ Rumble</div>
+      </a>
+      <a href="https://odysee.com/@SoundOfFreedom" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-title">Sound of Freedom — Odysee Channel</div>
+        <div class="link-desc">
+          <span class="t active" data-lang="bs">Odysee kanal — alternativna platforma bez cenzure</span><span class="t" data-lang="en">Odysee channel — alternative platform without censorship</span><span class="t" data-lang="de">Odysee-Kanal — alternative Plattform ohne Zensur</span><span class="t" data-lang="es">Canal Odysee — plataforma alternativa sin censura</span><span class="t" data-lang="it">Canale Odysee — piattaforma alternativa senza censura</span><span class="t" data-lang="fr">Chaîne Odysee — plateforme alternative sans censure</span>
+        </div>
+        <div class="link-tag">▶ Odysee</div>
+      </a>
+    </div>
+  </section>
+</div>
+
+<hr class="divider">
+
+<!-- EVIDENCE SECTION -->
+<section>
+  <span class="section-label">
+    <span class="t active" data-lang="bs">DOKUMENTI — JAVNO DOSTUPNI IZVORI</span><span class="t" data-lang="en">DOCUMENTS — PUBLICLY AVAILABLE SOURCES</span><span class="t" data-lang="de">DOKUMENTE — ÖFFENTLICH VERFÜGBARE QUELLEN</span><span class="t" data-lang="es">DOCUMENTOS — FUENTES DISPONIBLES PÚBLICAMENTE</span><span class="t" data-lang="it">DOCUMENTI — FONTI DISPONIBILI PUBBLICAMENTE</span><span class="t" data-lang="fr">DOCUMENTS — SOURCES DISPONIBLES PUBLIQUEMENT</span>
+  </span>
+  <h2>
+    <span class="t active" data-lang="bs">Provjeri sam — primarni izvori</span>
+    <span class="t" data-lang="en">Verify yourself — primary sources</span>
+    <span class="t" data-lang="de">Selbst überprüfen — Primärquellen</span>
+    <span class="t" data-lang="es">Verifica tú mismo — fuentes primarias</span>
+    <span class="t" data-lang="it">Verifica da solo — fonti primarie</span>
+    <span class="t" data-lang="fr">Vérifie toi-même — sources primaires</span>
+  </h2>
+  <div class="link-grid">
+    <a href="https://www.spiegel.de/wissenschaft/mensch/menschliches-gewebe-der-makabere-handel-mit-den-toten-a-262869.html" target="_blank" rel="noopener noreferrer" class="link-card">
+      <div class="link-title">Der Spiegel — Tutogen Medical GmbH (2005)</div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">Originalna istraga Der Spiegela o trgovini tkivima i leševima</span><span class="t" data-lang="en">Original Der Spiegel investigation into tissue and cadaver trafficking</span><span class="t" data-lang="de">Originale Spiegel-Untersuchung zum Gewebe- und Leichenhandel</span><span class="t" data-lang="es">Investigación original del Der Spiegel sobre tráfico de tejidos y cadáveres</span><span class="t" data-lang="it">Indagine originale del Der Spiegel sul traffico di tessuti e cadaveri</span><span class="t" data-lang="fr">Enquête originale du Der Spiegel sur le trafic de tissus et de cadavres</span>
+      </div>
+      <div class="link-tag">📄 Der Spiegel</div>
+    </a>
+    <a href="https://www.sec.gov/Archives/edgar/data/879714/000119312508246453/ddefm14a.htm" target="_blank" rel="noopener noreferrer" class="link-card">
+      <div class="link-title">SEC — RTI Biologics / Tutogen Merger (2008)</div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">Zvanični SEC dosije o spajanju RTI i Tutogen kompanije</span><span class="t" data-lang="en">Official SEC filing on the RTI and Tutogen merger</span><span class="t" data-lang="de">Offizielle SEC-Einreichung zur Fusion von RTI und Tutogen</span><span class="t" data-lang="es">Documento oficial de SEC sobre la fusión de RTI y Tutogen</span><span class="t" data-lang="it">Documento ufficiale SEC sulla fusione di RTI e Tutogen</span><span class="t" data-lang="fr">Dossier officiel SEC sur la fusion RTI et Tutogen</span>
+      </div>
+      <div class="link-tag">📄 SEC.gov</div>
+    </a>
+    <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-L/part-1271" target="_blank" rel="noopener noreferrer" class="link-card">
+      <div class="link-title">FDA — 21 CFR Part 1271 (361 HCT/P Regulations)</div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">FDA regulativa 21 CFR 1271 — osnova "361 backdoor" klasifikacije tkivnih proizvoda</span><span class="t" data-lang="en">FDA regulation 21 CFR 1271 — basis of the "361 backdoor" tissue product classification</span><span class="t" data-lang="de">FDA-Verordnung 21 CFR 1271 — Grundlage der "361 Backdoor"-Klassifizierung</span><span class="t" data-lang="es">Regulación FDA 21 CFR 1271 — base de la clasificación "361 backdoor" de productos tisulares</span><span class="t" data-lang="it">Regolamento FDA 21 CFR 1271 — base della classificazione "361 backdoor" dei prodotti tissutali</span><span class="t" data-lang="fr">Règlement FDA 21 CFR 1271 — base de la classification "361 backdoor" des produits tissulaires</span>
+      </div>
+      <div class="link-tag">📄 eCFR.gov</div>
+    </a>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CALL TO ACTION / BLOCKQUOTE SECTION -->
+<section>
+  <span class="section-label">
+    <span class="t active" data-lang="bs">POZIV — BEZ VOĐE, SA DOKAZIMA</span><span class="t" data-lang="en">CALL — NO LEADER, WITH EVIDENCE</span><span class="t" data-lang="de">AUFRUF — KEIN ANFÜHRER, MIT BELEGEN</span><span class="t" data-lang="es">LLAMADO — SIN LÍDER, CON EVIDENCIA</span><span class="t" data-lang="it">APPELLO — SENZA CAPO, CON PROVE</span><span class="t" data-lang="fr">APPEL — SANS CHEF, AVEC PREUVES</span>
+  </span>
+  <div class="blockquote">
+    <p>
+      <span class="t active" data-lang="bs">"Ne traži vođu. Traži dokaz."</span>
+      <span class="t" data-lang="en">"Do not seek a leader. Seek evidence."</span>
+      <span class="t" data-lang="de">„Suche keinen Anführer. Suche Beweise."</span>
+      <span class="t" data-lang="es">"No busques un líder. Busca evidencia."</span>
+      <span class="t" data-lang="it">"Non cercare un capo. Cerca le prove."</span>
+      <span class="t" data-lang="fr">« Ne cherche pas un chef. Cherche des preuves. »</span>
+    </p>
+  </div>
+  <p>
+    <span class="t active" data-lang="bs">Ova stranica ne zastupa nikakvu stranku ni organizaciju. Svi podaci imaju javne izvore. Tvoja dužnost je provjeriti — ne vjerovati.</span>
+    <span class="t" data-lang="en">This page does not represent any party or organization. All data has public sources. Your duty is to verify — not to believe.</span>
+    <span class="t" data-lang="de">Diese Seite vertritt keine Partei oder Organisation. Alle Daten haben öffentliche Quellen. Deine Pflicht ist es zu prüfen — nicht zu glauben.</span>
+    <span class="t" data-lang="es">Esta página no representa ningún partido ni organización. Todos los datos tienen fuentes públicas. Tu deber es verificar — no creer.</span>
+    <span class="t" data-lang="it">Questa pagina non rappresenta nessun partito né organizzazione. Tutti i dati hanno fonti pubbliche. Il tuo dovere è verificare — non credere.</span>
+    <span class="t" data-lang="fr">Cette page ne représente aucun parti ni organisation. Toutes les données ont des sources publiques. Ton devoir est de vérifier — pas de croire.</span>
+  </p>
+
+  <h3 style="margin-top:40px;">
+    <span class="t active" data-lang="bs">Ostale stranice projekta</span>
+    <span class="t" data-lang="en">Other project pages</span>
+    <span class="t" data-lang="de">Weitere Projektseiten</span>
+    <span class="t" data-lang="es">Otras páginas del proyecto</span>
+    <span class="t" data-lang="it">Altre pagine del progetto</span>
+    <span class="t" data-lang="fr">Autres pages du projet</span>
+  </h3>
+  <div class="link-grid">
+    <a href="index-manifest.html" class="link-card">
+      <div class="link-title">
+        <span class="t active" data-lang="bs">Manifest slobode</span><span class="t" data-lang="en">Manifest of Freedom</span><span class="t" data-lang="de">Manifest der Freiheit</span><span class="t" data-lang="es">Manifiesto de libertad</span><span class="t" data-lang="it">Manifesto della libertà</span><span class="t" data-lang="fr">Manifeste de liberté</span>
+      </div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">4 univerzalna pravila i poziv na odgovornost</span><span class="t" data-lang="en">4 universal rules and a call for accountability</span><span class="t" data-lang="de">4 universelle Regeln und Aufruf zur Verantwortung</span><span class="t" data-lang="es">4 reglas universales y llamado a la responsabilidad</span><span class="t" data-lang="it">4 regole universali e appello alla responsabilità</span><span class="t" data-lang="fr">4 règles universelles et appel à la responsabilité</span>
+      </div>
+      <div class="link-tag">#BajteBrothers</div>
+    </a>
+    <a href="361-lanac.html" class="link-card">
+      <div class="link-title">
+        <span class="t active" data-lang="bs">Lanac dokaza 361</span><span class="t" data-lang="en">Evidence Chain 361</span><span class="t" data-lang="de">Beweiskette 361</span><span class="t" data-lang="es">Cadena de evidencias 361</span><span class="t" data-lang="it">Catena di prove 361</span><span class="t" data-lang="fr">Chaîne de preuves 361</span>
+      </div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">Tutogen → RTI → 361 backdoor → mreža uticaja</span><span class="t" data-lang="en">Tutogen → RTI → 361 backdoor → influence network</span><span class="t" data-lang="de">Tutogen → RTI → 361 Backdoor → Einflussnetz</span><span class="t" data-lang="es">Tutogen → RTI → 361 backdoor → red de influencia</span><span class="t" data-lang="it">Tutogen → RTI → 361 backdoor → rete di influenza</span><span class="t" data-lang="fr">Tutogen → RTI → 361 backdoor → réseau d'influence</span>
+      </div>
+      <div class="link-tag">#BajteBrothers</div>
+    </a>
+    <a href="blockchain-361-vodic.html" class="link-card">
+      <div class="link-title">
+        <span class="t active" data-lang="bs">Blockchain budžet</span><span class="t" data-lang="en">Blockchain budget</span><span class="t" data-lang="de">Blockchain-Budget</span><span class="t" data-lang="es">Presupuesto blockchain</span><span class="t" data-lang="it">Budget blockchain</span><span class="t" data-lang="fr">Budget blockchain</span>
+      </div>
+      <div class="link-desc">
+        <span class="t active" data-lang="bs">Transparentnost javnog novca na blockchainu</span><span class="t" data-lang="en">Public money transparency on blockchain</span><span class="t" data-lang="de">Öffentliche Geldtransparenz auf der Blockchain</span><span class="t" data-lang="es">Transparencia del dinero público en blockchain</span><span class="t" data-lang="it">Trasparenza del denaro pubblico su blockchain</span><span class="t" data-lang="fr">Transparence de l'argent public sur la blockchain</span>
+      </div>
+      <div class="link-tag">#BajteBrothers</div>
+    </a>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QR SECTION -->
+<section style="text-align:center;">
+  <span class="section-label" style="display:block; text-align:center;">
+    <span class="t active" data-lang="bs">QR KOD OVE STRANICE</span><span class="t" data-lang="en">QR CODE FOR THIS PAGE</span><span class="t" data-lang="de">QR-CODE DIESER SEITE</span><span class="t" data-lang="es">CÓDIGO QR DE ESTA PÁGINA</span><span class="t" data-lang="it">QR DI QUESTA PAGINA</span><span class="t" data-lang="fr">QR DE CETTE PAGE</span>
+  </span>
+  <p style="margin-bottom:20px;">
+    <span class="t active" data-lang="bs">Skeniraj, provjeri i proslijedi dalje.</span>
+    <span class="t" data-lang="en">Scan, verify and share.</span>
+    <span class="t" data-lang="de">Scannen, prüfen und weiterleiten.</span>
+    <span class="t" data-lang="es">Escanea, verifica y comparte.</span>
+    <span class="t" data-lang="it">Scansiona, verifica e condividi.</span>
+    <span class="t" data-lang="fr">Scanne, vérifie et partage.</span>
+  </p>
+  <div id="qr-canvas" style="display:inline-block; background:white; padding:12px; border-radius:4px;"></div>
+  <p style="font-family:'Courier Prime',monospace; font-size:10px; color:#333; margin-top:12px; letter-spacing:2px;">
+    <span class="t active" data-lang="bs">Otvori → provjeri → podijeli</span>
+    <span class="t" data-lang="en">Open → verify → share</span>
+    <span class="t" data-lang="de">Öffnen → prüfen → teilen</span>
+    <span class="t" data-lang="es">Abrir → verificar → compartir</span>
+    <span class="t" data-lang="it">Apri → verifica → condividi</span>
+    <span class="t" data-lang="fr">Ouvrir → vérifier → partager</span>
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="font-family:'Courier Prime',monospace; font-size:11px; color:#444; letter-spacing:3px; margin-bottom:16px;">#BAJTEBROTHERS — SCAN &amp; SHARE</p>
+  <p>Ova stranica ne zastupa nikakvu stranku, organizaciju ni teoriju. Sve navedene statistike imaju javne izvore koji su direktno linkovani.</p>
+  <br>
+  <p style="color:#222; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px;">soundoffreedom-awareness · 2026</p>
+</footer>
+
+<script src="qrcode.min.js"></script>
+<script>
+const metaData = {
+  bs: {
+    title: 'Sound of Freedom — Zašto ništa ne znaš o ovome?',
+    desc: 'Dokumentovani izvještaji o nestaloj djeci i sistemskim propustima.'
+  },
+  en: {
+    title: 'Sound of Freedom — Why do you know nothing about this?',
+    desc: 'Documented reports on missing children and systemic failures.'
+  },
+  de: {
+    title: 'Sound of Freedom — Warum weißt du nichts darüber?',
+    desc: 'Dokumentierte Berichte über vermisste Kinder und systemische Versäumnisse.'
+  },
+  es: {
+    title: 'Sound of Freedom — ¿Por qué no sabes nada de esto?',
+    desc: 'Informes documentados sobre niños desaparecidos y fallas sistémicas.'
+  },
+  it: {
+    title: 'Sound of Freedom — Perché non sai nulla di questo?',
+    desc: 'Rapporti documentati su minori scomparsi e fallimenti sistemici.'
+  },
+  fr: {
+    title: 'Sound of Freedom — Pourquoi ne sais-tu rien de cela ?',
+    desc: 'Rapports documentés sur les enfants disparus et les défaillances systémiques.'
+  }
+};
+
+const modeLabels = {
+  bs: '📄 DOKUMENT REŽIM',
+  en: '📄 DOCUMENT MODE',
+  de: '📄 DOKUMENTMODUS',
+  es: '📄 MODO DOCUMENTO',
+  it: '📄 MODALITÀ DOCUMENTO',
+  fr: '📄 MODE DOCUMENT'
+};
+
+let currentLang = 'bs';
+
+function setLang(lang) {
+  currentLang = lang;
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-lang') === lang) {
+      btn.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('[data-lang]').forEach(function(el) {
+    if (el.classList.contains('lang-btn')) return;
+    el.classList.remove('active');
+    if (el.getAttribute('data-lang') === lang) {
+      el.classList.add('active');
+    }
+  });
+
+  if (metaData[lang]) {
+    var d = metaData[lang];
+    var ptEl = document.getElementById('page-title');
+    var mdEl = document.getElementById('meta-desc');
+    var ogTitle = document.getElementById('og-title');
+    var ogDesc = document.getElementById('og-desc');
+    if (ptEl) ptEl.textContent = d.title;
+    if (mdEl) mdEl.setAttribute('content', d.desc);
+    if (ogTitle) ogTitle.setAttribute('content', d.title);
+    if (ogDesc) ogDesc.setAttribute('content', d.desc);
+    document.documentElement.lang = lang;
+  }
+
+  var modeBtn = document.getElementById('mode-toggle');
+  if (modeBtn) {
+    var isDoc = document.body.classList.contains('doc-mode');
+    if (isDoc) {
+      var normal = { bs: '🌑 TAMNI REŽIM', en: '🌑 DARK MODE', de: '🌑 DUNKELMODUS', es: '🌑 MODO OSCURO', it: '🌑 MODALITÀ SCURA', fr: '🌑 MODE SOMBRE' };
+      modeBtn.textContent = normal[lang] || normal.bs;
+    } else {
+      modeBtn.textContent = modeLabels[lang] || modeLabels.bs;
+    }
+  }
+
+  try { localStorage.setItem('sof-lang', lang); } catch(e) {}
+}
+
+function toggleMode() {
+  document.body.classList.toggle('doc-mode');
+  setLang(currentLang);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var saved = 'bs';
+  try { saved = localStorage.getItem('sof-lang') || 'bs'; } catch(e) {}
+  var supported = ['bs', 'en', 'de', 'es', 'it', 'fr'];
+  if (supported.indexOf(saved) === -1) saved = 'bs';
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var urlLang = (urlParams.get('lang') || '').toLowerCase();
+  if (supported.indexOf(urlLang) !== -1) saved = urlLang;
+
+  setLang(saved);
+
+  // Canonical link
+  try {
+    var canonUrl = getCanonicalPagesUrl();
+    var link = document.createElement('link');
+    link.rel = 'canonical';
+    link.href = canonUrl;
+    document.head.appendChild(link);
+  } catch(e) {}
+
+  // QR Code
+  createRobustQr('qr-canvas', null, 200);
+});
+
+function getCanonicalPagesUrl() {
+  try {
+    var pagesBase = 'https://zeljk018bratic.github.io/sound-of-freedom';
+    var href = window.location.href || '';
+    var host = window.location.hostname || '';
+    if (href.startsWith('file://') || href === 'about:blank' || host.includes('raw.githack') || host.includes('raw.githubusercontent')) {
+      var parts = (window.location.pathname || '').split('/');
+      var file = parts.filter(Boolean).pop() || '';
+      return pagesBase + (file ? '/' + file : '/');
+    }
+    if (host === 'github.com') {
+      var segs = window.location.pathname.split('/');
+      var blobIndex = segs.indexOf('blob');
+      if (blobIndex !== -1 && segs.length > blobIndex + 2) {
+        var filePath = segs.slice(blobIndex + 2).join('/');
+        return pagesBase + '/' + filePath;
+      }
+    }
+    if (host === 'zeljk018bratic.github.io') return href;
+    var path = window.location.pathname || '/';
+    return pagesBase + (path === '/' ? '/' : path);
+  } catch(e) {
+    return 'https://zeljk018bratic.github.io/sound-of-freedom/sound_of_freedom_awareness.html';
+  }
+}
+
+function createRobustQr(id, rawUrl, size) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var url = rawUrl || getCanonicalPagesUrl();
+  try {
+    var opts = {
+      text: url,
+      width: size || 200,
+      height: size || 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff'
+    };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else {
+      opts.correctLevel = 3;
+    }
+    new QRCode(el, opts);
+    var img = el.querySelector && el.querySelector('img');
+    if (img) {
+      img.alt = 'QR code: ' + url;
+      img.setAttribute('aria-label', 'QR code to open this page');
+    }
+  } catch(err) {
+    el.innerHTML = '<a href="' + url + '" style="font-size:13px;color:#333;">Open: ' + url + '</a>';
+  }
+}
+</script>
 </body>
 </html>
