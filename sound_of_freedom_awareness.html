@@ -1,242 +1,26 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="page-title">Sound of Freedom — Zašto ništa ne znaš o ovome?</title>
-<meta id="meta-desc" name="description" content="300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?">
-<meta id="og-title" property="og:title" content="Sound of Freedom — Zašto ništa ne znaš o ovome?">
-<meta id="og-desc" property="og:description" content="300.000 nestale djece. Dokumentovano. Zvanični izvještaji. Zašto to nije na naslovnim stranama?">
-<meta property="og:type" content="website">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --black: #0a0a0a;
-  --white: #f4f0e8;
-  --red: #c0392b;
-  --gold: #d4a017;
-  --grey: #2a2a2a;
-  --light-grey: #888;
-  --accent: #e8d5b0;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--black);
-  color: var(--white);
-  font-family: 'Source Sans 3', sans-serif;
-  font-weight: 300;
-  overflow-x: hidden;
-}
-
-/* DOCUMENT MODE */
-body.doc-mode {
-  background: #f5f5f0;
-  color: #111;
-  font-family: 'Courier Prime', monospace;
-}
-body.doc-mode .hero {
-  background: #f5f5f0;
-  border-bottom: 2px solid #111;
-}
-body.doc-mode .hero::before { display: none; }
-body.doc-mode .hero-counter { color: #111; text-shadow: none; }
-body.doc-mode .hero-unit { color: #444; }
-body.doc-mode .hero-title { color: #111; }
-body.doc-mode .hero-title em { color: #111; text-decoration: underline; font-style: italic; }
-body.doc-mode .hero-sub { color: #333; }
-body.doc-mode p { color: #222; }
-body.doc-mode h2 { color: #111; }
-body.doc-mode .stat-box { background: #eee; }
-body.doc-mode .stat-box:hover { background: #e5e5e0; }
-body.doc-mode .stat-num { color: #111; }
-body.doc-mode .stat-label { color: #444; }
-body.doc-mode .blockquote { background: #e8e8e3; border-left-color: #111; }
-body.doc-mode .blockquote p { color: #111; }
-body.doc-mode .link-card { background: #eee; border-color: #ccc; color: #111; }
-body.doc-mode .link-card:hover { background: #e0e0db; border-color: #888; }
-body.doc-mode .link-title { color: #111; }
-body.doc-mode .link-tag { color: #555; }
-body.doc-mode .warning-box { background: #e8e4d8; border-color: #555; }
-body.doc-mode .section-label { color: #555; }
-body.doc-mode .lang-bar { background: #e8e8e3; border-bottom-color: #ccc; }
-body.doc-mode .lang-btn { border-color: #aaa; color: #444; }
-body.doc-mode .lang-btn:hover, body.doc-mode .lang-btn.active { border-color: #111; color: #111; background: rgba(0,0,0,0.06); }
-body.doc-mode .tl-item::before { background: #333; }
-body.doc-mode .timeline::before { background: linear-gradient(180deg, #333, transparent); }
-body.doc-mode .tl-date { color: #555; }
-body.doc-mode .tl-text { color: #333; }
-body.doc-mode .big-question { color: #111; }
-body.doc-mode .big-question span { color: #333; text-decoration: underline; }
-body.doc-mode .question-section { background: #ebe8e0; }
-body.doc-mode .film-section { background: #ede9e0; }
-body.doc-mode .digital-id-section { background: #e8e0e0; }
-body.doc-mode footer { border-top-color: #ccc; }
-body.doc-mode footer p { color: #666; }
-body.doc-mode .divider { border-top-color: #ccc; }
-body.doc-mode .stat-grid { background: #ddd; }
-body.doc-mode .scroll-hint { color: #999; }
-body.doc-mode .mode-btn { background: #ddd; color: #111; border-color: #aaa; }
-
-/* LANGUAGE SWITCHER */
-.lang-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  background: rgba(10,10,10,0.95);
-  border-bottom: 1px solid #222;
-  padding: 8px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-.lang-bar span { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--light-grey); margin-right: 8px; }
-.lang-btn {
-  background: none;
-  border: 1px solid #333;
-  color: #aaa;
-  font-size: 11px;
-  font-family: 'Courier Prime', monospace;
-  padding: 3px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-radius: 2px;
-}
-.lang-btn:hover, .lang-btn.active {
-  border-color: var(--gold);
-  color: var(--gold);
-  background: rgba(212,160,23,0.08);
-}
-
-/* HERO */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 100px 20px 60px;
-  position: relative;
-  background: radial-gradient(ellipse at center, #1a0a0a 0%, #0a0a0a 70%);
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px);
-}
-.hero-counter {
-  font-family: 'Courier Prime', monospace;
-  font-size: clamp(60px, 15vw, 160px);
-  font-weight: 700;
-  color: var(--red);
-  line-height: 1;
-  letter-spacing: -4px;
-  animation: pulse-num 3s ease-in-out infinite;
-  text-shadow: 0 0 80px rgba(192,57,43,0.4);
-}
-@keyframes pulse-num {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.hero-unit {
-  font-family: 'Courier Prime', monospace;
-  font-size: clamp(12px, 2vw, 18px);
-  color: var(--light-grey);
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  margin: 10px 0 30px;
-}
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(24px, 5vw, 56px);
-  font-weight: 900;
-  line-height: 1.1;
-  max-width: 800px;
-  margin: 0 auto 20px;
-}
-.hero-title em {
-  font-style: italic;
-  color: var(--gold);
-}
-.hero-sub {
-  font-size: clamp(14px, 2vw, 18px);
-  color: #aaa;
-  max-width: 600px;
-  line-height: 1.7;
-  margin: 0 auto 40px;
-}
-.scroll-hint {
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px;
-  color: #444;
-  letter-spacing: 4px;
-  animation: blink 2s infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-/* SECTIONS */
-section {
-  padding: 80px 20px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* ... full original backup contents preserved ... */
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting…</title>
+  <meta http-equiv="refresh" content="0; url=index.html">
+  <script>
+    (function () {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var lang = (params.get('lang') || '').toLowerCase();
+        var supported = ['bs', 'de', 'en', 'es', 'it', 'fr'];
+        var target = new URL('index.html', window.location.href);
+        if (supported.indexOf(lang) !== -1) target.searchParams.set('lang', lang);
+        window.location.replace(target.pathname + target.search + target.hash);
+      } catch (_err) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
 </head>
-<body data-page="awareness">
-
-<!-- LANGUAGE BAR -->
-<div class="lang-bar">
-  <a href="index.html" aria-label="BajteBrothers home" style="display:inline-flex;align-items:center;background:#fff;padding:4px 8px;border-radius:6px;margin-right:8px;">
-    <img src="bajtebrothers-logo.png" alt="#BajteBrothers logo" style="width:120px;height:auto;display:block;">
-  </a>
-  <span>🌐</span>
-  <button class="lang-btn" type="button" data-set-lang="bs">BS/HR/SR</button>
-  <button class="lang-btn" type="button" data-set-lang="en">EN</button>
-  <button class="lang-btn" type="button" data-set-lang="de">DE</button>
-  <button class="lang-btn" type="button" data-set-lang="fr">FR</button>
-  <button class="lang-btn" type="button" data-set-lang="es">ES</button>
-  <button class="lang-btn" type="button" data-set-lang="it">IT</button>
-  <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
-</div>
-
-<nav class="site-nav" aria-label="Site pages" style="padding:72px 20px 0; max-width:900px; margin:0 auto;">
-  <a class="nav-link" data-nav-page="awareness" href="index.html"></a>
-  <a class="nav-link" data-nav-page="manifest" href="index-manifest.html"></a>
-  <a class="nav-link" data-nav-page="lanac" href="361-lanac.html"></a>
-  <a class="nav-link" data-nav-page="blockchain" href="blockchain-361-vodic.html"></a>
-</nav>
-
-<!-- (content preserved) -->
-
-<!-- FOOTER -->
-<footer>
-  <p>
-    <span class="t active" data-lang="bs">Ova stranica ne zastupa nikakvu stranku, organizaciju ni teoriju. Sve navedene statistike imaju javne izvore koji su direktno linkovani.</span>
-  </p>
-  <br>
-  <p style="color:#222">soundoffreedom-awareness · 2025</p>
-
-  <!-- QR SECTION -->
-  <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #1a1a1a;">
-    <p data-i18n="qrTitle" style="font-family: 'Courier Prime', monospace; font-size: 11px; color: #444; letter-spacing: 3px; margin-bottom: 16px;">#BAJTEBROTHERS — SCAN & SHARE</p>
-    <div class="qr-canvas" data-qr-size="200" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
-    <p data-i18n="qrHint" style="font-family: 'Courier Prime', monospace; font-size: 10px; color: #333; margin-top: 12px; letter-spacing: 2px;">scan → provjeri → proslijedi</p>
-    <a class="qr-link" target="_blank" rel="noopener noreferrer" style="display:block; margin-top:8px; font-family: 'Courier Prime', monospace; font-size: 11px; word-break: break-all;"></a>
-  </div>
-</footer>
-
-<script src="lang.js"></script>
-<script src="qrcode.min.js"></script>
-<script src="script.js"></script>
-
+<body>
+  <p>Redirecting to <a href="index.html">index.html</a>…</p>
 </body>
 </html>
