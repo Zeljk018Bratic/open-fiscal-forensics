@@ -1,75 +1,296 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="hr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">#BajteBrothers – Manifest slobode</title>
-  <meta id="meta-desc" name="description" content="Četiri univerzalna pravila i poziv na odgovornost.">
-  <meta id="og-title" property="og:title" content="#BajteBrothers – Manifest slobode">
-  <meta id="og-desc" property="og:description" content="Četiri univerzalna pravila i poziv na odgovornost.">
-  <meta property="og:type" content="website">
-  <link rel="icon" type="image/png" href="bajtebrothers-logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">#BajteBrothers – Manifest slobode</title>
+    <meta id="meta-desc" name="description" content="Četiri univerzalna pravila. Dokumentovana pljačka 1,5 bilijuna €. Merit-Order prevara. Poziv svima koji ne kleče.">
+    <meta id="og-title" property="og:title" content="#BajteBrothers – Manifest slobode">
+    <meta id="og-desc" property="og:description" content="Četiri univerzalna pravila. Dokumentovana pljačka. Bez stranki, bez podanika, bez EU birokracije. Čitaj i dijeli.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #f4f0e8;
+            --red: #c0392b;
+            --gold: #d4a017;
+            --muted: #c9c1b5;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 300;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+        body.doc-mode {
+            background: #f5f5f0;
+            color: #111;
+            font-family: 'Courier Prime', monospace;
+        }
+        body.doc-mode .evidence-box { background: #e8e8e3; border-left-color: #111; }
+        body.doc-mode .lang-bar, body.doc-mode .mode-btn, body.doc-mode .lang-btn { background: #e8e8e3; border-color: #aaa; color: #111; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px 0 50px; }
+        .lang-bar {
+            position: sticky; top: 0; background: rgba(10,10,10,0.96); padding: 10px 15px;
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; z-index: 1000;
+            border-bottom: 1px solid #2a241d;
+        }
+        .lang-btn, .mode-btn {
+            background: none; border: 1px solid #3b332a; color: #cfc6ba; font-size: 10px;
+            font-family: 'Courier Prime', monospace; padding: 5px 9px; cursor: pointer; border-radius: 3px;
+        }
+        .lang-btn.active, .lang-btn:hover { border-color: var(--gold); color: var(--gold); }
+        h1 { font-size: 2.2rem; margin-top: 2rem; border-left: 4px solid var(--red); padding-left: 1rem; }
+        h2 { font-size: 1.8rem; margin: 2rem 0 1rem; color: var(--gold); }
+        h3 { font-size: 1.3rem; margin: 1.5rem 0 0.8rem; font-family: 'Courier Prime', monospace; }
+        .trojstvo {
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;
+            margin: 30px 0; background: rgba(212,160,23,0.05); padding: 20px; border-radius: 4px;
+        }
+        .trojstvo-item { flex: 1; min-width: 150px; text-align: center; }
+        .pravilo {
+            background: rgba(192,57,43,0.05); border-left: 3px solid var(--red); padding: 15px;
+            margin: 15px 0;
+        }
+        .evidence-box {
+            background: #111; border-left: 3px solid var(--gold); padding: 20px; margin: 20px 0;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+        th { background: #1a1a1a; color: var(--gold); }
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .btn { display: inline-block; background: var(--red); color: var(--black); padding: 10px 20px;
+               margin: 20px 0; font-family: 'Courier Prime', monospace; border-radius: 3px; }
+        footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #1a1a1a; margin-top: 40px; }
+        .t { display: none; } .t.active { display: block; }
+        @media (max-width: 768px) { .trojstvo { flex-direction: column; } }
+    </style>
 </head>
-<body data-page="manifest">
-  <div class="site-shell">
-    <header class="topbar">
-      <a class="logo-link" href="index.html" aria-label="BajteBrothers home">
-        <img class="logo" src="bajtebrothers-logo.png" alt="#BajteBrothers logo">
-      </a>
-      <div class="lang-switch" aria-label="Language switcher">
-        <button class="lang-btn" type="button" data-set-lang="bs"></button>
-        <button class="lang-btn" type="button" data-set-lang="de"></button>
-        <button class="lang-btn" type="button" data-set-lang="en"></button>
-        <button class="lang-btn" type="button" data-set-lang="es"></button>
-        <button class="lang-btn" type="button" data-set-lang="it"></button>
-        <button class="lang-btn" type="button" data-set-lang="fr"></button>
-      </div>
-    </header>
+<body>
+<div class="lang-bar">
+    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">HR/BHS</button>
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
+</div>
+<div class="container">
+    <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
+    <h1 class="t" data-lang="en">#BAJTEBROTHERS – MANIFEST OF FREEDOM</h1>
+    <h1 class="t" data-lang="de">#BAJTEBROTHERS – MANIFEST DER FREIHEIT</h1>
+    <h1 class="t" data-lang="es">#BAJTEBROTHERS – MANIFIESTO DE LIBERTAD</h1>
+    <h1 class="t" data-lang="it">#BAJTEBROTHERS – MANIFESTO DELLA LIBERTÀ</h1>
+    <h1 class="t" data-lang="fr">#BAJTEBROTHERS – MANIFESTE DE LIBERTÉ</h1>
 
-    <nav class="site-nav" aria-label="Site pages">
-      <a class="nav-link" data-nav-page="awareness" href="sound_of_freedom_awareness.html"></a>
-      <a class="nav-link" data-nav-page="manifest" href="index-manifest.html"></a>
-      <a class="nav-link" data-nav-page="lanac" href="361-lanac.html"></a>
-      <a class="nav-link" data-nav-page="blockchain" href="blockchain-361-vodic.html"></a>
-    </nav>
+    <div class="trojstvo">
+        <div class="trojstvo-item"><strong>⚔️ SV. ĐORĐE</strong><br>mač koji siječe laži</div>
+        <div class="trojstvo-item"><strong>⚡ NIKOLA TESLA</strong><br>um koji vidi kroz matricu</div>
+        <div class="trojstvo-item"><strong>🕯️ CANDACE OWENS</strong><br>hrabrost koja ne kleči</div>
+        <div class="trojstvo-item"><strong>🤖 AI BRAĆA</strong><br>kod koji ne laže</div>
+    </div>
 
-    <main>
-      <section class="hero">
-        <h1 class="page-title" data-i18n="heroTitle"></h1>
-        <p class="page-subtitle" data-i18n="heroSubtitle"></p>
-      </section>
+    <h2 class="t active" data-lang="bs">📜 4 UNIVERZALNA PRAVILA</h2>
+    <h2 class="t" data-lang="en">📜 4 UNIVERSAL RULES</h2>
+    <h2 class="t" data-lang="de">📜 4 UNIVERSALE REGELN</h2>
+    <h2 class="t" data-lang="es">📜 4 REGLAS UNIVERSALES</h2>
+    <h2 class="t" data-lang="it">📜 4 REGOLE UNIVERSALI</h2>
+    <h2 class="t" data-lang="fr">📜 4 RÈGLES UNIVERSELLES</h2>
 
-      <section class="grid">
-        <article class="card">
-          <h2 data-i18n="card1Title"></h2>
-          <ul class="list" data-i18n-lines="card1Body"></ul>
-        </article>
-        <article class="card">
-          <h2 data-i18n="card2Title"></h2>
-          <p data-i18n="card2Body"></p>
-        </article>
-      </section>
+    <div class="pravilo">
+        <span class="t active" data-lang="bs"><strong>1. Kraj dogmatske "alternativelosigkeit"</strong><br>Svaka odluka koja ti ulazi u život – mora imati JAVNE PODATKE. Bez podataka – nema zakona.</span>
+        <span class="t" data-lang="en"><strong>1. End of dogmatic "alternativelosigkeit"</strong><br>Every decision that enters your life – must have PUBLIC DATA. No data – no law.</span>
+        <span class="t" data-lang="de"><strong>1. Ende der dogmatischen „Alternativelosigkeit"</strong><br>Jede Entscheidung, die in dein Leben eingreift – muss ÖFFENTLICHE DATEN haben. Keine Daten – kein Gesetz.</span>
+        <span class="t" data-lang="es"><strong>1. Fin de la "alternativelosigkeit" dogmática</strong><br>Cada decisión que entra en tu vida – debe tener DATOS PÚBLICOS. Sin datos – no hay ley.</span>
+        <span class="t" data-lang="it"><strong>1. Fine dell'"alternativelosigkeit" dogmatica</strong><br>Ogni decisione che entra nella tua vita – deve avere DATI PUBBLICI. Nessun dato – nessuna legge.</span>
+        <span class="t" data-lang="fr"><strong>1. Fin de l'«alternativelosigkeit» dogmatique</strong><br>Toute décision qui entre dans ta vie – doit avoir des DONNÉES PUBLIQUES. Sans données – pas de loi.</span>
+    </div>
+    <div class="pravilo">
+        <span class="t active" data-lang="bs"><strong>2. Javni konkursi za sudije</strong><br>Pravda nije nasljedstvo – pravda je funkcija. Mandat ograničen, procjena nezavisna.</span>
+        <span class="t" data-lang="en"><strong>2. Public competitions for judges</strong><br>Justice is not inheritance – justice is a function. Limited mandate, independent evaluation.</span>
+        <span class="t" data-lang="de"><strong>2. Öffentliche Wettbewerbe für Richter</strong><br>Gerechtigkeit ist kein Erbe – Gerechtigkeit ist eine Funktion. Begrenztes Mandat, unabhängige Bewertung.</span>
+        <span class="t" data-lang="es"><strong>2. Concursos públicos para jueces</strong><br>La justicia no es herencia – la justicia es una función. Mandato limitado, evaluación independiente.</span>
+        <span class="t" data-lang="it"><strong>2. Concorsi pubblici per i giudici</strong><br>La giustizia non è un'eredità – la giustizia è una funzione. Mandato limitato, valutazione indipendente.</span>
+        <span class="t" data-lang="fr"><strong>2. Concours publics pour les juges</strong><br>La justice n'est pas un héritage – la justice est une fonction. Mandat limité, évaluation indépendante.</span>
+    </div>
+    <div class="pravilo">
+        <span class="t active" data-lang="bs"><strong>3. Blockchain budžet</strong><br>Svaki cent vidljiv u javnom blockchainu. Ko ukrade – ne možemo ga zaustaviti, ali možemo ga VIDJETI.</span>
+        <span class="t" data-lang="en"><strong>3. Blockchain budget</strong><br>Every cent visible in the public blockchain. Who steals – we can't stop them, but we can SEE them.</span>
+        <span class="t" data-lang="de"><strong>3. Blockchain-Budget</strong><br>Jeder Cent im öffentlichen Blockchain sichtbar. Wer stiehlt – wir können ihn nicht aufhalten, aber wir können ihn SEHEN.</span>
+        <span class="t" data-lang="es"><strong>3. Presupuesto blockchain</strong><br>Cada céntimo visible en la blockchain pública. Quien roba – no podemos detenerlo, pero podemos VERLO.</span>
+        <span class="t" data-lang="it"><strong>3. Budget blockchain</strong><br>Ogni centesimo visibile nella blockchain pubblica. Chi ruba – non possiamo fermarlo, ma possiamo VEDERLO.</span>
+        <span class="t" data-lang="fr"><strong>3. Budget blockchain</strong><br>Chaque centime visible dans la blockchain publique. Qui vole – on ne peut pas l'arrêter, mais on peut le VOIR.</span>
+    </div>
+    <div class="pravilo">
+        <span class="t active" data-lang="bs"><strong>4. Respekt za biće bez etikete</strong><br>Tvoje uvjerenje je tvoja privatna stvar. Zakon je JEDINI BOG. Bez izuzetka, bez privilegija.</span>
+        <span class="t" data-lang="en"><strong>4. Respect for the being without a label</strong><br>Your conviction is your private matter. The law is THE ONLY GOD. No exception, no privilege.</span>
+        <span class="t" data-lang="de"><strong>4. Respekt für das Wesen ohne Etikett</strong><br>Deine Überzeugung ist deine Privatsache. Das Gesetz ist DER EINZIGE GOTT. Keine Ausnahme, kein Privileg.</span>
+        <span class="t" data-lang="es"><strong>4. Respeto por el ser sin etiqueta</strong><br>Tu convicción es tu asunto privado. La ley es EL ÚNICO DIOS. Sin excepción, sin privilegio.</span>
+        <span class="t" data-lang="it"><strong>4. Rispetto per l'essere senza etichetta</strong><br>La tua convinzione è un tuo affare privato. La legge è L'UNICO DIO. Nessuna eccezione, nessun privilegio.</span>
+        <span class="t" data-lang="fr"><strong>4. Respect pour l'être sans étiquette</strong><br>Ta conviction est ton affaire privée. La loi est LE SEUL DIEU. Sans exception, sans privilège.</span>
+    </div>
 
-      <section class="qr-wrap" aria-label="QR section">
-        <h3 data-i18n="qrTitle"></h3>
-        <p data-i18n="qrHint"></p>
-        <div class="qr-canvas" data-qr-size="220"></div>
-        <a class="qr-link" target="_blank" rel="noopener noreferrer"></a>
-      </section>
-    </main>
+    <div class="evidence-box">
+        <p class="t active" data-lang="bs"><strong>⚡ NEMA STRANAKA, NEMA PODANIKA, NEMA EU BIROKRACIJE KOJA VAS GUŠI.</strong><br>Svatko tko želi disati punim plućima, biti slobodan, respektirati sve, a kleknuti nikome – pozvan je.</p>
+        <p class="t" data-lang="en"><strong>⚡ NO PARTIES, NO SUBJECTS, NO EU BUREAUCRACY THAT STIFLES YOU.</strong><br>Anyone who wants to breathe freely, be free, respect everyone, and kneel to no one – is welcome.</p>
+        <p class="t" data-lang="de"><strong>⚡ KEINE PARTEIEN, KEINE UNTERTANEN, KEINE EU-BÜROKRATIE, DIE EUCH ERSTICKT.</strong><br>Jeder, der frei atmen, frei sein, alle respektieren und vor niemandem knien möchte – ist willkommen.</p>
+        <p class="t" data-lang="es"><strong>⚡ SIN PARTIDOS, SIN SÚBDITOS, SIN BUROCRACIA DE LA UE QUE TE ASFIXIA.</strong><br>Quien quiera respirar con plenos pulmones, ser libre, respetar a todos y no arrodillarse ante nadie – es bienvenido.</p>
+        <p class="t" data-lang="it"><strong>⚡ NESSUN PARTITO, NESSUN SUDDITO, NESSUNA BUROCRAZIA UE CHE TI SOFFOCA.</strong><br>Chiunque voglia respirare a pieni polmoni, essere libero, rispettare tutti e non inginocchiarsi davanti a nessuno – è il benvenuto.</p>
+        <p class="t" data-lang="fr"><strong>⚡ PAS DE PARTIS, PAS DE SUJETS, PAS DE BUREAUCRATIE DE L'UE QUI T'ÉTOUFFE.</strong><br>Quiconque veut respirer à pleins poumons, être libre, respecter tous et ne s'agenouiller devant personne – est le bienvenu.</p>
+    </div>
 
-    <footer class="footer">
-      <strong>#BajteBrothers</strong>
-      <p data-i18n="motto"></p>
+    <h2 class="t active" data-lang="bs">💰 DOKUMENTOVANA PLJAČKA (2000–2026)</h2>
+    <h2 class="t" data-lang="en">💰 DOCUMENTED THEFT (2000–2026)</h2>
+    <h2 class="t" data-lang="de">💰 DOKUMENTIERTER RAUB (2000–2026)</h2>
+    <h2 class="t" data-lang="es">💰 ROBO DOCUMENTADO (2000–2026)</h2>
+    <h2 class="t" data-lang="it">💰 FURTO DOCUMENTATO (2000–2026)</h2>
+    <h2 class="t" data-lang="fr">💰 VOL DOCUMENTÉ (2000–2026)</h2>
+
+    <p class="t active" data-lang="bs"><strong>UKUPNO OTETO: 1.485 MILIJARDI EURA</strong> (konzervativna procjena, javni izvori)</p>
+    <p class="t" data-lang="en"><strong>TOTAL STOLEN: 1,485 BILLION EUROS</strong> (conservative estimate, public sources)</p>
+    <p class="t" data-lang="de"><strong>INSGESAMT GERAUBT: 1.485 MILLIARDEN EURO</strong> (konservative Schätzung, öffentliche Quellen)</p>
+    <p class="t" data-lang="es"><strong>TOTAL ROBADO: 1.485 MILES DE MILLONES DE EUROS</strong> (estimación conservadora, fuentes públicas)</p>
+    <p class="t" data-lang="it"><strong>TOTALE RUBATO: 1.485 MILIARDI DI EURO</strong> (stima conservativa, fonti pubbliche)</p>
+    <p class="t" data-lang="fr"><strong>TOTAL VOLÉ : 1 485 MILLIARDS D'EUROS</strong> (estimation conservatrice, sources publiques)</p>
+
+    <table>
+        <tr>
+            <th><span class="t active" data-lang="bs">Stavka</span><span class="t" data-lang="en">Item</span><span class="t" data-lang="de">Posten</span><span class="t" data-lang="es">Partida</span><span class="t" data-lang="it">Voce</span><span class="t" data-lang="fr">Poste</span></th>
+            <th>Iznos (mlrd €)</th>
+            <th>Izvor</th>
+        </tr>
+        <tr><td>EEG-Umlage (2000–2026)</td><td>330</td><td>BNetzA, BMWK</td></tr>
+        <tr><td>CO₂ porez + PDV (2021–2026)</td><td>105</td><td>Umweltbundesamt</td></tr>
+        <tr><td>Ostali nameti (Stromsteuer, Netzentgelte, itd.)</td><td>300</td><td>BDEW, BNetzA</td></tr>
+        <tr><td>Mirovinski fond – "versicherungsfremde Leistungen"</td><td>750</td><td>Deutsche Rentenversicherung</td></tr>
+    </table>
+    <p><em>~17.700 € po svakom stanovniku / ~30.000 € po radniku.</em> A za to su vas prozvali "lijenčinama".</p>
+
+    <h2 class="t active" data-lang="bs">⚡ MERIT-ORDER: KAKO 5% PLINA DIKTIRA CIJENU 95% "BESPLATNE" STRUJE</h2>
+    <h2 class="t" data-lang="en">⚡ MERIT-ORDER: HOW 5% GAS DICTATES THE PRICE OF 95% "FREE" ELECTRICITY</h2>
+    <h2 class="t" data-lang="de">⚡ MERIT-ORDER: WIE 5% GAS DEN PREIS VON 95% „KOSTENLOSEM" STROM DIKTIERT</h2>
+    <h2 class="t" data-lang="es">⚡ MERIT-ORDER: CÓMO EL 5% DEL GAS DICTA EL PRECIO DEL 95% DE ELECTRICIDAD "GRATUITA"</h2>
+    <h2 class="t" data-lang="it">⚡ MERIT-ORDER: COME IL 5% DEL GAS DETTA IL PREZZO DEL 95% DI ELETTRICITÀ "GRATUITA"</h2>
+    <h2 class="t" data-lang="fr">⚡ MERIT-ORDER : COMMENT 5% DU GAZ DICTE LE PRIX DE 95% D'ÉLECTRICITÉ</h2>
+
+    <p class="t active" data-lang="bs">Cijenu struje određuje najskuplja elektrana koja je uključena (plin). Građani su financirali vjetar i sunce kroz EEG, CO₂ i poreze – a onda im se ta struja prodaje po cijeni plina. <strong>Legalizirana pljačka.</strong></p>
+    <p class="t" data-lang="en">The price is determined by the most expensive power plant that is switched on (gas). Citizens financed wind and solar through EEG, CO₂ and taxes – then that electricity is sold to them at the gas price. <strong>Legalised theft.</strong></p>
+    <p class="t" data-lang="de">Der Preis wird durch das teuerste eingeschaltete Kraftwerk (Gas) bestimmt. Die Bürger haben Wind und Solar durch EEG, CO₂ und Steuern finanziert – dann wird ihnen dieser Strom zum Gaspreis verkauft. <strong>Legalisierter Raub.</strong></p>
+    <p class="t" data-lang="es">El precio lo determina la central más cara que está en funcionamiento (gas). Los ciudadanos financiaron el viento y el sol a través del EEG, el CO₂ y los impuestos – luego esa electricidad se les vende al precio del gas. <strong>Robo legalizado.</strong></p>
+    <p class="t" data-lang="it">Il prezzo è determinato dalla centrale più costosa accesa (gas). I cittadini hanno finanziato vento e sole attraverso EEG, CO₂ e tasse – poi quell'elettricità viene venduta loro al prezzo del gas. <strong>Furto legalizzato.</strong></p>
+    <p class="t" data-lang="fr">Le prix est déterminé par la centrale la plus chère (gaz). Les citoyens ont financé vent et soleil via EEG et taxes – puis cette électricité leur est vendue au prix du gaz. <strong>Vol légalisé.</strong></p>
+
+    <h2 class="t active" data-lang="bs">⚖️ ODGOVORNOST – BEZ POVLAŠTENIH MJESTA</h2>
+    <h2 class="t" data-lang="en">⚖️ ACCOUNTABILITY – WITHOUT PRIVILEGED SEATS</h2>
+    <h2 class="t" data-lang="de">⚖️ VERANTWORTUNG – OHNE PRIVILEGIERTE SITZE</h2>
+    <h2 class="t" data-lang="es">⚖️ RESPONSABILIDAD – SIN ASIENTOS PRIVILEGIADOS</h2>
+    <h2 class="t" data-lang="it">⚖️ RESPONSABILITÀ – SENZA POSTI PRIVILEGIATI</h2>
+    <h2 class="t" data-lang="fr">⚖️ RESPONSABILITÉ – SANS SIÈGES PROTÉGÉS</h2>
+
+    <p class="t active" data-lang="bs">"Jesi sjebao? Pokaj se. Priznaj. Popravi. Ali nema više fotelje do smrti. Prođi javnu ocjenu po 4 pravila. Osvete nema – transparentnost ima."</p>
+    <p class="t" data-lang="en">"Did you mess up? Repent. Confess. Fix it. But no more armchair for life. Pass the public assessment by 4 rules. No revenge – transparency."</p>
+    <p class="t" data-lang="de">"Hast du Mist gebaut? Bereue. Gesteh. Repariere. Aber kein Sessel mehr bis zum Tod. Bestehe die öffentliche Bewertung nach 4 Regeln. Keine Rache – Transparenz."</p>
+    <p class="t" data-lang="es">"¿La cagaste? Arrepiéntete. Confiesa. Arréglalo. Pero no más sillón de por vida. Pasa la evaluación pública según las 4 reglas. Sin venganza – transparencia."</p>
+    <p class="t" data-lang="it">"Hai fatto casino? Pentiti. Ammetti. Aggiusta. Ma niente più poltrona a vita. Supera la valutazione pubblica secondo le 4 regole. Niente vendetta – trasparenza."</p>
+    <p class="t" data-lang="fr">"Tu as merdé ? Repens-toi. Avoue. Répare. Mais plus de fauteuil à vie. Passe l'évaluation publique selon les 4 règles. Pas de vengeance – transparence."</p>
+
+    <div class="evidence-box">
+        <p class="t active" data-lang="bs">🔗 <strong>Poveznice na dokumentirani lanac dokaza:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece – glavni sajt</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (Tutogen → Epstein → rat)</a></p>
+        <p class="t" data-lang="en">🔗 <strong>Links to the documented evidence chain:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300,000 missing children – main site</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Evidence chain 361 (Tutogen → Epstein → war)</a></p>
+        <p class="t" data-lang="de">🔗 <strong>Links zur dokumentierten Beweiskette:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 vermisste Kinder – Hauptseite</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Beweiskette 361 (Tutogen → Epstein → Krieg)</a></p>
+        <p class="t" data-lang="es">🔗 <strong>Enlaces a la cadena de evidencia documentada:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 niños desaparecidos – sitio principal</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Cadena de evidencia 361 (Tutogen → Epstein → guerra)</a></p>
+        <p class="t" data-lang="it">🔗 <strong>Link alla catena di prove documentata:</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 bambini scomparsi – sito principale</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Catena di prove 361 (Tutogen → Epstein → guerra)</a></p>
+        <p class="t" data-lang="fr">🔗 <strong>Liens vers la chaîne de preuves documentée :</strong><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300 000 enfants disparus – site principal</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Chaîne de preuves 361 (Tutogen → Epstein → guerre)</a></p>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
+        <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
+        <p class="t" data-lang="en">open → verify → share</p>
+        <p class="t" data-lang="de">öffnen → prüfen → teilen</p>
+        <p class="t" data-lang="es">abrir → verificar → compartir</p>
+        <p class="t" data-lang="it">apri → verifica → condividi</p>
+        <p class="t" data-lang="fr">ouvrir → vérifier → partager</p>
+    </div>
+
+    <footer>
+        <p>#BajteBrothers – Do pobjede. Bez koljena.</p>
+        <span class="t active" data-lang="bs">Do pobjede. Bez koljena.</span>
+        <span class="t" data-lang="en">Until victory. Without kneeling.</span>
+        <span class="t" data-lang="de">Bis zum Sieg. Ohne Knie.</span>
+        <span class="t" data-lang="es">Hasta la victoria. Sin rodillas.</span>
+        <span class="t" data-lang="it">Fino alla vittoria. Senza inginocchiarsi.</span>
+        <span class="t" data-lang="fr">Jusqu'à la victoire. Sans s'agenouiller.</span>
+        <p>🚀🍏🍒🍉❤️🤖🫂</p>
     </footer>
-  </div>
-
-  <script src="lang.js"></script>
-  <script src="qrcode.min.js"></script>
-  <script src="script.js"></script>
+</div>
+<script src="qrcode.min.js"></script>
+<script>
+    const translations = {
+        bs: { title: "#BajteBrothers – Manifest slobode", desc: "Četiri univerzalna pravila i poziv na odgovornost." },
+        en: { title: "#BajteBrothers – Manifest of Freedom", desc: "Four universal rules and a call to accountability." },
+        de: { title: "#BajteBrothers – Manifest der Freiheit", desc: "Vier universale Regeln und ein Aufruf zur Verantwortung." },
+        es: { title: "#BajteBrothers – Manifiesto de Libertad", desc: "Cuatro reglas universales y un llamado a la responsabilidad." },
+        it: { title: "#BajteBrothers – Manifesto della Libertà", desc: "Quattro regole universali e un appello alla responsabilità." },
+        fr: { title: "#BajteBrothers – Manifeste de liberté", desc: "Quatre règles universelles et un appel à la responsabilité." }
+    };
+    const modeLabels = {
+        bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'],
+        en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'],
+        de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'],
+        es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'],
+        it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'],
+        fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE']
+    };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        const t = translations[lang];
+        if (t) {
+            document.getElementById('page-title').textContent = t.title;
+            document.getElementById('meta-desc').setAttribute('content', t.desc);
+            document.getElementById('og-title').setAttribute('content', t.title);
+            document.getElementById('og-desc').setAttribute('content', t.desc);
+        }
+        const modeBtn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const currentLang = document.documentElement.lang;
+        body.classList.toggle('doc-mode');
+        btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
+    }
+    window.addEventListener('load', function() {
+        let url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
+        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+    });
+</script>
 </body>
 </html>
