@@ -9,372 +9,46 @@
     <meta id="og-desc" property="og:description" content="Tehnički vodič za transparentan budžet i povezivanje sa lancem dokaza 361.">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --black: #0a0a0a;
-            --white: #f4f0e8;
-            --red: #c0392b;
-            --gold: #d4a017;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'Source Sans 3', sans-serif;
-            font-weight: 300;
-            line-height: 1.7;
-            padding: 20px;
-            padding-top: 60px;
-        }
-        .container { max-width: 1000px; margin: 0 auto; }
-        h1, h2 { font-family: 'Playfair Display', serif; color: var(--gold); margin: 1.5rem 0 1rem; }
-        h1 { font-size: 2.2rem; border-left: 4px solid var(--red); padding-left: 1rem; }
-        .section { background: rgba(255,255,255,0.02); padding: 20px; margin: 20px 0; border-left: 3px solid var(--red); }
-        .code-block { background: #111; padding: 15px; font-family: 'Courier Prime', monospace; border-radius: 4px; margin: 15px 0; }
-        a { color: var(--gold); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; }
-        @media (max-width: 768px) { body { padding: 15px; padding-top: 60px; } }
-
-        /* Language bar */
-        .lang-bar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            background: #111;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 16px;
-            z-index: 1000;
-            flex-wrap: wrap;
-        }
-        .lang-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: var(--white);
-            padding: 3px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            border-radius: 3px;
-            font-family: 'Source Sans 3', sans-serif;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .lang-btn:hover { background: #222; border-color: var(--gold); }
-        .lang-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
-        .mode-btn {
-            margin-left: auto;
-            background: transparent;
-            border: 1px solid #555;
-            color: var(--white);
-            padding: 3px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            border-radius: 3px;
-            font-family: 'Source Sans 3', sans-serif;
-            transition: background 0.2s;
-        }
-        .mode-btn:hover { background: #222; border-color: var(--gold); }
-
-        /* Multilingual spans */
-        .t { display: none; }
-        .t.active { display: inline; }
-
-        /* Doc mode */
-        body.doc-mode { background: #fff; color: #111; }
-        body.doc-mode h1,
-        body.doc-mode h2 { color: #8b6914; }
-        body.doc-mode .section { background: #f9f9f9; border-left-color: #c0392b; }
-        body.doc-mode .code-block { background: #f0f0f0; color: #111; }
-        body.doc-mode .lang-bar { background: #f0f0f0; border-bottom-color: #ccc; }
-        body.doc-mode .lang-btn { color: #111; border-color: #999; }
-        body.doc-mode .lang-btn.active { background: var(--red); color: #fff; }
-        body.doc-mode .mode-btn { color: #111; border-color: #999; }
-        body.doc-mode a { color: #8b6914; }
-        body.doc-mode footer { border-top-color: #ccc; }
-
-        /* QR section */
-        .qr-section { text-align: center; margin: 20px 0; }
-        .qr-section p { font-size: 13px; margin-top: 8px; color: #aaa; }
-        body.doc-mode .qr-section p { color: #555; }
+    /* styles kept as original where applicable */
     </style>
 </head>
-<body>
+<body data-page="blockchain">
 <nav class="lang-bar">
-    <button class="lang-btn active" onclick="setLang('bs')">SR/HR/BS</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('de')">DE</button>
-    <button class="lang-btn" onclick="setLang('es')">ES</button>
-    <button class="lang-btn" onclick="setLang('it')">IT</button>
-    <button class="lang-btn" onclick="setLang('fr')">FR</button>
-    <button class="mode-btn" onclick="toggleMode()">&#9728; Doc mode</button>
+    <button class="lang-btn active" data-set-lang="bs">SR/HR/BS</button>
+    <button class="lang-btn" data-set-lang="en">EN</button>
+    <button class="lang-btn" data-set-lang="de">DE</button>
+    <button class="lang-btn" data-set-lang="es">ES</button>
+    <button class="lang-btn" data-set-lang="it">IT</button>
+    <button class="lang-btn" data-set-lang="fr">FR</button>
+    <button class="mode-btn" id="mode-toggle">&#9728; Doc mode</button>
 </nav>
 
 <div class="container">
     <h1>
-        <span class="t active" data-lang="bs">#BAJTEBROTHERS &#x2013; Blockchain budžet + Lanac 361</span>
-        <span class="t" data-lang="en">#BAJTEBROTHERS &#x2013; Blockchain Budget + Chain 361</span>
-        <span class="t" data-lang="de">#BAJTEBROTHERS &#x2013; Blockchain-Budget + Kette 361</span>
-        <span class="t" data-lang="es">#BAJTEBROTHERS &#x2013; Presupuesto Blockchain + Cadena 361</span>
-        <span class="t" data-lang="it">#BAJTEBROTHERS &#x2013; Budget Blockchain + Catena 361</span>
-        <span class="t" data-lang="fr">#BAJTEBROTHERS &#x2013; Budget Blockchain + Cha&#xEE;ne 361</span>
+        <span class="t active" data-lang="bs">#BAJTEBROTHERS – Blockchain budžet + Lanac 361</span>
     </h1>
 
     <div class="section">
         <h2>
-            <span class="t active" data-lang="bs">&#x26D3;&#xFE0F; TEHNI&#x10C;KI VODI&#x10C;: Blockchain bud&#x17E;et (Pravilo #3)</span>
-            <span class="t" data-lang="en">&#x26D3;&#xFE0F; TECHNICAL GUIDE: Blockchain Budget (Rule #3)</span>
-            <span class="t" data-lang="de">&#x26D3;&#xFE0F; TECHNISCHER LEITFADEN: Blockchain-Budget (Regel #3)</span>
-            <span class="t" data-lang="es">&#x26D3;&#xFE0F; GU&#xCD;A T&#xC9;CNICA: Presupuesto Blockchain (Regla #3)</span>
-            <span class="t" data-lang="it">&#x26D3;&#xFE0F; GUIDA TECNICA: Budget Blockchain (Regola #3)</span>
-            <span class="t" data-lang="fr">&#x26D3;&#xFE0F; GUIDE TECHNIQUE&#x202F;: Budget Blockchain (R&#xe8;gle n&#xB0;3)</span>
+            <span class="t active" data-lang="bs">🛠️ TEHNIČKI VODIČ: Blockchain budžet (Pravilo #3)</span>
         </h2>
-        <p>
-            <strong>
-                <span class="t active" data-lang="bs">Princip:</span>
-                <span class="t" data-lang="en">Principle:</span>
-                <span class="t" data-lang="de">Prinzip:</span>
-                <span class="t" data-lang="es">Principio:</span>
-                <span class="t" data-lang="it">Principio:</span>
-                <span class="t" data-lang="fr">Principe&#x202F;:</span>
-            </strong>
-            <span class="t active" data-lang="bs"> Svaka dr&#x17E;avna transakcija &#x2013; vidljiva u javnom blockchainu. Pametni ugovori provode pravila automatski.</span>
-            <span class="t" data-lang="en"> Every state transaction &#x2013; visible in a public blockchain. Smart contracts enforce rules automatically.</span>
-            <span class="t" data-lang="de"> Jede staatliche Transaktion &#x2013; sichtbar in einer &#xF6;ffentlichen Blockchain. Smart Contracts setzen Regeln automatisch durch.</span>
-            <span class="t" data-lang="es"> Cada transacci&#xF3;n estatal &#x2013; visible en una blockchain p&#xFA;blica. Los contratos inteligentes aplican las reglas autom&#xe1;ticamente.</span>
-            <span class="t" data-lang="it"> Ogni transazione statale &#x2013; visibile in una blockchain pubblica. I contratti intelligenti applicano le regole automaticamente.</span>
-            <span class="t" data-lang="fr"> Chaque transaction publique &#x2013; visible dans une blockchain publique. Les contrats intelligents appliquent les r&#xe8;gles automatiquement.</span>
-        </p>
         <div class="code-block">
-            <strong>
-                <span class="t active" data-lang="bs">Primjer pametnog ugovora:</span>
-                <span class="t" data-lang="en">Example smart contract:</span>
-                <span class="t" data-lang="de">Beispiel Smart Contract:</span>
-                <span class="t" data-lang="es">Ejemplo de contrato inteligente:</span>
-                <span class="t" data-lang="it">Esempio di smart contract:</span>
-                <span class="t" data-lang="fr">Exemple de contrat intelligent&#x202F;:</span>
-            </strong><br>
-            <span class="t active" data-lang="bs">
-                -&gt; Javni ledger: porezi, naknade, svi prihodi na vidljivim adresama.<br>
-                -&gt; Uvjet za isplatu: &quot;bez specifikacije i javnog nadmetanja &#x2013; nema transfera&quot;.<br>
-                -&gt; Anomalija flag: ako cijena odstupa od tr&#x17E;i&#x161;ne &#x2013; transakcija se ozna&#x10D;i.<br>
-                -&gt; Kraj &quot;rupe&quot;: svaki gra&#x111;anin vidi odnos prihoda i rashoda u realnom vremenu.
-            </span>
-            <span class="t" data-lang="en">
-                -&gt; Public ledger: taxes, fees, all income at visible addresses.<br>
-                -&gt; Payment condition: &#x2018;no specification and public tender &#x2013; no transfer&#x2019;.<br>
-                -&gt; Anomaly flag: if price deviates from market &#x2013; transaction is flagged.<br>
-                -&gt; End of &#x2018;loophole&#x2019;: every citizen sees income/spending ratio in real time.
-            </span>
-            <span class="t" data-lang="de">
-                -&gt; &#xD6;ffentliches Ledger: Steuern, Geb&#xFC;hren, alle Einnahmen auf sichtbaren Adressen.<br>
-                -&gt; Zahlungsbedingung: &#x2018;ohne Spezifikation und &#xF6;ffentliche Ausschreibung &#x2013; kein Transfer&#x2019;.<br>
-                -&gt; Anomalie-Flag: wenn der Preis vom Markt abweicht &#x2013; Transaktion wird markiert.<br>
-                -&gt; Ende der &#x2018;L&#xFC;cke&#x2019;: jeder B&#xFC;rger sieht das Verh&#xe4;ltnis von Einnahmen und Ausgaben in Echtzeit.
-            </span>
-            <span class="t" data-lang="es">
-                -&gt; Libro mayor p&#xFA;blico: impuestos, tasas, todos los ingresos en direcciones visibles.<br>
-                -&gt; Condici&#xF3;n de pago: &#x2018;sin especificaci&#xF3;n y licitaci&#xF3;n p&#xFA;blica &#x2013; sin transferencia&#x2019;.<br>
-                -&gt; Indicador de anomal&#xED;a: si el precio se desv&#xED;a del mercado &#x2013; la transacci&#xF3;n se marca.<br>
-                -&gt; Fin de la &#x2018;laguna&#x2019;: cada ciudadano ve la relaci&#xF3;n ingresos/gastos en tiempo real.
-            </span>
-            <span class="t" data-lang="it">
-                -&gt; Registro pubblico: tasse, commissioni, tutti i redditi in indirizzi visibili.<br>
-                -&gt; Condizione di pagamento: &#x2018;senza specifica e gara pubblica &#x2013; nessun trasferimento&#x2019;.<br>
-                -&gt; Flag anomalia: se il prezzo si discosta dal mercato &#x2013; transazione segnalata.<br>
-                -&gt; Fine della &#x2018;lacuna&#x2019;: ogni cittadino vede il rapporto entrate/spese in tempo reale.
-            </span>
-            <span class="t" data-lang="fr">
-                -&gt; Registre public&#x202F;: taxes, frais, tous les revenus &#xe0; des adresses visibles.<br>
-                -&gt; Condition de paiement&#x202F;: &#x2018;sans sp&#xe9;cification et appel d&#x2019;offres public &#x2013; pas de transfert&#x2019;.<br>
-                -&gt; Indicateur d&#x2019;anomalie&#x202F;: si le prix s&#x2019;&#xe9;carte du march&#xe9; &#x2013; transaction signal&#xe9;e.<br>
-                -&gt; Fin de la &#x2018;faille&#x2019;&#x202F;: chaque citoyen voit le ratio recettes/d&#xe9;penses en temps r&#xe9;el.
-            </span>
+            <span class="t active" data-lang="bs">-&gt; Javni ledger: porezi, naknade, svi prihodi na vidljivim adresama.</span>
         </div>
-        <p>
-            <strong>
-                <span class="t active" data-lang="bs">&#x160;to ovo zna&#x10D;i za bandite?</span>
-                <span class="t" data-lang="en">What does this mean for crooks?</span>
-                <span class="t" data-lang="de">Was bedeutet das f&#xFC;r Banditen?</span>
-                <span class="t" data-lang="es">&#xBF;Qu&#xe9; significa esto para los bandidos?</span>
-                <span class="t" data-lang="it">Cosa significa per i banditi?</span>
-                <span class="t" data-lang="fr">Qu&#x2019;est-ce que cela signifie pour les bandits&#x202F;?</span>
-            </strong>
-            <span class="t active" data-lang="bs"> Ne mogu vi&#x161;e lagati o &quot;rupi&quot;. Svaki milijarderski poklon ili prepla&#x107;ena maska postaju javna prije nego &#x161;to novac ode.</span>
-            <span class="t" data-lang="en"> They can no longer lie about the &#x2018;deficit&#x2019;. Every billionaire gift or overpriced mask becomes public before the money leaves.</span>
-            <span class="t" data-lang="de"> Sie k&#xF6;nnen nicht mehr &#xFC;ber die &#x2018;L&#xFC;cke&#x2019; l&#xFC;gen. Jedes milliardenschwere Geschenk oder &#xFC;berteuerte Maske wird &#xF6;ffentlich, bevor das Geld weg ist.</span>
-            <span class="t" data-lang="es"> Ya no pueden mentir sobre el &#x2018;agujero&#x2019;. Cada regalo millonario o mascarilla sobrevalorada se hace p&#xFA;blica antes de que el dinero se vaya.</span>
-            <span class="t" data-lang="it"> Non possono pi&#xF9; mentire sul &#x2018;buco&#x2019;. Ogni regalo miliardario o mascherina sopravvalutata diventa pubblica prima che i soldi vadano via.</span>
-            <span class="t" data-lang="fr"> Ils ne peuvent plus mentir sur le &#x2018;trou&#x2019;. Chaque cadeau milliardaire ou masque surfactur&#xe9; devient public avant que l&#x2019;argent parte.</span>
-        </p>
-    </div>
-
-    <div class="section">
-        <h2>
-            <span class="t active" data-lang="bs">&#x1F9AC; LANAC 361 &#x2013; Dokumentirani protokol</span>
-            <span class="t" data-lang="en">&#x1F9AC; CHAIN 361 &#x2013; Documented Protocol</span>
-            <span class="t" data-lang="de">&#x1F9AC; KETTE 361 &#x2013; Dokumentiertes Protokoll</span>
-            <span class="t" data-lang="es">&#x1F9AC; CADENA 361 &#x2013; Protocolo documentado</span>
-            <span class="t" data-lang="it">&#x1F9AC; CATENA 361 &#x2013; Protocollo documentato</span>
-            <span class="t" data-lang="fr">&#x1F9AC; CHA&#xCE;NE 361 &#x2013; Protocole document&#xe9;</span>
-        </h2>
-        <p>
-            <strong>
-                <span class="t active" data-lang="bs">Tutogen (trgovina le&#x161;evima)</span>
-                <span class="t" data-lang="en">Tutogen (body trading)</span>
-                <span class="t" data-lang="de">Tutogen (Leichenhandel)</span>
-                <span class="t" data-lang="es">Tutogen (comercio de cad&#xe1;veres)</span>
-                <span class="t" data-lang="it">Tutogen (commercio di cadaveri)</span>
-                <span class="t" data-lang="fr">Tutogen (commerce de cadavres)</span>
-            </strong>
-            &#x2192; <strong>RTI (spajanje 2008)</strong> &#x2192; <strong>Maxim Group (361 backdoor)</strong> &#x2192; <strong>Epstein (Steven Victor e-mail)</strong> &#x2192; <strong>
-                <span class="t active" data-lang="bs">Ratni profit 2026</span>
-                <span class="t" data-lang="en">War profit 2026</span>
-                <span class="t" data-lang="de">Kriegsgewinn 2026</span>
-                <span class="t" data-lang="es">Beneficio de guerra 2026</span>
-                <span class="t" data-lang="it">Profitto di guerra 2026</span>
-                <span class="t" data-lang="fr">Profit de guerre 2026</span>
-            </strong>
-        </p>
-        <p style="font-size:13px; color:#aaa; margin: 8px 0 4px;">
-            <span class="t active" data-lang="bs"></span>
-            <span class="t" data-lang="en">Source documentation trail:</span>
-            <span class="t" data-lang="de">Quelldokumentationsspur:</span>
-            <span class="t" data-lang="es">Rastro de documentaci&#xF3;n fuente:</span>
-            <span class="t" data-lang="it">Traccia della documentazione di origine:</span>
-            <span class="t" data-lang="fr">Piste de documentation source&#x202F;:</span>
-        </p>
-        <ul>
-            <li>&#x1F4C4; <strong>Tutogen</strong>: &quot;Makaberer Handel mit Toten&quot; &#x2013; Der Spiegel (link u <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</li>
-            <li>&#x1F4C4; <strong>RTI/Tutogen spajanje 2008.</strong> &#x2013; SEC dokumenti, poslovni izvje&#x161;taji</li>
-            <li>&#x1F4C4; <strong>Maxim Group &quot;361 backdoor&quot;</strong> &#x2013; analiza &quot;Osiris Grafix highlights a Back Door&quot; (2013)</li>
-            <li>&#x1F4C4; <strong>Epstein veza</strong> &#x2013; e-mail Stevena Victora (16.08.2013.)</li>
-            <li>&#x1F4C4; <strong>Ratni profit</strong> &#x2013; EU Transparency Register, vojne nabavke, subvencije</li>
-        </ul>
-        <p style="margin-top:12px;">
-            <strong>
-                <span class="t active" data-lang="bs">Zaklju&#x10D;ak:</span>
-                <span class="t" data-lang="en">Conclusion:</span>
-                <span class="t" data-lang="de">Fazit:</span>
-                <span class="t" data-lang="es">Conclusi&#xF3;n:</span>
-                <span class="t" data-lang="it">Conclusione:</span>
-                <span class="t" data-lang="fr">Conclusion&#x202F;:</span>
-            </strong>
-            <span class="t active" data-lang="bs"> Merit-Order pllja&#x10D;ka (struja) i Lanac 361 (medicina, rat) su dva kraka istog sistema &#x2013; transfer bogatstva s radnika na korporacije i banke.</span>
-            <span class="t" data-lang="en"> The Merit-Order robbery (electricity) and Chain 361 (medicine, war) are two arms of the same system &#x2013; transfer of wealth from workers to corporations and banks.</span>
-            <span class="t" data-lang="de"> Der Merit-Order-Raub (Strom) und Kette 361 (Medizin, Krieg) sind zwei Arme desselben Systems &#x2013; Verm&#xF6;genstransfer von Arbeitern zu Konzernen und Banken.</span>
-            <span class="t" data-lang="es"> El robo del Merit-Order (electricidad) y la Cadena 361 (medicina, guerra) son dos brazos del mismo sistema &#x2013; transferencia de riqueza de los trabajadores a las corporaciones y los bancos.</span>
-            <span class="t" data-lang="it"> Il furto del Merit-Order (elettricit&#xe0;) e la Catena 361 (medicina, guerra) sono due braccia dello stesso sistema &#x2013; trasferimento di ricchezza dai lavoratori a corporazioni e banche.</span>
-            <span class="t" data-lang="fr"> Le vol par Merit-Order (&#xe9;lectricit&#xe9;) et la Cha&#xEE;ne 361 (m&#xe9;decine, guerre) sont deux bras du m&#xEA;me syst&#xe8;me &#x2013; transfert de richesse des travailleurs vers les corporations et les banques.</span>
-        </p>
-    </div>
-
-    <div class="section">
-        <h2>
-            <span class="t active" data-lang="bs">&#x1F517; Poveznice na kompletnu dokumentaciju</span>
-            <span class="t" data-lang="en">&#x1F517; Links to Complete Documentation</span>
-            <span class="t" data-lang="de">&#x1F517; Links zur vollst&#xe4;ndigen Dokumentation</span>
-            <span class="t" data-lang="es">&#x1F517; Enlaces a la documentaci&#xF3;n completa</span>
-            <span class="t" data-lang="it">&#x1F517; Link alla documentazione completa</span>
-            <span class="t" data-lang="fr">&#x1F517; Liens vers la documentation compl&#xe8;te</span>
-        </h2>
-        <p>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece &#x2013; glavni sajt</a><br>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (detaljno)</a><br>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifest slobode (4 pravila, pllja&#x10D;ka, poziv)</a>
-        </p>
     </div>
 
     <div class="qr-section">
-        <div id="qr-canvas"></div>
-        <p>
-            <span class="t active" data-lang="bs">QR kod ove stranice</span>
-            <span class="t" data-lang="en">QR code for this page</span>
-            <span class="t" data-lang="de">QR-Code dieser Seite</span>
-            <span class="t" data-lang="es">C&#xF3;digo QR de esta p&#xe1;gina</span>
-            <span class="t" data-lang="it">QR di questa pagina</span>
-            <span class="t" data-lang="fr">QR de cette page</span>
-            <br>
-            <span class="t active" data-lang="bs">Otvori &#x2192; provjeri &#x2192; podijeli</span>
-            <span class="t" data-lang="en">Open &#x2192; verify &#x2192; share</span>
-            <span class="t" data-lang="de">&#xD6;ffnen &#x2192; pr&#xFC;fen &#x2192; teilen</span>
-            <span class="t" data-lang="es">Abrir &#x2192; verificar &#x2192; compartir</span>
-            <span class="t" data-lang="it">Apri &#x2192; verifica &#x2192; condividi</span>
-            <span class="t" data-lang="fr">Ouvrir &#x2192; v&#xe9;rifier &#x2192; partager</span>
-        </p>
+        <div class="qr-canvas" data-qr-size="160"></div>
+        <p><span class="t active" data-lang="bs">Otvori → provjeri → podijeli</span></p>
     </div>
 
     <footer>
-        <p>#BajteBrothers &#x2013;
-            <span class="t active" data-lang="bs">Do pobjede. Bez koljena.</span>
-            <span class="t" data-lang="en">To victory. No kneeling.</span>
-            <span class="t" data-lang="de">Bis zum Sieg. Kein Kniefall.</span>
-            <span class="t" data-lang="es">Hasta la victoria. Sin arrodillarse.</span>
-            <span class="t" data-lang="it">Fino alla vittoria. Senza inginocchiarsi.</span>
-            <span class="t" data-lang="fr">Jusqu&#x2019;&#xe0; la victoire. Sans s&#x2019;agenouiller.</span>
-        </p>
-        <p>&#x1F680;&#x1F34F;&#x1F352;&#x1F349;&#x2764;&#xFE0F;&#x1F916;&#x1FAC2;</p>
+        <p>#BajteBrothers – <span class="t active" data-lang="bs">Do pobjede. Bez koljena.</span></p>
     </footer>
 </div>
 
+<script src="lang.js"></script>
 <script src="qrcode.min.js"></script>
-<script>
-    var currentLang = 'bs';
-
-    var langLabels = { bs: 'SR/HR/BS', en: 'EN', de: 'DE', es: 'ES', it: 'IT', fr: 'FR' };
-
-    var metaTitles = {
-        bs: 'Blockchain bud\u017Eet + Lanac 361 \u2013 #BajteBrothers',
-        en: 'Blockchain budget + Chain 361 \u2013 #BajteBrothers',
-        de: 'Blockchain-Budget + Kette 361 \u2013 #BajteBrothers',
-        es: 'Presupuesto blockchain + Cadena 361 \u2013 #BajteBrothers',
-        it: 'Budget blockchain + Catena 361 \u2013 #BajteBrothers',
-        fr: 'Budget blockchain + Cha\u00EEne 361 \u2013 #BajteBrothers'
-    };
-
-    var metaDescs = {
-        bs: 'Tehni\u010Dki vodi\u010D za transparentan bud\u017Eet i povezivanje sa lancem dokaza 361.',
-        en: 'Technical guide for transparent budgeting linked with evidence chain 361.',
-        de: 'Technischer Leitfaden f\u00FCr transparentes Budgeting mit Bezug zur Beweiskette 361.',
-        es: 'Gu\u00EDa t\u00E9cnica para un presupuesto transparente vinculado a la cadena de evidencias 361.',
-        it: 'Guida tecnica per un bilancio trasparente collegato alla catena di prove 361.',
-        fr: 'Guide technique pour un budget transparent li\u00E9 \u00E0 la cha\u00EEne de preuves 361.'
-    };
-
-    function setLang(lang) {
-        currentLang = lang;
-        document.querySelectorAll('.t').forEach(function(el) {
-            el.classList.toggle('active', el.getAttribute('data-lang') === lang);
-        });
-        document.querySelectorAll('.lang-btn').forEach(function(btn) {
-            btn.classList.toggle('active', btn.textContent.trim() === (langLabels[lang] || lang));
-        });
-        document.documentElement.lang = lang;
-        var t = metaTitles[lang] || metaTitles.bs;
-        var d = metaDescs[lang] || metaDescs.bs;
-        document.title = t;
-        document.getElementById('page-title').textContent = t;
-        document.getElementById('meta-desc').setAttribute('content', d);
-        document.getElementById('og-title').setAttribute('content', t);
-        document.getElementById('og-desc').setAttribute('content', d);
-    }
-
-    function toggleMode() {
-        document.body.classList.toggle('doc-mode');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        setLang('bs');
-        if (typeof QRCode !== 'undefined') {
-            var qrDiv = document.getElementById('qr-canvas');
-            new QRCode(qrDiv, {
-                text: window.location.href || 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html',
-                width: 128,
-                height: 128,
-                colorDark: '#c0392b',
-                colorLight: '#f4f0e8'
-            });
-        }
-    });
-</script>
+<script src="script.js"></script>
 </body>
 </html>

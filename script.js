@@ -93,6 +93,11 @@
       btn.textContent = label;
     });
 
+    // Update inline multilanguage spans (class .t + data-lang)
+    document.querySelectorAll('.t[data-lang]').forEach((el) => {
+      el.classList.toggle('active', el.getAttribute('data-lang') === current);
+    });
+
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const value = textForKey(el.getAttribute('data-i18n'), current);
       if (value) el.textContent = value;
@@ -195,6 +200,17 @@
     document.querySelectorAll('.lang-btn[data-set-lang]').forEach((btn) => {
       btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-set-lang')));
     });
+
+    // mode toggle (buttons with id mode-toggle present on pages)
+    const modeBtn = document.getElementById('mode-toggle');
+    if (modeBtn) {
+      modeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('doc-mode');
+        // refresh language labels for correct mode text if necessary
+        const current = localStorage.getItem('bb_lang') || fallbackLang;
+        applyLanguage(current);
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
