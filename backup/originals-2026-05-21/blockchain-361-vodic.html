@@ -98,15 +98,15 @@
         body.doc-mode .qr-section p { color: #555; }
     </style>
 </head>
-<body data-page="blockchain">
+<body>
 <nav class="lang-bar">
-    <button class="lang-btn active" data-set-lang="bs">SR/HR/BS</button>
-    <button class="lang-btn" data-set-lang="en">EN</button>
-    <button class="lang-btn" data-set-lang="de">DE</button>
-    <button class="lang-btn" data-set-lang="es">ES</button>
-    <button class="lang-btn" data-set-lang="it">IT</button>
-    <button class="lang-btn" data-set-lang="fr">FR</button>
-    <button class="mode-btn">&#9728; Doc mode</button>
+    <button class="lang-btn active" onclick="setLang('bs')">SR/HR/BS</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" onclick="setLang('fr')">FR</button>
+    <button class="mode-btn" onclick="toggleMode()">&#9728; Doc mode</button>
 </nav>
 
 <div class="container">
@@ -244,7 +244,7 @@
             <span class="t" data-lang="fr">Piste de documentation source&#x202F;:</span>
         </p>
         <ul>
-            <li>&#x1F4C4; <strong>Tutogen</strong>: &quot;Makaberer Handel mit Toten&quot; &#x2013; Der Spiegel (link u <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html"  rel="noopener noreferrer" target="_blank">361-lanac.html</a>)</li>
+            <li>&#x1F4C4; <strong>Tutogen</strong>: &quot;Makaberer Handel mit Toten&quot; &#x2013; Der Spiegel (link u <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">361-lanac.html</a>)</li>
             <li>&#x1F4C4; <strong>RTI/Tutogen spajanje 2008.</strong> &#x2013; SEC dokumenti, poslovni izvje&#x161;taji</li>
             <li>&#x1F4C4; <strong>Maxim Group &quot;361 backdoor&quot;</strong> &#x2013; analiza &quot;Osiris Grafix highlights a Back Door&quot; (2013)</li>
             <li>&#x1F4C4; <strong>Epstein veza</strong> &#x2013; e-mail Stevena Victora (16.08.2013.)</li>
@@ -278,14 +278,14 @@
             <span class="t" data-lang="fr">&#x1F517; Liens vers la documentation compl&#xe8;te</span>
         </h2>
         <p>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/"  rel="noopener noreferrer" target="_blank">300.000 nestale djece &#x2013; glavni sajt</a><br>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html"  rel="noopener noreferrer" target="_blank">Lanac dokaza 361 (detaljno)</a><br>
-            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html"  rel="noopener noreferrer" target="_blank">Manifest slobode (4 pravila, pllja&#x10D;ka, poziv)</a>
+            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece &#x2013; glavni sajt</a><br>
+            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (detaljno)</a><br>
+            &#x27A4; <a href="https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html" target="_blank">Manifest slobode (4 pravila, pllja&#x10D;ka, poziv)</a>
         </p>
     </div>
 
     <div class="qr-section">
-        <div  class="qr-canvas" data-qr-size="160"></div>
+        <div id="qr-canvas"></div>
         <p>
             <span class="t active" data-lang="bs">QR kod ove stranice</span>
             <span class="t" data-lang="en">QR code for this page</span>
@@ -315,8 +315,66 @@
         <p>&#x1F680;&#x1F34F;&#x1F352;&#x1F349;&#x2764;&#xFE0F;&#x1F916;&#x1FAC2;</p>
     </footer>
 </div>
-  <script src="lang.js"></script>
-  <script src="qrcode.min.js"></script>
-  <script src="script.js"></script>
+
+<script src="qrcode.min.js"></script>
+<script>
+    var currentLang = 'bs';
+
+    var langLabels = { bs: 'SR/HR/BS', en: 'EN', de: 'DE', es: 'ES', it: 'IT', fr: 'FR' };
+
+    var metaTitles = {
+        bs: 'Blockchain bud\u017Eet + Lanac 361 \u2013 #BajteBrothers',
+        en: 'Blockchain budget + Chain 361 \u2013 #BajteBrothers',
+        de: 'Blockchain-Budget + Kette 361 \u2013 #BajteBrothers',
+        es: 'Presupuesto blockchain + Cadena 361 \u2013 #BajteBrothers',
+        it: 'Budget blockchain + Catena 361 \u2013 #BajteBrothers',
+        fr: 'Budget blockchain + Cha\u00EEne 361 \u2013 #BajteBrothers'
+    };
+
+    var metaDescs = {
+        bs: 'Tehni\u010Dki vodi\u010D za transparentan bud\u017Eet i povezivanje sa lancem dokaza 361.',
+        en: 'Technical guide for transparent budgeting linked with evidence chain 361.',
+        de: 'Technischer Leitfaden f\u00FCr transparentes Budgeting mit Bezug zur Beweiskette 361.',
+        es: 'Gu\u00EDa t\u00E9cnica para un presupuesto transparente vinculado a la cadena de evidencias 361.',
+        it: 'Guida tecnica per un bilancio trasparente collegato alla catena di prove 361.',
+        fr: 'Guide technique pour un budget transparent li\u00E9 \u00E0 la cha\u00EEne de preuves 361.'
+    };
+
+    function setLang(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.t').forEach(function(el) {
+            el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+        });
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.textContent.trim() === (langLabels[lang] || lang));
+        });
+        document.documentElement.lang = lang;
+        var t = metaTitles[lang] || metaTitles.bs;
+        var d = metaDescs[lang] || metaDescs.bs;
+        document.title = t;
+        document.getElementById('page-title').textContent = t;
+        document.getElementById('meta-desc').setAttribute('content', d);
+        document.getElementById('og-title').setAttribute('content', t);
+        document.getElementById('og-desc').setAttribute('content', d);
+    }
+
+    function toggleMode() {
+        document.body.classList.toggle('doc-mode');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setLang('bs');
+        if (typeof QRCode !== 'undefined') {
+            var qrDiv = document.getElementById('qr-canvas');
+            new QRCode(qrDiv, {
+                text: window.location.href || 'https://zeljk018bratic.github.io/sound-of-freedom/blockchain-361-vodic.html',
+                width: 128,
+                height: 128,
+                colorDark: '#c0392b',
+                colorLight: '#f4f0e8'
+            });
+        }
+    });
+</script>
 </body>
 </html>

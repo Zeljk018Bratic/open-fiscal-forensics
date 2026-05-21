@@ -2,28 +2,10 @@
   'use strict';
 
   const cfg = window.LANG_CONFIG || {};
-  const supported = cfg.supported || ['bs', 'de', 'en', 'es', 'it', 'fr'];
+  const supported = cfg.supported || ['bs', 'de', 'en', 'it', 'fr'];
   const fallbackLang = cfg.defaultLang || 'bs';
   const pageKey = document.body?.dataset?.page || 'index';
   const pageConfig = (cfg.pages && cfg.pages[pageKey]) || {};
-  const modeLabels = {
-    doc: {
-      bs: '🌑 TAMNI REŽIM',
-      en: '🌑 DARK MODE',
-      de: '🌑 DUNKELMODUS',
-      es: '🌑 MODO OSCURO',
-      it: '🌑 MODALITÀ SCURA',
-      fr: '🌑 MODE SOMBRE'
-    },
-    dark: {
-      bs: '📄 DOKUMENT REŽIM',
-      en: '📄 DOCUMENT MODE',
-      de: '📄 DOKUMENTMODUS',
-      es: '📄 MODO DOCUMENTO',
-      it: '📄 MODALITÀ DOCUMENTO',
-      fr: '📄 MODE DOCUMENT'
-    }
-  };
 
   function getLangFromQuery() {
     try {
@@ -134,16 +116,11 @@
       if (navValue) link.textContent = pick(navValue, current);
     });
 
-    document.querySelectorAll('.t[data-lang], .tb[data-lang]').forEach((el) => {
-      el.classList.toggle('active', el.getAttribute('data-lang') === current);
-    });
-
     document.documentElement.lang = current;
     localStorage.setItem('bb_lang', current);
     setMeta(current);
     setLangQuery(current);
     setLangOnInternalLinks(current);
-    updateModeButton(current);
   }
 
   function getCanonicalUrl() {
@@ -214,49 +191,15 @@
     });
   }
 
-  function getMode() {
-    try {
-      return localStorage.getItem('bb_doc_mode') === '1';
-    } catch (_err) {
-      return false;
-    }
-  }
-
-  function applyMode(isDoc) {
-    document.body.classList.toggle('doc-mode', !!isDoc);
-  }
-
-  function updateModeButton(lang) {
-    const current = supported.includes(lang) ? lang : fallbackLang;
-    const isDoc = document.body.classList.contains('doc-mode');
-    document.querySelectorAll('.mode-btn').forEach((btn) => {
-      const labels = isDoc ? modeLabels.doc : modeLabels.dark;
-      btn.textContent = labels[current] || labels[fallbackLang];
-    });
-  }
-
   function bindEvents() {
     document.querySelectorAll('.lang-btn[data-set-lang]').forEach((btn) => {
       btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-set-lang')));
-    });
-    document.querySelectorAll('.mode-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const next = !document.body.classList.contains('doc-mode');
-        applyMode(next);
-        try {
-          localStorage.setItem('bb_doc_mode', next ? '1' : '0');
-        } catch (_err) {
-          // no-op
-        }
-        updateModeButton(getLang());
-      });
     });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     bindEvents();
     setActiveNav();
-    applyMode(getMode());
     applyLanguage(getLang());
     renderQRCodes();
   });
