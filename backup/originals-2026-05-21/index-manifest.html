@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="hr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,15 +70,15 @@
         @media (max-width: 768px) { .trojstvo { flex-direction: column; } }
     </style>
 </head>
-<body data-page="manifest">
+<body>
 <div class="lang-bar">
-    <button class="lang-btn active" data-set-lang="bs">HR/BHS</button>
-    <button class="lang-btn" data-set-lang="en">EN</button>
-    <button class="lang-btn" data-set-lang="de">DE</button>
-    <button class="lang-btn" data-set-lang="es">ES</button>
-    <button class="lang-btn" data-set-lang="it">IT</button>
-    <button class="lang-btn" data-set-lang="fr">FR</button>
-    <button class="mode-btn" id="mode-toggle" type="button">📄 DOKUMENT REŽIM</button>
+    <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">HR/BHS</button>
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button class="mode-btn" id="mode-toggle" onclick="toggleMode()">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
     <h1 class="t active" data-lang="bs">#BAJTEBROTHERS – MANIFEST SLOBODE</h1>
@@ -201,27 +201,27 @@
 
     <div class="evidence-box">
         <p class="t active" data-lang="bs">🔗 <strong>Poveznice na dokumentirani lanac dokaza:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300.000 nestale djece – glavni sajt</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Lanac dokaza 361 (Tutogen → Epstein → rat)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 nestale djece – glavni sajt</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Lanac dokaza 361 (Tutogen → Epstein → rat)</a></p>
         <p class="t" data-lang="en">🔗 <strong>Links to the documented evidence chain:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300,000 missing children – main site</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Evidence chain 361 (Tutogen → Epstein → war)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300,000 missing children – main site</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Evidence chain 361 (Tutogen → Epstein → war)</a></p>
         <p class="t" data-lang="de">🔗 <strong>Links zur dokumentierten Beweiskette:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300.000 vermisste Kinder – Hauptseite</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Beweiskette 361 (Tutogen → Epstein → Krieg)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 vermisste Kinder – Hauptseite</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Beweiskette 361 (Tutogen → Epstein → Krieg)</a></p>
         <p class="t" data-lang="es">🔗 <strong>Enlaces a la cadena de evidencia documentada:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300.000 niños desaparecidos – sitio principal</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Cadena de evidencia 361 (Tutogen → Epstein → guerra)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 niños desaparecidos – sitio principal</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Cadena de evidencia 361 (Tutogen → Epstein → guerra)</a></p>
         <p class="t" data-lang="it">🔗 <strong>Link alla catena di prove documentata:</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300.000 bambini scomparsi – sito principale</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Catena di prove 361 (Tutogen → Epstein → guerra)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300.000 bambini scomparsi – sito principale</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Catena di prove 361 (Tutogen → Epstein → guerra)</a></p>
         <p class="t" data-lang="fr">🔗 <strong>Liens vers la chaîne de preuves documentée :</strong><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer">300 000 enfants disparus – site principal</a><br>
-        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank" rel="noopener noreferrer">Chaîne de preuves 361 (Tutogen → Epstein → guerre)</a></p>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank">300 000 enfants disparus – site principal</a><br>
+        ➤ <a href="https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html" target="_blank">Chaîne de preuves 361 (Tutogen → Epstein → guerre)</a></p>
     </div>
 
     <div style="text-align: center; margin: 40px 0;">
-        <div class="qr-canvas" data-qr-size="160" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
+        <div id="qr-canvas" style="display: inline-block; background: white; padding: 12px; border-radius: 4px;"></div>
         <p class="t active" data-lang="bs" style="margin-top: 15px;">otvori → provjeri → podijeli</p>
         <p class="t" data-lang="en">open → verify → share</p>
         <p class="t" data-lang="de">öffnen → prüfen → teilen</p>
@@ -241,8 +241,56 @@
         <p>🚀🍏🍒🍉❤️🤖🫂</p>
     </footer>
 </div>
-<script src="lang.js"></script>
 <script src="qrcode.min.js"></script>
-<script src="script.js"></script>
+<script>
+    const translations = {
+        bs: { title: "#BajteBrothers – Manifest slobode", desc: "Četiri univerzalna pravila i poziv na odgovornost." },
+        en: { title: "#BajteBrothers – Manifest of Freedom", desc: "Four universal rules and a call to accountability." },
+        de: { title: "#BajteBrothers – Manifest der Freiheit", desc: "Vier universale Regeln und ein Aufruf zur Verantwortung." },
+        es: { title: "#BajteBrothers – Manifiesto de Libertad", desc: "Cuatro reglas universales y un llamado a la responsabilidad." },
+        it: { title: "#BajteBrothers – Manifesto della Libertà", desc: "Quattro regole universali e un appello alla responsabilità." },
+        fr: { title: "#BajteBrothers – Manifeste de liberté", desc: "Quatre règles universelles et un appel à la responsabilité." }
+    };
+    const modeLabels = {
+        bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'],
+        en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'],
+        de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'],
+        es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'],
+        it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'],
+        fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE']
+    };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        const t = translations[lang];
+        if (t) {
+            document.getElementById('page-title').textContent = t.title;
+            document.getElementById('meta-desc').setAttribute('content', t.desc);
+            document.getElementById('og-title').setAttribute('content', t.title);
+            document.getElementById('og-desc').setAttribute('content', t.desc);
+        }
+        const modeBtn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        modeBtn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : '📄 DOKUMENT REŽIM';
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const currentLang = document.documentElement.lang;
+        body.classList.toggle('doc-mode');
+        btn.textContent = body.classList.contains('doc-mode') ? (modeLabels[currentLang]?.[1] || '🎨 POSTER MODE') : (modeLabels[currentLang]?.[0] || '📄 DOCUMENT MODE');
+    }
+    window.addEventListener('load', function() {
+        let url = window.location.href;
+        if (url.startsWith('file://') || url === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/index-manifest.html';
+        try { new QRCode(document.getElementById('qr-canvas'), { text: url, width: 160, height: 160, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H }); }
+        catch(e) { document.getElementById('qr-canvas').innerHTML = '<p style="font-size:10px;padding:10px;">QR: '+url+'</p>'; }
+    });
+</script>
 </body>
 </html>
