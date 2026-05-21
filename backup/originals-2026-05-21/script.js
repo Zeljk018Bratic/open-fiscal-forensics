@@ -6,14 +6,6 @@
   const fallbackLang = cfg.defaultLang || 'bs';
   const pageKey = document.body?.dataset?.page || 'index';
   const pageConfig = (cfg.pages && cfg.pages[pageKey]) || {};
-  const modeLabels = cfg.ui?.modeLabels || {
-    bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'],
-    en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'],
-    de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'],
-    es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'],
-    it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'],
-    fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE']
-  };
 
   function getLangFromQuery() {
     try {
@@ -98,12 +90,7 @@
       const btnLang = btn.getAttribute('data-set-lang');
       btn.classList.toggle('active', btnLang === current);
       const label = cfg.ui?.languages?.[btnLang] || btnLang.toUpperCase();
-      if (!btn.textContent.trim()) btn.textContent = label;
-    });
-
-    document.querySelectorAll('.t[data-lang], .tb[data-lang]').forEach((el) => {
-      const elLang = el.getAttribute('data-lang');
-      el.classList.toggle('active', elLang === current);
+      btn.textContent = label;
     });
 
     document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -134,7 +121,6 @@
     setMeta(current);
     setLangQuery(current);
     setLangOnInternalLinks(current);
-    updateModeButton(current);
   }
 
   function getCanonicalUrl() {
@@ -172,7 +158,7 @@
 
   function renderQRCodes() {
     const url = getCanonicalUrl();
-    document.querySelectorAll('.qr-canvas, #qr-canvas').forEach((container) => {
+    document.querySelectorAll('.qr-canvas').forEach((container) => {
       const size = Number(container.getAttribute('data-qr-size')) || 220;
       container.innerHTML = '';
       try {
@@ -205,25 +191,10 @@
     });
   }
 
-  function updateModeButton(lang) {
-    const modeButton = document.getElementById('mode-toggle');
-    if (!modeButton) return;
-    const labels = modeLabels[lang] || modeLabels[fallbackLang] || ['📄 DOCUMENT MODE', '🎨 POSTER MODE'];
-    const isDocMode = document.body.classList.contains('doc-mode');
-    modeButton.textContent = isDocMode ? labels[1] : labels[0];
-  }
-
   function bindEvents() {
     document.querySelectorAll('.lang-btn[data-set-lang]').forEach((btn) => {
       btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-set-lang')));
     });
-    const modeButton = document.getElementById('mode-toggle');
-    if (modeButton) {
-      modeButton.addEventListener('click', () => {
-        document.body.classList.toggle('doc-mode');
-        updateModeButton(getLang());
-      });
-    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bs">
+<html lang="hr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,22 +109,22 @@
         }
     </style>
 </head>
-<body data-page="lanac">
+<body>
 <div class="lang-bar">
     <span>🌐</span>
-    <button class="lang-btn active" data-set-lang="bs">BS/HR/SR</button>
-    <button class="lang-btn" data-set-lang="en">EN</button>
-    <button class="lang-btn" data-set-lang="de">DE</button>
-    <button class="lang-btn" data-set-lang="es">ES</button>
-    <button class="lang-btn" data-set-lang="it">IT</button>
-    <button class="lang-btn" data-set-lang="fr">FR</button>
-    <button class="mode-btn" id="mode-toggle" type="button">📄 DOKUMENT REŽIM</button>
+    <button class="lang-btn active" onclick="setLang('bs')">BS/HR/SR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
     <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza "361"</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain "361"</span><span class="t" data-lang="de">#BajteBrothers – Beweiskette "361"</span><span class="t" data-lang="es">#BajteBrothers – Cadena de evidencia "361"</span><span class="t" data-lang="it">#BajteBrothers – Catena di prove "361"</span><span class="t" data-lang="fr">#BajteBrothers – Chaîne de preuves « 361 »</span></h1>
-    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span><span class="t" data-lang="es">Versión 1.0 | 17 de mayo de 2026 | </span><span class="t" data-lang="it">Versione 1.0 | 17 maggio 2026 | </span><span class="t" data-lang="fr">Version 1.0 | 17 mai 2026 | </span><a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer"><span class="t active" data-lang="bs">Povratak na glavni sajt →</span><span class="t" data-lang="en">Back to main site →</span><span class="t" data-lang="de">Zurück zur Hauptseite →</span><span class="t" data-lang="es">Volver al sitio principal →</span><span class="t" data-lang="it">Torna al sito principale →</span><span class="t" data-lang="fr">Retour au site principal →</span></a></p>
+    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span><span class="t" data-lang="es">Versión 1.0 | 17 de mayo de 2026 | </span><span class="t" data-lang="it">Versione 1.0 | 17 maggio 2026 | </span><span class="t" data-lang="fr">Version 1.0 | 17 mai 2026 | </span><a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank"><span class="t active" data-lang="bs">Povratak na glavni sajt →</span><span class="t" data-lang="en">Back to main site →</span><span class="t" data-lang="de">Zurück zur Hauptseite →</span><span class="t" data-lang="es">Volver al sitio principal →</span><span class="t" data-lang="it">Torna al sito principale →</span><span class="t" data-lang="fr">Retour au site principal →</span></a></p>
 
-    <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="en">🔗 1. Tutogen – "Macabre Trade with the Dead"</span><span class="t" data-lang="de">🔗 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="es">🔗 1. Tutogen – "Macabro comercio con los muertos"</span><span class="t" data-lang="it">🔗 1. Tutogen – "Macabro commercio con i morti"</span><span class="t" data-lang="fr">🔗 1. Tutogen – « Macabre commerce avec les morts »</span></h2>
+    <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="en">🔗 1. Tutogen – "Macabre Trade with the Dead"</span><span class="t" data-lang="de">�� 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="es">🔗 1. Tutogen – "Macabro comercio con los muertos"</span><span class="t" data-lang="it">🔗 1. Tutogen – "Macabro commercio con i morti"</span><span class="t" data-lang="fr">🔗 1. Tutogen – « Macabre commerce avec les morts »</span></h2>
     <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjivih izvora, uključujući kriminalne posrednike.</span><span class="t" data-lang="en">German <strong>Tutogen Medical GmbH</strong>, a manufacturer of human tissue medical implants, was accused of sourcing corpses from dubious sources, including criminal intermediaries.</span><span class="t" data-lang="de">Die deutsche <strong>Tutogen Medical GmbH</strong>, ein Hersteller von medizinischen Implantaten aus menschlichem Gewebe, wurde beschuldigt, Leichen von dubiosen Quellen, einschließlich krimineller Vermittler, bezogen zu haben.</span><span class="t" data-lang="es">La alemana <strong>Tutogen Medical GmbH</strong>, fabricante de implantes médicos de tejido humano, fue acusada de obtener cadáveres de fuentes dudosas, incluidos intermediarios criminales.</span><span class="t" data-lang="it">La tedesca <strong>Tutogen Medical GmbH</strong>, produttrice di impianti medici da tessuto umano, è stata accusata di procurarsi cadaveri da fonti dubbiose, inclusi intermediari criminali.</span><span class="t" data-lang="fr">La firme allemande <strong>Tutogen Medical GmbH</strong>, fabricante d'implants médicaux en tissu humain, a été accusée de s'approvisionner en cadavres auprès de sources douteuses, notamment d'intermédiaires criminels.</span></p>
     <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: <strong>Der Spiegel</strong> – članak o Tutogenu.</span><span class="t" data-lang="en">📄 Source: <strong>Der Spiegel</strong> – article on Tutogen.</span><span class="t" data-lang="de">📄 Quelle: <strong>Der Spiegel</strong> – Artikel über Tutogen.</span><span class="t" data-lang="es">📄 Fuente: <strong>Der Spiegel</strong> – artículo sobre Tutogen.</span><span class="t" data-lang="it">📄 Fonte: <strong>Der Spiegel</strong> – articolo su Tutogen.</span><span class="t" data-lang="fr">📄 Source : <strong>Der Spiegel</strong> – article sur Tutogen.</span></div>
 
@@ -134,7 +134,7 @@
 
     <h2><span class="t active" data-lang="bs">🔗 3. RTI / RTIX i "361 backdoor" (2013)</span><span class="t" data-lang="en">🔗 3. RTI / RTIX and the "361 backdoor" (2013)</span><span class="t" data-lang="de">🔗 3. RTI / RTIX und die "361-Hintertür" (2013)</span><span class="t" data-lang="es">🔗 3. RTI / RTIX y la "puerta trasera 361" (2013)</span><span class="t" data-lang="it">🔗 3. RTI / RTIX e il "backdoor 361" (2013)</span><span class="t" data-lang="fr">🔗 3. RTI / RTIX et le « backdoor 361 » (2013)</span></h2>
     <p><span class="t active" data-lang="bs">U analizi investicijske banke <strong>Maxim Group</strong> iz avgusta 2013. godine, <strong>RTIX</strong> (RTI-jev koštani graft) se navodi kao proizvod koji plasira tkivo koristeći <strong>PHS sec. 361</strong> i <strong>21 C.F.R. Part 1271</strong> – regulatorni "backdoor" koji omogućava plasiranje <strong>bez pune FDA kontrole</strong>.</span><span class="t" data-lang="en">In an August 2013 analysis by investment bank <strong>Maxim Group</strong>, <strong>RTIX</strong> (RTI's bone graft) is mentioned as a product that places tissue using <strong>PHS sec. 361</strong> and <strong>21 C.F.R. Part 1271</strong> – a regulatory "backdoor" that allows market placement <strong>without full FDA review</strong>.</span><span class="t" data-lang="de">In einer Analyse der Investmentbank <strong>Maxim Group</strong> vom August 2013 wird <strong>RTIX</strong> (RTI-Knochentransplantat) als Produkt genannt, das Gewebe unter Verwendung von <strong>PHS sec. 361</strong> und <strong>21 C.F.R. Part 1271</strong> platziert – eine regulatorische "Hintertür", die eine Markteinführung <strong>ohne vollständige FDA-Prüfung</strong> ermöglicht.</span><span class="t" data-lang="es">En un análisis de agosto de 2013 del banco de inversión <strong>Maxim Group</strong>, se menciona <strong>RTIX</strong> (injerto óseo de RTI) como un producto que coloca tejido utilizando <strong>PHS sec. 361</strong> y <strong>21 C.F.R. Part 1271</strong> – una "puerta trasera" regulatoria que permite la comercialización <strong>sin la revisión completa de la FDA</strong>.</span><span class="t" data-lang="it">In un'analisi dell'agosto 2013 della banca d'investimento <strong>Maxim Group</strong>, <strong>RTIX</strong> (innesto osseo RTI) viene menzionato come prodotto che utilizza <strong>PHS sec. 361</strong> e <strong>21 C.F.R. Part 1271</strong> – un "backdoor" normativo che consente la commercializzazione <strong>senza la piena revisione della FDA</strong>.</span><span class="t" data-lang="fr">Dans une analyse d'août 2013 de la banque d'investissement <strong>Maxim Group</strong>, <strong>RTIX</strong> (greffe osseuse RTI) est mentionné comme produit commercialisé via <strong>PHS sec. 361</strong> et <strong>21 C.F.R. Part 1271</strong> – une « porte dérobée » réglementaire permettant la mise sur le marché <strong>sans examen complet de la FDA</strong>.</span></p>
-    <div class="evidence"><span class="t active" data-lang="bs">📄 Izvor: Maxim Group dokument, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="en">📄 Source: Maxim Group document, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="de">📄 Quelle: Maxim Group Dokument, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="es">📄 Fuente: Documento de Maxim Group, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="it">📄 Fonte: Documento Maxim Group, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="fr">📄 Source : Document Maxim Group, « Osiris Grafix highlights a Back Door ».</span></div>
+    <div class="evidence"><span class="t active" data-lang="bs">�� Izvor: Maxim Group dokument, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="en">📄 Source: Maxim Group document, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="de">📄 Quelle: Maxim Group Dokument, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="es">📄 Fuente: Documento de Maxim Group, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="it">📄 Fonte: Documento Maxim Group, "Osiris Grafix highlights a Back Door".</span><span class="t" data-lang="fr">📄 Source : Document Maxim Group, « Osiris Grafix highlights a Back Door ».</span></div>
 
     <h2><span class="t active" data-lang="bs">🔗 4. E-mail Stevena Victora (Epstein) – 16. avgust 2013.</span><span class="t" data-lang="en">🔗 4. Steven Victor's email (Epstein) – August 16, 2013</span><span class="t" data-lang="de">🔗 4. E-Mail von Steven Victor (Epstein) – 16. August 2013</span><span class="t" data-lang="es">🔗 4. Correo electrónico de Steven Victor (Epstein) – 16 de agosto de 2013</span><span class="t" data-lang="it">🔗 4. Email di Steven Victor (Epstein) – 16 agosto 2013</span><span class="t" data-lang="fr">🔗 4. E-mail de Steven Victor (Epstein) – 16 août 2013</span></h2>
     <p><span class="t active" data-lang="bs">Doktor <strong>Steven Victor</strong>, bliski saradnik <strong>Jeffreyja Epsteina</strong>, šalje e-mail sa temom: "Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door". Time se lanac zatvara: <strong>Epsteinova mreža → Tutogen/RTI → 361 backdoor</strong>.</span><span class="t" data-lang="en">Dr. <strong>Steven Victor</strong>, a close associate of <strong>Jeffrey Epstein</strong>, sends an email titled: "Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door". This closes the chain: <strong>Epstein's network → Tutogen/RTI → 361 backdoor</strong>.</span><span class="t" data-lang="de">Dr. <strong>Steven Victor</strong>, ein enger Mitarbeiter von <strong>Jeffrey Epstein</strong>, sendet eine E-Mail mit dem Betreff: "Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door". Damit schließt sich der Kreis: <strong>Epsteins Netzwerk → Tutogen/RTI → 361-Hintertür</strong>.</span><span class="t" data-lang="es">El Dr. <strong>Steven Victor</strong>, colaborador cercano de <strong>Jeffrey Epstein</strong>, envía un correo electrónico con el asunto: "Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door". Esto cierra el círculo: <strong>Red de Epstein → Tutogen/RTI → puerta trasera 361</strong>.</span><span class="t" data-lang="it">Il Dr. <strong>Steven Victor</strong>, stretto collaboratore di <strong>Jeffrey Epstein</strong>, invia un'email con oggetto: "Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door". Questo chiude il cerchio: <strong>La rete di Epstein → Tutogen/RTI → backdoor 361</strong>.</span><span class="t" data-lang="fr">Le Dr <strong>Steven Victor</strong>, proche collaborateur de <strong>Jeffrey Epstein</strong>, envoie un e-mail intitulé : « Maxim Group: Regenerative Cell Therapy – Osiris Grafix highlights a Back Door ». Cela ferme la chaîne : <strong>réseau Epstein → Tutogen/RTI → backdoor 361</strong>.</span></p>
@@ -171,7 +171,7 @@
     <hr>
 
     <div style="text-align:center;margin:40px 0;">
-        <div class="qr-canvas" data-qr-size="160" style="display:inline-block;background:white;padding:12px;border-radius:4px;"></div>
+        <div id="qr-canvas" style="display:inline-block;background:white;padding:12px;border-radius:4px;"></div>
         <p style="font-family:'Courier Prime',monospace;font-size:10px;color:#444;margin-top:12px;letter-spacing:2px;">scan → provjeri → proslijedi</p>
     </div>
 
@@ -181,8 +181,59 @@
         <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span><span class="t" data-lang="en">← Back to main site</span><span class="t" data-lang="de">← Zurück zur Hauptseite</span><span class="t" data-lang="es">← Volver al sitio principal</span><span class="t" data-lang="it">← Torna al sito principale</span><span class="t" data-lang="fr">← Retour au site principal</span></a></p>
     </div>
 </div>
-<script src="lang.js"></script>
+<script>
+    const translations = {
+        title: { bs: "BajteBrothers – Lanac dokaza 361", en: "BajteBrothers – Evidence Chain 361", de: "BajteBrothers – Beweiskette 361", es: "BajteBrothers – Cadena de evidencia 361", it: "BajteBrothers – Catena di prove 361", fr: "#BajteBrothers – Chaîne de preuves 361" },
+        desc: { bs: "Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit", en: "Documented chain: Tutogen → RTI → 361 backdoor → Epstein → war profit", de: "Dokumentierte Kette: Tutogen → RTI → 361-Hintertür → Epstein → Kriegsprofit", es: "Cadena documentada: Tutogen → RTI → puerta trasera 361 → Epstein → beneficio de guerra", it: "Catena documentata: Tutogen → RTI → backdoor 361 → Epstein → profitto di guerra", fr: "Chaîne documentée : Tutogen → RTI → backdoor 361 → Epstein → profit de guerre" }
+    };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        if (translations.title[lang]) document.getElementById('page-title').textContent = translations.title[lang];
+        if (translations.desc[lang]) document.getElementById('meta-desc').setAttribute('content', translations.desc[lang]);
+        if (translations.title[lang]) document.getElementById('og-title').setAttribute('content', translations.title[lang]);
+        if (translations.desc[lang]) document.getElementById('og-desc').setAttribute('content', translations.desc[lang]);
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'], fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE'] };
+        const btn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        btn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : btn.textContent;
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'], fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE'] };
+        const currentLang = document.documentElement.lang;
+        if (body.classList.contains('doc-mode')) {
+            body.classList.remove('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][0] : '📄 DOCUMENT MODE';
+        } else {
+            body.classList.add('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][1] : '🎨 POSTER MODE';
+        }
+    }
+</script>
 <script src="qrcode.min.js"></script>
-<script src="script.js"></script>
+<script>
+(function createQr(id, size) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var url;
+    try {
+        var h = window.location.href;
+        if (h.startsWith('file://') || h === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';
+        else url = h;
+    } catch(e) { url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html'; }
+    try {
+        new QRCode(el, { text: url, width: size, height: size, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 3 });
+    } catch(err) {
+        el.innerHTML = '<a href="'+url+'" style="font-size:10px;color:#333;">'+url+'</a>';
+    }
+})('qr-canvas', 180);
+</script>
 </body>
 </html>

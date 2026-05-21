@@ -326,18 +326,18 @@ footer { text-align: center; padding: 60px 20px 40px; border-top: 1px solid #111
 footer p { color: #444; font-size: 0.85rem; margin: 5px 0; }
 </style>
 </head>
-<body data-page="awareness">
+<body>
 
 <!-- LANGUAGE BAR -->
 <div class="lang-bar">
   <span>🌐</span>
-  <button class="lang-btn active" data-set-lang="bs">BS/HR/SR</button>
-  <button class="lang-btn" data-set-lang="en">EN</button>
-  <button class="lang-btn" data-set-lang="de">DE</button>
-  <button class="lang-btn" data-set-lang="es">ES</button>
-  <button class="lang-btn" data-set-lang="it">IT</button>
-  <button class="lang-btn" data-set-lang="fr">FR</button>
-  <button class="mode-btn" id="mode-toggle" type="button">📄 DOKUMENT REŽIM</button>
+  <button class="lang-btn active" data-lang="bs" onclick="setLang('bs')">BS/HR/SR</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" data-lang="de" onclick="setLang('de')">DE</button>
+  <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+  <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+  <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 
 <!-- HERO -->
@@ -709,7 +709,7 @@ footer p { color: #444; font-size: 0.85rem; margin: 5px 0; }
     <span class="t" data-lang="it">Scansiona, verifica e condividi.</span>
     <span class="t" data-lang="fr">Scanne, vérifie et partage.</span>
   </p>
-  <div class="qr-canvas" data-qr-size="220" style="display:inline-block; background:white; padding:12px; border-radius:4px;"></div>
+  <div id="qr-canvas" style="display:inline-block; background:white; padding:12px; border-radius:4px;"></div>
   <p style="font-family:'Courier Prime',monospace; font-size:10px; color:#333; margin-top:12px; letter-spacing:2px;">
     <span class="t active" data-lang="bs">Otvori → provjeri → podijeli</span>
     <span class="t" data-lang="en">Open → verify → share</span>
@@ -728,8 +728,178 @@ footer p { color: #444; font-size: 0.85rem; margin: 5px 0; }
   <p style="color:#222; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px;">soundoffreedom-awareness · 2026</p>
 </footer>
 
-<script src="lang.js"></script>
 <script src="qrcode.min.js"></script>
-<script src="script.js"></script>
+<script>
+const metaData = {
+  bs: {
+    title: 'Sound of Freedom — Zašto ništa ne znaš o ovome?',
+    desc: 'Dokumentovani izvještaji o nestaloj djeci i sistemskim propustima.'
+  },
+  en: {
+    title: 'Sound of Freedom — Why do you know nothing about this?',
+    desc: 'Documented reports on missing children and systemic failures.'
+  },
+  de: {
+    title: 'Sound of Freedom — Warum weißt du nichts darüber?',
+    desc: 'Dokumentierte Berichte über vermisste Kinder und systemische Versäumnisse.'
+  },
+  es: {
+    title: 'Sound of Freedom — ¿Por qué no sabes nada de esto?',
+    desc: 'Informes documentados sobre niños desaparecidos y fallas sistémicas.'
+  },
+  it: {
+    title: 'Sound of Freedom — Perché non sai nulla di questo?',
+    desc: 'Rapporti documentati su minori scomparsi e fallimenti sistemici.'
+  },
+  fr: {
+    title: 'Sound of Freedom — Pourquoi ne sais-tu rien de cela ?',
+    desc: 'Rapports documentés sur les enfants disparus et les défaillances systémiques.'
+  }
+};
+
+const modeLabels = {
+  bs: '📄 DOKUMENT REŽIM',
+  en: '📄 DOCUMENT MODE',
+  de: '📄 DOKUMENTMODUS',
+  es: '📄 MODO DOCUMENTO',
+  it: '📄 MODALITÀ DOCUMENTO',
+  fr: '📄 MODE DOCUMENT'
+};
+
+let currentLang = 'bs';
+
+function setLang(lang) {
+  currentLang = lang;
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-lang') === lang) {
+      btn.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('[data-lang]').forEach(function(el) {
+    if (el.classList.contains('lang-btn')) return;
+    el.classList.remove('active');
+    if (el.getAttribute('data-lang') === lang) {
+      el.classList.add('active');
+    }
+  });
+
+  if (metaData[lang]) {
+    var d = metaData[lang];
+    var ptEl = document.getElementById('page-title');
+    var mdEl = document.getElementById('meta-desc');
+    var ogTitle = document.getElementById('og-title');
+    var ogDesc = document.getElementById('og-desc');
+    if (ptEl) ptEl.textContent = d.title;
+    if (mdEl) mdEl.setAttribute('content', d.desc);
+    if (ogTitle) ogTitle.setAttribute('content', d.title);
+    if (ogDesc) ogDesc.setAttribute('content', d.desc);
+    document.documentElement.lang = lang;
+  }
+
+  var modeBtn = document.getElementById('mode-toggle');
+  if (modeBtn) {
+    var isDoc = document.body.classList.contains('doc-mode');
+    if (isDoc) {
+      var normal = { bs: '🌑 TAMNI REŽIM', en: '🌑 DARK MODE', de: '🌑 DUNKELMODUS', es: '🌑 MODO OSCURO', it: '🌑 MODALITÀ SCURA', fr: '🌑 MODE SOMBRE' };
+      modeBtn.textContent = normal[lang] || normal.bs;
+    } else {
+      modeBtn.textContent = modeLabels[lang] || modeLabels.bs;
+    }
+  }
+
+  try { localStorage.setItem('sof-lang', lang); } catch(e) {}
+}
+
+function toggleMode() {
+  document.body.classList.toggle('doc-mode');
+  setLang(currentLang);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var saved = 'bs';
+  try { saved = localStorage.getItem('sof-lang') || 'bs'; } catch(e) {}
+  var supported = ['bs', 'en', 'de', 'es', 'it', 'fr'];
+  if (supported.indexOf(saved) === -1) saved = 'bs';
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var urlLang = (urlParams.get('lang') || '').toLowerCase();
+  if (supported.indexOf(urlLang) !== -1) saved = urlLang;
+
+  setLang(saved);
+
+  // Canonical link
+  try {
+    var canonUrl = getCanonicalPagesUrl();
+    var link = document.createElement('link');
+    link.rel = 'canonical';
+    link.href = canonUrl;
+    document.head.appendChild(link);
+  } catch(e) {}
+
+  // QR Code
+  createRobustQr('qr-canvas', null, 200);
+});
+
+function getCanonicalPagesUrl() {
+  try {
+    var pagesBase = 'https://zeljk018bratic.github.io/sound-of-freedom';
+    var href = window.location.href || '';
+    var host = window.location.hostname || '';
+    if (href.startsWith('file://') || href === 'about:blank' || host.includes('raw.githack') || host.includes('raw.githubusercontent')) {
+      var parts = (window.location.pathname || '').split('/');
+      var file = parts.filter(Boolean).pop() || '';
+      return pagesBase + (file ? '/' + file : '/');
+    }
+    if (host === 'github.com') {
+      var segs = window.location.pathname.split('/');
+      var blobIndex = segs.indexOf('blob');
+      if (blobIndex !== -1 && segs.length > blobIndex + 2) {
+        var filePath = segs.slice(blobIndex + 2).join('/');
+        return pagesBase + '/' + filePath;
+      }
+    }
+    if (host === 'zeljk018bratic.github.io') return href;
+    var path = window.location.pathname || '/';
+    return pagesBase + (path === '/' ? '/' : path);
+  } catch(e) {
+    return 'https://zeljk018bratic.github.io/sound-of-freedom/sound_of_freedom_awareness.html';
+  }
+}
+
+function createRobustQr(id, rawUrl, size) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var url = rawUrl || getCanonicalPagesUrl();
+  try {
+    var opts = {
+      text: url,
+      width: size || 200,
+      height: size || 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff'
+    };
+    if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel && typeof QRCode.CorrectLevel.H !== 'undefined') {
+      opts.correctLevel = QRCode.CorrectLevel.H;
+    } else {
+      opts.correctLevel = 3;
+    }
+    new QRCode(el, opts);
+    var img = el.querySelector && el.querySelector('img');
+    if (img) {
+      img.alt = 'QR code: ' + url;
+      img.setAttribute('aria-label', 'QR code to open this page');
+    }
+  } catch(err) {
+    var a = document.createElement('a');
+    a.href = url;
+    a.style.cssText = 'font-size:13px;color:#333;';
+    a.textContent = 'Open: ' + url;
+    el.appendChild(a);
+  }
+}
+</script>
 </body>
 </html>

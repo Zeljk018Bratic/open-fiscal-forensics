@@ -68,14 +68,6 @@ window.LANG_CONFIG = {
       es: 'HASTA LA VICTORIA. SIN ARRODILLARSE.',
       it: 'FINO ALLA VITTORIA. SENZA INGINOCCHIARSI.',
       fr: "JUSQU'À LA VICTOIRE. SANS S'AGENOUILLER."
-    },
-    modeLabels: {
-      bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'],
-      en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'],
-      de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'],
-      es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'],
-      it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'],
-      fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE']
     }
   },
   pages: {
