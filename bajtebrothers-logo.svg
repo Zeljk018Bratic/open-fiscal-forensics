@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <!-- SVG wrapper that embeds the PNG as background image for compatibility -->
+  <defs>
+    <style>
+      .bg { image-rendering: optimizeQuality; }
+    </style>
+  </defs>
+  <image class="bg" href="bajtebrothers-logo.png" x="0" y="0" width="1200" height="400" preserveAspectRatio="xMidYMid meet" />
+</svg>

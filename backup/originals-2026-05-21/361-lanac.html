@@ -109,20 +109,20 @@
         }
     </style>
 </head>
-<body data-page="lanac">
+<body>
 <div class="lang-bar">
     <span>🌐</span>
-    <button class="lang-btn active" data-set-lang="bs">BS/HR/SR</button>
-    <button class="lang-btn" data-set-lang="en">EN</button>
-    <button class="lang-btn" data-set-lang="de">DE</button>
-    <button class="lang-btn" data-set-lang="es">ES</button>
-    <button class="lang-btn" data-set-lang="it">IT</button>
-    <button class="lang-btn" data-set-lang="fr">FR</button>
-    <button class="mode-btn" id="mode-toggle">📄 DOKUMENT REŽIM</button>
+    <button class="lang-btn active" onclick="setLang('bs')">BS/HR/SR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+    <button class="mode-btn" onclick="toggleMode()" id="mode-toggle">📄 DOKUMENT REŽIM</button>
 </div>
 <div class="container">
     <h1><span class="t active" data-lang="bs">#BajteBrothers – Lanac dokaza "361"</span><span class="t" data-lang="en">#BajteBrothers – Evidence Chain "361"</span><span class="t" data-lang="de">#BajteBrothers – Beweiskette "361"</span><span class="t" data-lang="es">#BajteBrothers – Cadena de evidencia "361"</span><span class="t" data-lang="it">#BajteBrothers – Catena di prove "361"</span><span class="t" data-lang="fr">#BajteBrothers – Chaîne de preuves « 361 »</span></h1>
-    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span><span class="t" data-lang="es">Versión 1.0 | 17 de mayo de 2026 | </span><span class="t" data-lang="it">Versione 1.0 | 17 maggio 2026 | </span><span class="t" data-lang="fr">Version 1.0 | 17 mai 2026 | </span><a href="https://zeljk018bratic.github.io/sound-of-freedom/"  rel="noopener noreferrer" target="_blank"><span class="t active" data-lang="bs">Povratak na glavni sajt →</span><span class="t" data-lang="en">Back to main site →</span><span class="t" data-lang="de">Zurück zur Hauptseite →</span><span class="t" data-lang="es">Volver al sitio principal →</span><span class="t" data-lang="it">Torna al sito principale →</span><span class="t" data-lang="fr">Retour au site principal →</span></a></p>
+    <p><span class="t active" data-lang="bs">Verzija 1.0 | 17. maj 2026. | </span><span class="t" data-lang="en">Version 1.0 | May 17, 2026 | </span><span class="t" data-lang="de">Version 1.0 | 17. Mai 2026 | </span><span class="t" data-lang="es">Versión 1.0 | 17 de mayo de 2026 | </span><span class="t" data-lang="it">Versione 1.0 | 17 maggio 2026 | </span><span class="t" data-lang="fr">Version 1.0 | 17 mai 2026 | </span><a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank"><span class="t active" data-lang="bs">Povratak na glavni sajt →</span><span class="t" data-lang="en">Back to main site →</span><span class="t" data-lang="de">Zurück zur Hauptseite →</span><span class="t" data-lang="es">Volver al sitio principal →</span><span class="t" data-lang="it">Torna al sito principale →</span><span class="t" data-lang="fr">Retour au site principal →</span></a></p>
 
     <h2><span class="t active" data-lang="bs">🔗 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="en">🔗 1. Tutogen – "Macabre Trade with the Dead"</span><span class="t" data-lang="de">�� 1. Tutogen – "Makaberer Handel mit Toten"</span><span class="t" data-lang="es">🔗 1. Tutogen – "Macabro comercio con los muertos"</span><span class="t" data-lang="it">🔗 1. Tutogen – "Macabro commercio con i morti"</span><span class="t" data-lang="fr">🔗 1. Tutogen – « Macabre commerce avec les morts »</span></h2>
     <p><span class="t active" data-lang="bs">Njemački <strong>Tutogen Medical GmbH</strong>, proizvođač medicinskih implanata od ljudskog tkiva, optuživan je da je nabavljao leševe od sumnjivih izvora, uključujući kriminalne posrednike.</span><span class="t" data-lang="en">German <strong>Tutogen Medical GmbH</strong>, a manufacturer of human tissue medical implants, was accused of sourcing corpses from dubious sources, including criminal intermediaries.</span><span class="t" data-lang="de">Die deutsche <strong>Tutogen Medical GmbH</strong>, ein Hersteller von medizinischen Implantaten aus menschlichem Gewebe, wurde beschuldigt, Leichen von dubiosen Quellen, einschließlich krimineller Vermittler, bezogen zu haben.</span><span class="t" data-lang="es">La alemana <strong>Tutogen Medical GmbH</strong>, fabricante de implantes médicos de tejido humano, fue acusada de obtener cadáveres de fuentes dudosas, incluidos intermediarios criminales.</span><span class="t" data-lang="it">La tedesca <strong>Tutogen Medical GmbH</strong>, produttrice di impianti medici da tessuto umano, è stata accusata di procurarsi cadaveri da fonti dubbiose, inclusi intermediari criminali.</span><span class="t" data-lang="fr">La firme allemande <strong>Tutogen Medical GmbH</strong>, fabricante d'implants médicaux en tissu humain, a été accusée de s'approvisionner en cadavres auprès de sources douteuses, notamment d'intermédiaires criminels.</span></p>
@@ -171,18 +171,69 @@
     <hr>
 
     <div style="text-align:center;margin:40px 0;">
-        <div  style="display:inline-block;background:white;padding:12px;border-radius:4px;" class="qr-canvas" data-qr-size="160"></div>
+        <div id="qr-canvas" style="display:inline-block;background:white;padding:12px;border-radius:4px;"></div>
         <p style="font-family:'Courier Prime',monospace;font-size:10px;color:#444;margin-top:12px;letter-spacing:2px;">scan → provjeri → proslijedi</p>
     </div>
 
     <div class="footer">
         <p><span class="t active" data-lang="bs">Ovo nije teorija zavjere. Ovo je dokumentovani mehanizam. Provjeri sam. Podijeli dalje. Ne kleči.</span><span class="t" data-lang="en">This is not a conspiracy theory. This is a documented mechanism. Verify it yourself. Share it. Do not kneel.</span><span class="t" data-lang="de">Dies ist keine Verschwörungstheorie. Dies ist ein dokumentierter Mechanismus. Überprüfe es selbst. Teile es weiter. Knien ist nicht.</span><span class="t" data-lang="es">Esto no es una teoría de conspiración. Es un mecanismo documentado. Compruébalo tú mismo. Compártelo. No te arrodilles.</span><span class="t" data-lang="it">Non è una teoria del complotto. È un meccanismo documentato. Verificalo tu stesso. Condividilo. Non inginocchiarti.</span><span class="t" data-lang="fr">Ce n'est pas une théorie du complot. C'est un mécanisme documenté. Vérifiez-le vous-même. Partagez. Ne vous agenouillez pas.</span></p>
         <p><strong>#BajteBrothers – Do pobjede. Bez koljena.</strong><br>🚀🍏🍒🍉🤫❤️🤖🫂</p>
-        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/" target="_blank" rel="noopener noreferrer"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span><span class="t" data-lang="en">← Back to main site</span><span class="t" data-lang="de">← Zurück zur Hauptseite</span><span class="t" data-lang="es">← Volver al sitio principal</span><span class="t" data-lang="it">← Torna al sito principale</span><span class="t" data-lang="fr">← Retour au site principal</span></a></p>
+        <p><a href="https://zeljk018bratic.github.io/sound-of-freedom/"><span class="t active" data-lang="bs">← Povratak na glavni sajt</span><span class="t" data-lang="en">← Back to main site</span><span class="t" data-lang="de">← Zurück zur Hauptseite</span><span class="t" data-lang="es">← Volver al sitio principal</span><span class="t" data-lang="it">← Torna al sito principale</span><span class="t" data-lang="fr">← Retour au site principal</span></a></p>
     </div>
 </div>
-  <script src="lang.js"></script>
-  <script src="qrcode.min.js"></script>
-  <script src="script.js"></script>
+<script>
+    const translations = {
+        title: { bs: "BajteBrothers – Lanac dokaza 361", en: "BajteBrothers – Evidence Chain 361", de: "BajteBrothers – Beweiskette 361", es: "BajteBrothers – Cadena de evidencia 361", it: "BajteBrothers – Catena di prove 361", fr: "#BajteBrothers – Chaîne de preuves 361" },
+        desc: { bs: "Dokumentovani lanac: Tutogen → RTI → 361 backdoor → Epstein → ratni profit", en: "Documented chain: Tutogen → RTI → 361 backdoor → Epstein → war profit", de: "Dokumentierte Kette: Tutogen → RTI → 361-Hintertür → Epstein → Kriegsprofit", es: "Cadena documentada: Tutogen → RTI → puerta trasera 361 → Epstein → beneficio de guerra", it: "Catena documentata: Tutogen → RTI → backdoor 361 → Epstein → profitto di guerra", fr: "Chaîne documentée : Tutogen → RTI → backdoor 361 → Epstein → profit de guerre" }
+    };
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('data-lang') === lang) el.classList.add('active');
+        });
+        document.documentElement.lang = lang;
+        if (translations.title[lang]) document.getElementById('page-title').textContent = translations.title[lang];
+        if (translations.desc[lang]) document.getElementById('meta-desc').setAttribute('content', translations.desc[lang]);
+        if (translations.title[lang]) document.getElementById('og-title').setAttribute('content', translations.title[lang]);
+        if (translations.desc[lang]) document.getElementById('og-desc').setAttribute('content', translations.desc[lang]);
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'], fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE'] };
+        const btn = document.getElementById('mode-toggle');
+        const isDoc = document.body.classList.contains('doc-mode');
+        btn.textContent = modeLabels[lang] ? (isDoc ? modeLabels[lang][1] : modeLabels[lang][0]) : btn.textContent;
+    }
+    function toggleMode() {
+        const body = document.body;
+        const btn = document.getElementById('mode-toggle');
+        const modeLabels = { bs: ['📄 DOKUMENT REŽIM', '🎨 POSTER REŽIM'], en: ['📄 DOCUMENT MODE', '🎨 POSTER MODE'], de: ['📄 DOKUMENT-MODUS', '🎨 POSTER-MODUS'], es: ['📄 MODO DOCUMENTO', '🎨 MODO PÓSTER'], it: ['📄 MODALITÀ DOCUMENTO', '🎨 MODALITÀ POSTER'], fr: ['📄 MODE DOCUMENT', '🎨 MODE AFFICHE'] };
+        const currentLang = document.documentElement.lang;
+        if (body.classList.contains('doc-mode')) {
+            body.classList.remove('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][0] : '📄 DOCUMENT MODE';
+        } else {
+            body.classList.add('doc-mode');
+            btn.textContent = modeLabels[currentLang] ? modeLabels[currentLang][1] : '🎨 POSTER MODE';
+        }
+    }
+</script>
+<script src="qrcode.min.js"></script>
+<script>
+(function createQr(id, size) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var url;
+    try {
+        var h = window.location.href;
+        if (h.startsWith('file://') || h === 'about:blank') url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html';
+        else url = h;
+    } catch(e) { url = 'https://zeljk018bratic.github.io/sound-of-freedom/361-lanac.html'; }
+    try {
+        new QRCode(el, { text: url, width: size, height: size, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 3 });
+    } catch(err) {
+        el.innerHTML = '<a href="'+url+'" style="font-size:10px;color:#333;">'+url+'</a>';
+    }
+})('qr-canvas', 180);
+</script>
 </body>
 </html>
