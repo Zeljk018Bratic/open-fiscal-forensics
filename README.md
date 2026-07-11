@@ -154,7 +154,11 @@ Explore the components of this framework directly:
 
 ## 🛡️ Anonymous Whistleblower Protocol (Anti-Censorship Node)
 
-## 🛡️ Anonymous Whistleblower Protocol (Anti-Censorship Node)
+## 🛡️ Anonymous Whistleblower Protocol (De-centralized Live Node)
+
+## 🛡️ Anonymous Whistleblower Protocol (De-centralized Anti-Censorship Node)
+
+To protect investigators and industry insiders reporting illicit networks, systemic corruption, or energy market manipulation, the framework includes a fully functional, zero-knowledge client-side encryption and decentralized dispatch engine integrated directly into `361-lanac.html`.
 
 ```text
  [ Whistleblower / Citizen ] 
@@ -173,12 +177,27 @@ Explore the components of this framework directly:
  [ Generation of IPFS Hash (CID) ]      -> Immutable hash anchored into the Blockchain budget ledger
 ```
 
+### ⚙️ Production Infrastructure
 
-To protect investigators and industry insiders reporting illicit networks or energy market manipulation, the framework includes a de-centralized client-side encryption node:
-* **Zero-Knowledge Architecture:** Files are securely encrypted via **OpenPGP** inside the informant's browser sandboxed runtime environment. No unencrypted data is ever transmitted through cleartext internet infrastructure.
-* **Immutable Routing:** The encrypted payload is dispatched directly to the **IPFS (InterPlanetary File System)** mesh network, making structural takedowns or bureaucratic suppression impossible.
-* **On-Chain Evidence Validation:** Generated IPFS CIDs (Content Identifiers) serve as cryptographically sound timestamp anchors that can be permanently registered within our Solidity budget ledger ecosystem.
+* **Zero-Knowledge Architecture:** Files are securely encrypted via **OpenPGP** inside the informant's browser sandboxed runtime environment using `OpenPGP.js` (v5.11.1). No unencrypted data or cleartext infrastructure is ever exposed to the network core.
+* **Live Web3 Routing:** Fully integrated with the decentralized **Crust Network IPFS API** (`https://crustwebsites.net`) for permissionless, immutable, and censorship-resistant uploads, making structural takedowns or bureaucratic suppression impossible.
+* **Global Access & Validation:** Broadcasted payloads generate an unchangeable Content Identifier (CID). This permanent cryptographic timestamp anchor can be registered within our Solidity budget ledger ecosystem and instantly retrieved through any public IPFS node worldwide (e.g., `ipfs.io` or `gateway.ipfs.io`).
 
+### 📦 Network Data Format
+
+When a document is submitted, the engine automates the following secure payload architecture:
+
+```text
+[ Raw Document ] ──► ( Local Browser Sandbox ) ──► [ OpenPGP Encrypted Blob ]
+                                                           │
+                                                           ▼
+[ Public IPFS Network ] ◄── ( Live HTTPS POST ) ◄── [ Multi-part Form Data (.pgp) ]
+           │
+           ▼
+[ Permanent IPFS CID Hash Generated ]
+```
+
+---
 
 ## 👥 How to Participate
 
