@@ -150,6 +150,15 @@ Explore the components of this framework directly:
 * 🗺️ **[blockchain-361-vodic.html](blockchain-361-vodic.html)** ([Live Page](https://github.io)) – Structural technical guide for the decentralized budget architecture.
 
 ---
+---
+
+## 🛡️ Anonymous Whistleblower Protocol (Anti-Censorship Node)
+
+To protect investigators and industry insiders reporting illicit networks or energy market manipulation, the framework includes a de-centralized client-side encryption node:
+* **Zero-Knowledge Architecture:** Files are securely encrypted via **OpenPGP** inside the informant's browser sandboxed runtime environment. No unencrypted data is ever transmitted through cleartext internet infrastructure.
+* **Immutable Routing:** The encrypted payload is dispatched directly to the **IPFS (InterPlanetary File System)** mesh network, making structural takedowns or bureaucratic suppression impossible.
+* **On-Chain Evidence Validation:** Generated IPFS CIDs (Content Identifiers) serve as cryptographically sound timestamp anchors that can be permanently registered within our Solidity budget ledger ecosystem.
+
 
 ## 👥 How to Participate
 
