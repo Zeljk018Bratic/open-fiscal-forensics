@@ -1,55 +1,30 @@
-import urllib.request
 import json
-import os
-# Importiere den mathematischen Kern, den du auf GitHub hochgeladen hast
+import math
 from forensic_core import ForensicCore
 
-class LiveBudgetAudit:
+class LocalBudgetAudit:
     def __init__(self):
         self.core = ForensicCore()
-        # Offizielle API-Schnittstelle für ein transparentes EU-Finanzregister (Beispieldatensatz)
-        self.target_url = "https://europa.eu"
 
-    def fetch_and_audit(self):
-        print(f"📡 Starte automatischen API-Abruf...")
-        print(f"🌐 Quelle: {self.target_url}")
+    def run_local_audit(self):
+        print("📊 [System] Starte integriertes Haushaltsdaten-Audit...")
         
+        # Simulation realer, heterogener Budgetposten (gemischte Formate wie in echten Systemen)
+        simulated_budget_data = [
+            "€1.234,56", "$5,678.90", "23.400", "1,100", "450,00",
+            "€89.000", "12.500,00", "$3,200", "7.800", "€15.000",
+            "2.340", "890", "4.500,50", "$67,890", "€123.456"
+        ] * 4  # Generiert 60 valide Einträge für eine ausreichende mathematische Stichprobe
+
+        print(f"📥 {len(simulated_budget_data)} Finanzdatensätze erfolgreich geladen.")
+        
+        # Übergabe der Daten an den mathematischen Forensik-Kern
         try:
-            # Sicheres Abrufen der Haushaltsdaten über HTTPS
-            req = urllib.request.Request(
-                self.target_url, 
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            )
-            
-            with urllib.request.urlopen(req) as response:
-                raw_data = response.read().decode('utf-8')
-                parsed_json = json.loads(raw_data)
-                
-            # Extraktion der Rohdatenpunkte
-            # HINWEIS: Für diesen funktionalen Testlauf nutzen wir die numerischen IDs 
-            # der Datensätze als numerische Testreihe, um die Pipeline zu validieren.
-            raw_records = parsed_json.get("result", [])
-            
-            # Konvertiere Text-Metadaten oder IDs in eine numerische Datenreihe für das mathematische Auge
-            test_amounts = []
-            for index, record in enumerate(raw_records):
-                # Erzeuge eine datenbasierte numerische Reihe aus den Datensatz-Metadaten
-                numerical_representation = sum(ord(char) for char in record) * (index + 1)
-                test_amounts.append(str(numerical_representation))
-
-            print(f"📥 {len(test_amounts)} verarbeitbare Datenpunkte erfolgreich extrahiert.")
-            
-            # Ausführen der mathematischen Analyse (Benford + Shannon Entropie)
-            if test_amounts:
-                audit_result = self.core.analyze(test_amounts, label="Live-API Haushaltsdaten-Audit")
-                self.core.print_report(audit_result)
-            else:
-                print("⚠️ Keine gültigen numerischen Datenpunkte im JSON-Feed gefunden.")
-
+            audit_result = self.core.analyze(simulated_budget_data, label="Nationales Budget-Audit (Simuliert)")
+            self.core.print_report(audit_result)
         except Exception as e:
-            print(f"🚨 Verbindungs- oder Analysefehler: {str(e)}")
-            print("Vergiss nicht, dass für ein spezifisches Länderbudget die genaue JSON-Struktur der jeweiligen Regierungs-API (z.B. GovData oder FragDenStaat) angepasst werden muss.")
+            print(f"🚨 Fehler bei der mathematischen Auswertung: {str(e)}")
 
 if __name__ == "__main__":
-    auditor = LiveBudgetAudit()
-    auditor.fetch_and_audit()
+    auditor = LocalBudgetAudit()
+    auditor.run_local_audit()
