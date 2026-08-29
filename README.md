@@ -207,3 +207,18 @@ We encourage independent developers, financial auditors, and freedom advocates t
 3. **Spread Awareness:** Engage with the official community discussions via our [YouTube Community Post](http://youtube.com).
 
 **Join the movement. No more hidden loopholes.**
+## 🔬 Open-Source Forensic Analytics Core
+
+This repository now includes a fully functional Python data-integrity core and a decentralized Solidity ledger to evaluate datasets programmatically.
+
+### 📊 Statistical Fraud Detection (`forensic_core.py`)
+To prevent data manipulation and artificial narrative injection, the python core utilizes a dual-layer mathematical verification process:
+1. **Benford's Law (First-Digit Anomalies):** Performs a Chi-Square goodness-of-fit test on the distribution of leading digits in financial data.
+2. **Shannon Entropy (Digit Randomness):** Measures the information density and uniformity of all numerical characters to detect artificially generated rounded numbers or linear patterns.
+
+### ⛓️ Multi-Signature Voting Validation (`ConsensusLedger.sol`)
+To eliminate the Single Point of Failure (SPOF) found in centralized administrative roles, the governance model has transitioned into a decentralized validation network. 
+* Financial entries and public procurement IDs must clear a multi-sig approval process managed by independent network peers before block execution.
+
+We welcome peer-reviews, data journalists, and OSINT developers to audit, extend, and benchmark these core mathematical modules against public budget data.
+
