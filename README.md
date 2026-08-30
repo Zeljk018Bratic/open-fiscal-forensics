@@ -1,3 +1,14 @@
+# Open Fiscal Forensics Framework (OFFF)
+
+The Open Fiscal Forensics Framework is a local-first, open-source civic intelligence platform designed for deterministic public-budget auditing, automated anomaly detection, and evidence-based accountability. 
+
+By analyzing structured government financial data against immutable statistical constants (Benford's Law and Shannon Entropy), the framework isolates metadata discrepancies and algorithmic patterns indicative of manual ledger fabrication or artificial number rounding.
+
+## 📊 Core Analytical Methodology
+The framework bypasses subjective verification models by implementing a dual-layer mathematical verification pipeline:
+1. **Logarithmic Frequency Deviation:** Evaluates first-digit compliance via a Chi-Square ($X^2$) goodness-of-fit test.
+2. **Information Density Measurement:** Computes numerical randomness using Shannon Entropy matrices to detect synthetic linear record generation.
+
 # 🌍 Sound of Freedom / #BajteBrothers Framework
 
 ![BajteBrothers Logo](bajtebrothers-logo.png)
