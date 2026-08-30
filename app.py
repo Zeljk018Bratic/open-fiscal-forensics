@@ -385,6 +385,31 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
         "HIGH": "#d72638",
     }
 
+    # Dynamic audit notes based on risk level
+    audit_notes_map = {
+        "HIGH": (
+            "⚠️ **CRITICAL FINDINGS DETECTED**\n\n"
+            "The forensic analysis has identified a statistically significant anomaly pattern in this dataset. "
+            "First-digit distribution and entropy measurements deviate substantially from Benford's Law expectations. "
+            "This suggests either: (1) potential data fabrication or manual rounding, (2) genuine structural anomalies in the financial records, "
+            "or (3) domain-specific legitimate patterns warranting human expert review. "
+            "**Manual auditor verification is strongly recommended before publication or policy action.**"
+        ),
+        "MEDIUM": (
+            "⚡ **MODERATE IRREGULARITIES DETECTED**\n\n"
+            "The analysis has identified moderate deviations from Benford's Law baseline expectations. "
+            "While not critical, these irregularities warrant closer examination by a financial auditor. "
+            "The dataset shows patterns consistent with either natural variation or minor data quality issues. "
+            "Consider performing targeted spot-checks on high-value transactions and date-range analysis."
+        ),
+        "LOW": (
+            "✓ **INTEGRITY INDICATORS PASS**\n\n"
+            "Statistical analysis shows no immediate anomaly signals. First-digit distribution aligns with Benford's Law expectations, "
+            "and Shannon entropy remains within natural ranges. Data distribution appears consistent with authentic financial records. "
+            "**Important:** This test is a mathematical integrity indicator and does not replace manual accounting review or institutional audit protocols."
+        ),
+    }
+
     st.subheader("Risk overview")
     col1, col2, col3 = st.columns(3)
     col1.metric("Risk level", risk_level, delta_color="off")
@@ -415,17 +440,23 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
 
     with right:
         st.subheader("Audit notes")
-        st.write(audit_result.get("risk_label", "No further notes available."))
-        st.write("No statistical anomalies detected — Data distribution aligns with natural logarithmic constants. This test is an integrity indicator and does not replace a manual accounting review.")
+        # Render dynamic notes based on risk_level (no contradictions)
+        st.markdown(audit_notes_map.get(risk_level, audit_notes_map["LOW"]))
 
         if file_hash:
+            st.divider()
+            st.markdown("**Dataset Hash (SHA256)**")
             st.code(file_hash, language="text")
+
+        if pdf_path or json_path:
+            st.divider()
+            st.markdown("**Export & Download**")
 
         if pdf_path:
             with open(pdf_path, "rb") as handle:
                 pdf_bytes = handle.read()
             st.download_button(
-                label="Download forensic PDF certificate",
+                label="📄 Download forensic PDF certificate",
                 data=pdf_bytes,
                 file_name=Path(pdf_path).name,
                 mime="application/pdf",
@@ -435,12 +466,33 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
             with open(json_path, "rb") as handle:
                 manifest_bytes = handle.read()
             st.download_button(
-                label="Download audit manifest JSON",
+                label="📋 Download audit manifest JSON",
                 data=manifest_bytes,
                 file_name=Path(json_path).name,
                 mime="application/json",
                 use_container_width=True,
             )
+
+
+def _get_last_audit_metadata(db: DatabaseRegistry) -> Dict[str, str]:
+    """Fetch the most recent audit's provenance metadata from the registry for form auto-population fallback."""
+    try:
+        last_audits = db.fetch_all_audits(limit=1)
+        if last_audits:
+            audit = last_audits[0]
+            # Parse the manifest JSON to extract provenance metadata
+            manifest = audit.get("manifest", {})
+            provenance = manifest.get("provenance", {})
+            return {
+                "source_link": provenance.get("source_link", ""),
+                "country": provenance.get("country", ""),
+                "municipality": provenance.get("municipality", ""),
+                "year": provenance.get("year", ""),
+                "uploaded_by": provenance.get("uploaded_by", ""),
+            }
+    except Exception:
+        pass
+    return {"source_link": "", "country": "", "municipality": "", "year": "", "uploaded_by": ""}
 
 
 def _render_audit_registry(db: DatabaseRegistry) -> None:
@@ -551,6 +603,18 @@ def main() -> None:
     # Initialize database
     db = DatabaseRegistry("audit_registry.db")
 
+    # Fetch last audit metadata as fallback for form auto-population from database history
+    last_audit_metadata = _get_last_audit_metadata(db)
+
+    # Initialize session state for form persistence (direct key binding)
+    # Uses database fallback as defaults if session_state is empty (prevents data loss on rerun)
+    st.session_state.setdefault("source_link", last_audit_metadata.get("source_link", ""))
+    st.session_state.setdefault("country", last_audit_metadata.get("country", ""))
+    st.session_state.setdefault("municipality", last_audit_metadata.get("municipality", ""))
+    st.session_state.setdefault("year", last_audit_metadata.get("year", ""))
+    st.session_state.setdefault("uploaded_by", last_audit_metadata.get("uploaded_by", ""))
+    st.session_state.setdefault("uploaded_file", None)
+
     # Create two main tabs
     tab_live, tab_registry = st.tabs(["📊 Live Budget Pipeline", "📜 Historical Audit Registry"])
 
@@ -563,22 +627,24 @@ def main() -> None:
                 type=["csv"],
                 help="Upload a municipal or state budget file in CSV format.",
             )
-            source_link = st.text_input("Source / link")
-            country = st.text_input("Country / jurisdiction")
-            municipality = st.text_input("Municipality / institution")
-            year = st.text_input("Year")
-            uploaded_by = st.text_input("Uploaded by")
+            # Use key parameter to directly bind to session_state (Streamlit auto-persists)
+            st.text_input("Source / link", key="source_link", help="Link to the budget source document or public portal")
+            st.text_input("Country / jurisdiction", key="country", help="Country or jurisdiction name")
+            st.text_input("Municipality / institution", key="municipality", help="Municipality or institution name")
+            st.text_input("Year", key="year", help="Budget year or fiscal period")
+            st.text_input("Uploaded by", key="uploaded_by", help="Name or identifier of uploader")
             submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
 
         if not submit or uploaded_file is None:
             st.info("Upload a CSV file and complete the provenance metadata to begin the automated forensic review.")
         else:
+            # All values are already persisted in st.session_state via key parameters
             metadata = {
-                "source_link": source_link,
-                "country": country,
-                "municipality": municipality,
-                "year": year,
-                "uploaded_by": uploaded_by,
+                "source_link": st.session_state.source_link,
+                "country": st.session_state.country,
+                "municipality": st.session_state.municipality,
+                "year": st.session_state.year,
+                "uploaded_by": st.session_state.uploaded_by,
             }
 
             with st.spinner("Processing CSV file and generating forensic report..."):
