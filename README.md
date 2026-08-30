@@ -315,8 +315,6 @@ refine risk explanations and integrity messaging
 preserve lightweight local-first workflow with no pandas dependency
 finalize export metadata structure and public audit report polish
 
-Kopaj duboko. 🤖🍏🍉🍒💪🏁🏆🎉🚀
-
 *Kopaj duboko*. 🤖🍏🍉🍒💪🏁🏆🎉🚀
 
 
