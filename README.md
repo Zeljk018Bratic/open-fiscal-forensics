@@ -261,4 +261,29 @@ To explore the long-term decentralized vision, permissionless peer networks, and
 
 🔗 **[Read the Full Technical Roadmap (ROADMAP.md)](ROADMAP.md)**
 
+Release status
+v1.0.0-MVP — Initial Open-Source Civic Audit Core
+We are proud to announce that the #BajteBrothers Citizen Budget Intelligence Platform has successfully completed its initial validation cycle.
+
+The project now includes a deterministic forensic core based on Benford’s Law and Shannon Entropy, along with automatic financial-column detection, a Streamlit dashboard, and publication-ready PDF reporting. By removing external monolithic dependencies, the analytical architecture is resilient, transparent, and fully reproducible.
+
+The successful zero-error execution over the complete 2025 fiscal ledger of Grad Labin (Croatia) demonstrates that transparent civic audit workflows do not require centralized gatekeepers. They require rigorous logic, public traceability, and mathematically consistent evidence.
+
+This release includes the full MVP foundation:
+
+forensic_core.py
+auto_adapter.py
+app.py
+pdf_generator.py
+.gitignore
+LICENSE
+ROADMAP.md
+The project is now formally open source under the MIT License, with a documented roadmap for future registry and peer-to-peer validation work.
+
+This concludes the current development cycle. The code now belongs to the public.
+
+*Kopaj duboko*. 🤖🍏🍉🍒💪🏁🏆🎉🚀
+
+
+
 
