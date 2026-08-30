@@ -1,16 +1,25 @@
-"""Streamlit MVP dashboard for the #BajteBrothers forensic budget workflow.
+"""Streamlit Milestone v1.2 dashboard for the Open Fiscal Forensics Framework.
 
-This local-first dashboard integrates the existing data-cleaning/adaptation
-layer with a lightweight forensic analysis pipeline and PDF reporting. It is
-intentionally modular so the underlying mathematics remains untouched while the
-front-end provides a simple citizen-science workflow for public budget review.
+This release introduces persistent audit registry integration alongside the
+existing forensic budget workflow. The dashboard now features a dual-tab
+architecture:
+
+1. Live Budget Pipeline (📊): Real-time forensic analysis and report generation.
+2. Historical Audit Registry (📜): Persistent storage and review of past audits.
+
+Architecture:
+- DatabaseRegistry provides SQLite-backed audit persistence.
+- ForensicCore and AutoAdapter handle the mathematical analysis pipeline.
+- All exports (PDF, JSON manifest) are automatically persisted to the registry.
+- Pandas-free, pure Python CSV parsing for compliance with restrictive
+  execution environments.
 
 Workflow:
-1. Upload a budget CSV together with provenance metadata.
+1. Upload a budget CSV and complete provenance metadata.
 2. Detect the amount column automatically via AutoAdapter.
-3. Run a forensic summary using a lightweight local ForensicCore wrapper.
-4. Generate a visual anomaly chart and a PDF forensic certificate.
-5. Download the PDF and a structured JSON audit manifest.
+3. Run forensic analysis using the ForensicCore pipeline.
+4. Generate PDF report and JSON manifest (both persisted to registry).
+5. Browse historical audits in the registry tab.
 """
 
 from __future__ import annotations
@@ -33,6 +42,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 from auto_adapter import detect_amount_column_from_csv
+from database_registry import DatabaseRegistry
 from pdf_generator import ForensicPDFGenerator
 
 try:  # pragma: no cover - compatibility layer for future project additions.
@@ -428,57 +438,184 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
             )
 
 
-def main() -> None:
-    """Launch the local Streamlit dashboard."""
-    st.set_page_config(page_title="Citizen Budget Intelligence Dashboard", page_icon="🧾", layout="wide")
-    st.title("Citizen Budget Intelligence Platform")
-    st.caption("Local-first public transparency dashboard for forensic budget review.")
+def _render_audit_registry(db: DatabaseRegistry) -> None:
+    """Render the historical audit registry tab."""
+    st.subheader("Registry Statistics")
 
-    with st.form("budget_ingest"):
-        uploaded_file = st.file_uploader("Upload budget CSV", type=["csv"], help="Upload a municipal or state budget file in CSV format.")
-        source_link = st.text_input("Source / link")
-        country = st.text_input("Country / jurisdiction")
-        municipality = st.text_input("Municipality / institution")
-        year = st.text_input("Year")
-        uploaded_by = st.text_input("Uploaded by")
-        submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
+    # Fetch summary statistics
+    total_count = db.get_audit_count()
+    risk_summary = db.get_risk_summary()
 
-    if not submit or uploaded_file is None:
-        st.info("Upload a CSV file and complete the provenance metadata to begin the automated forensic review.")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total audits", total_count)
+    col2.metric("🔴 High risk", risk_summary.get("HIGH", 0))
+    col3.metric("🟡 Medium risk", risk_summary.get("MEDIUM", 0))
+    col4.metric("🟢 Low risk", risk_summary.get("LOW", 0))
+
+    st.write("---")
+
+    if total_count == 0:
+        st.info("No audits have been registered yet. Upload and process a CSV to begin building the historical registry.")
         return
 
-    metadata = {
-        "source_link": source_link,
-        "country": country,
-        "municipality": municipality,
-        "year": year,
-        "uploaded_by": uploaded_by,
-    }
+    # Filter options
+    st.subheader("Filter & Search")
+    filter_col1, filter_col2 = st.columns(2)
 
-    with st.spinner("Processing CSV file and generating forensic report..."):
-        temp_csv = _save_uploaded_csv(uploaded_file)
-        metadata["file_hash"] = _calculate_file_hash(uploaded_file)
-        audit_result = _build_audit_result(temp_csv, metadata)
-        audit_result["file_hash"] = metadata["file_hash"]
+    with filter_col1:
+        filter_risk = st.selectbox("Filter by risk level", ["All", "HIGH", "MEDIUM", "LOW"], key="filter_risk")
 
-        chart_dir = Path(tempfile.mkdtemp(prefix="bb_chart_"))
-        chart_path = chart_dir / "budget_analysis.png"
-        _build_chart_image(audit_result.get("metrics", {}), str(chart_path))
+    with filter_col2:
+        limit_records = st.number_input("Limit records displayed", min_value=1, max_value=1000, value=50, step=10)
 
-        report_dir = Path(tempfile.mkdtemp(prefix="bb_report_"))
-        pdf_path = report_dir / "forensic_audit_report.pdf"
-        json_path = report_dir / "audit_manifest.json"
+    # Fetch audits based on filter
+    if filter_risk == "All":
+        audits = db.fetch_all_audits(limit=limit_records)
+    else:
+        audits = db.fetch_audits_by_risk_level(filter_risk)
+        audits = audits[:limit_records]
 
-        manifest = _build_manifest(audit_result, metadata, metadata["file_hash"])
-        with json_path.open("w", encoding="utf-8") as handle:
-            json.dump(manifest, handle, indent=2, ensure_ascii=False)
+    if not audits:
+        st.warning(f"No audits found with risk level: {filter_risk}")
+        return
 
-        pdf_generator = ForensicPDFGenerator()
-        final_pdf = _ensure_public_pdf(pdf_generator, audit_result, str(chart_path), str(pdf_path))
+    st.subheader(f"Audit Records ({len(audits)})")
 
-        st.success("Audit pipeline completed successfully.")
-        st.image(str(chart_path), use_container_width=True)
-        _render_results(audit_result, final_pdf, str(json_path))
+    # Display audits in a formatted table
+    for idx, audit in enumerate(audits, start=1):
+        with st.expander(
+            f"#{audit['id']} · {audit['dataset_name']} · {audit['risk_level']} · {audit['country'] or 'N/A'} · {audit['audit_year'] or 'N/A'}"
+        ):
+            # Risk indicator with color
+            risk_colors = {"HIGH": "#d72638", "MEDIUM": "#f59f00", "LOW": "#2f9e44"}
+            risk_color = risk_colors.get(audit["risk_level"], "#999")
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Risk level", audit["risk_level"], delta_color="off")
+            col2.metric("Chi² score", f"{audit['chi_square']:.4f}")
+            col3.metric("Shannon entropy", f"{audit['shannon_entropy']:.4f}")
+
+            # Provenance information
+            st.markdown("**Provenance**")
+            prov_cols = st.columns(2)
+            with prov_cols[0]:
+                st.write(f"**Country:** {audit['country'] or 'N/A'}")
+                st.write(f"**Municipality:** {audit['municipality'] or 'N/A'}")
+                st.write(f"**Year:** {audit['audit_year'] or 'N/A'}")
+            with prov_cols[1]:
+                st.write(f"**Uploaded by:** {audit['uploaded_by'] or 'N/A'}")
+                st.write(f"**Source:** {audit['source_link'] or 'N/A'}")
+
+            # Metrics
+            st.markdown("**Analysis Metrics**")
+            metric_cols = st.columns(3)
+            with metric_cols[0]:
+                st.write(f"**Observations:** {audit['observation_count']}")
+            with metric_cols[1]:
+                st.write(f"**Amount column:** #{audit['amount_column_index']}")
+            with metric_cols[2]:
+                benford_status = "✓ Passed" if audit["benford_passed"] else "✗ Failed"
+                shannon_status = "✓ Passed" if audit["shannon_passed"] else "✗ Failed"
+                st.write(f"**Benford:** {benford_status}")
+                st.write(f"**Shannon:** {shannon_status}")
+
+            # Timestamps
+            st.markdown("**Timestamps**")
+            ts_cols = st.columns(2)
+            with ts_cols[0]:
+                st.caption(f"**Audit:** {audit['generated_at_utc'][:19]}")
+            with ts_cols[1]:
+                st.caption(f"**Registered:** {audit['registered_at_utc'][:19]}")
+
+            # File hash
+            st.markdown("**Dataset Hash**")
+            st.code(audit["file_sha256"], language="text")
+
+            # Full manifest (collapsible)
+            with st.expander("View full manifest (JSON)"):
+                st.json(audit.get("manifest", {}))
+
+
+def main() -> None:
+    """Launch the Milestone v1.2 Streamlit dashboard with dual-tab architecture."""
+    st.set_page_config(page_title="Citizen Budget Intelligence Platform (v1.2)", page_icon="🧾", layout="wide")
+
+    st.title("Citizen Budget Intelligence Platform")
+    st.caption("Milestone v1.2 · Local-first public transparency dashboard for forensic budget review with persistent audit registry.")
+
+    # Initialize database
+    db = DatabaseRegistry("audit_registry.db")
+
+    # Create two main tabs
+    tab_live, tab_registry = st.tabs(["📊 Live Budget Pipeline", "📜 Historical Audit Registry"])
+
+    with tab_live:
+        st.subheader("Upload & Process Budget Data")
+
+        with st.form("budget_ingest"):
+            uploaded_file = st.file_uploader(
+                "Upload budget CSV",
+                type=["csv"],
+                help="Upload a municipal or state budget file in CSV format.",
+            )
+            source_link = st.text_input("Source / link")
+            country = st.text_input("Country / jurisdiction")
+            municipality = st.text_input("Municipality / institution")
+            year = st.text_input("Year")
+            uploaded_by = st.text_input("Uploaded by")
+            submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
+
+        if not submit or uploaded_file is None:
+            st.info("Upload a CSV file and complete the provenance metadata to begin the automated forensic review.")
+        else:
+            metadata = {
+                "source_link": source_link,
+                "country": country,
+                "municipality": municipality,
+                "year": year,
+                "uploaded_by": uploaded_by,
+            }
+
+            with st.spinner("Processing CSV file and generating forensic report..."):
+                temp_csv = _save_uploaded_csv(uploaded_file)
+                metadata["file_hash"] = _calculate_file_hash(uploaded_file)
+                audit_result = _build_audit_result(temp_csv, metadata)
+                audit_result["file_hash"] = metadata["file_hash"]
+
+                # Generate chart
+                chart_dir = Path(tempfile.mkdtemp(prefix="bb_chart_"))
+                chart_path = chart_dir / "budget_analysis.png"
+                _build_chart_image(audit_result.get("metrics", {}), str(chart_path))
+
+                # Generate manifest and persist
+                report_dir = Path(tempfile.mkdtemp(prefix="bb_report_"))
+                pdf_path = report_dir / "forensic_audit_report.pdf"
+                json_path = report_dir / "audit_manifest.json"
+
+                manifest = _build_manifest(audit_result, metadata, metadata["file_hash"])
+
+                # Write manifest to JSON
+                with json_path.open("w", encoding="utf-8") as handle:
+                    json.dump(manifest, handle, indent=2, ensure_ascii=False)
+
+                # Persist manifest to database registry
+                try:
+                    audit_id = db.register_audit(manifest)
+                    st.success(f"✓ Audit persisted to registry (ID: {audit_id})")
+                except Exception as e:
+                    st.error(f"Failed to persist audit to registry: {e}")
+
+                # Generate PDF
+                pdf_generator = ForensicPDFGenerator()
+                final_pdf = _ensure_public_pdf(pdf_generator, audit_result, str(chart_path), str(pdf_path))
+
+                st.success("Audit pipeline completed successfully.")
+                st.image(str(chart_path), use_container_width=True)
+                _render_results(audit_result, final_pdf, str(json_path))
+
+    with tab_registry:
+        st.subheader("Historical Audit Registry")
+        _render_audit_registry(db)
 
 
 if __name__ == "__main__":
