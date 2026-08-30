@@ -282,6 +282,46 @@ The project is now formally open source under the MIT License, with a documented
 
 This concludes the current development cycle. The code now belongs to the public.
 
+### Release note / publish text
+# Sound of Freedom — MVP Polish Pass
+
+This release finalizes the forensic audit MVP for civic budget review and strengthens the platform’s credibility, reproducibility, and public transparency.
+
+### What changed
+- finalized the dashboard language and messaging for a formal, audit-grade presentation
+- standardized the public-facing vocabulary to consistent, professional English
+- synchronized provenance metadata across the UI, report flow, and JSON manifest export
+- improved the audit output structure with explicit file hash tracking and deterministic manifest metadata
+- preserved the local-first workflow while keeping the implementation lightweight and dependency-safe
+- refined the risk explanation layer to distinguish statistical indicators from human review requirements
+- ensured the archived export package remains traceable and ready for public review
+
+### Included in this version
+- CSV upload workflow
+- AutoAdapter-based amount-column detection
+- forensic scoring and integrity indicators
+- chart generation for risk visualization
+- PDF forensic certificate export
+- structured JSON audit manifest export
+- provenance metadata capture for source, jurisdiction, year, uploader, and file hash
+
+### Status
+This is a polished MVP checkpoint for public-budget transparency workflows and is positioned as a ready-to-share foundation for continued civic audit and forensic review development.
+
+---
+
+## Finaler Commit-Message
+
+feat: finalize MVP polish pass for civic audit dashboard
+
+- standardize dashboard wording to formal audit-grade English
+- synchronize provenance metadata between UI and manifest export
+- display full SHA-256 hash for uploaded dataset traceability
+- refine risk explanations and integrity messaging
+- preserve lightweight local-first workflow with no pandas dependency
+- finalize export metadata structure and public audit report polish
+
+
 *Kopaj duboko*. 🤖🍏🍉🍒💪🏁🏆🎉🚀
 
 
