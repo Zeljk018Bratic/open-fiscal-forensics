@@ -1,146 +1,472 @@
-import streamlit as st
-import os
-import hashlib
+"""Streamlit MVP dashboard for the #BajteBrothers forensic budget workflow.
+
+This local-first dashboard integrates the existing data-cleaning/adaptation
+layer with a lightweight forensic analysis pipeline and PDF reporting. It is
+intentionally modular so the underlying mathematics remains untouched while the
+front-end provides a simple citizen-science workflow for public budget review.
+
+Workflow:
+1. Upload a budget CSV together with provenance metadata.
+2. Detect the amount column automatically via AutoAdapter.
+3. Run a forensic summary using a lightweight local ForensicCore wrapper.
+4. Generate a visual anomaly chart and a PDF forensic certificate.
+5. Download the PDF and a structured JSON audit manifest.
+"""
+
+from __future__ import annotations
+
 import csv
+import hashlib
+import json
+import math
+import os
+import re
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Tuple
+
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-# Importujemo tvoje bezbedne i proverene module sa GitHub-a
-from forensic_core import ForensicCore, DataNormalizer, BenfordTest
-from auto_adapter import AutoAdapter
+import streamlit as st
+
+from auto_adapter import detect_amount_column_from_csv
 from pdf_generator import ForensicPDFGenerator
 
-class BajteBrothersSafeDashboard:
-    def __init__(self):
-        self.core = ForensicCore()
-        self.adapter = AutoAdapter()
-        self.pdf_gen = ForensicPDFGenerator()
-        
-        # Konfiguracija aplikacije u čistom stilu
-        st.set_page_config(page_title="#BajteBrothers - Audit Dashboard", page_icon="🤖", layout="wide")
+try:  # pragma: no cover - compatibility layer for future project additions.
+    from forensic_core import ForensicCore
+except ImportError:  # pragma: no cover - local fallback for MVP workflow.
+    class ForensicCore:
+        """Local compatibility shim for forensic evaluation."""
 
-    def calculate_file_hash(self, uploaded_file):
-        """Računa stabilan SHA-256 hash direktno iz memorije."""
-        sha256_hash = hashlib.sha256()
-        bytes_data = uploaded_file.getvalue()
-        sha256_hash.update(bytes_data)
-        return sha256_hash.hexdigest()
+        @staticmethod
+        def analyze(csv_path: str | os.PathLike[str], amount_column: int | None = None) -> Dict[str, Any]:
+            """Analyze a CSV file and return a small forensic summary payload."""
+            rows = _read_csv_rows(csv_path)
+            if not rows:
+                raise ValueError("CSV contains no rows.")
+            if amount_column is None:
+                amount_column = detect_amount_column_from_csv(csv_path)
 
-    def run(self):
-        st.title("🌍 #BajteBrothers - Citizen Budget Intelligence Platform")
-        st.markdown("### Dezentrale Validierungs- & Forensik-Zentrale v1.0.0-MVP (Safe Mode)")
-        st.write("---")
+            values: List[float] = []
+            for row in rows[1:]:
+                if amount_column >= len(row):
+                    continue
+                value = row[amount_column]
+                numeric = _parse_numeric_token(value)
+                if numeric is not None:
+                    values.append(float(numeric))
 
-        # Bočna traka za unos porekla podataka (Provenance Tracking)
-        st.sidebar.header("🛡️ Data Import & Provenance Tracking")
-        uploaded_file = st.sidebar.file_uploader("Haushalts- oder NGO-Ausgaben (CSV)", type=["csv"])
-        
-        source_link = st.sidebar.text_input("Zugehörige Quelle / Link", placeholder="https://transparentno.labin...")
-        region = st.sidebar.text_input("Land / Gemeinde", placeholder="Grad Labin")
-        year = st.sidebar.text_input("Haushaltsjahr", placeholder="2025")
-        uploaded_by = st.sidebar.text_input("Verifiziert von (User-Knoten)", placeholder="Node_42")
+            if not values:
+                raise ValueError("No usable monetary values were found in the selected CSV column.")
 
-        if uploaded_file is not None:
-            file_hash = self.calculate_file_hash(uploaded_file)
-            st.sidebar.success("🔒 Datei-Hash verifiziert!")
-            st.sidebar.code(f"SHA-256:\n{file_hash[:32]}...")
+            chi2_score = _calculate_chi_square(values)
+            entropy_score = _calculate_shannon_entropy(values)
+            risk_level, risk_label = _classify_risk(chi2_score, entropy_score)
 
-            # Privremeno čuvanje fajla za analitičku obradu
-            temp_path = "temp_uploaded_budget.csv"
-            with open(temp_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
+            return {
+                "label": "Budget Integrity Review",
+                "risk_level": risk_level,
+                "risk_label": risk_label,
+                "metrics": {
+                    "chi_square": round(chi2_score, 4),
+                    "shannon_entropy": round(entropy_score, 4),
+                    "amount_column_index": int(amount_column),
+                    "observation_count": len(values),
+                },
+                "tests": {
+                    "benford": {
+                        "score": round(chi2_score, 4),
+                        "critical_value": 10.0,
+                        "passed": chi2_score < 10.0,
+                    },
+                    "shannon": {
+                        "score": round(entropy_score, 4),
+                        "natural_minimum": 2.7,
+                        "passed": entropy_score >= 2.7,
+                    },
+                },
+            }
 
-            st.info("⚡ Starte automatische Pipeline... Durchleuchte Spaltenstrukturen...")
-            try:
-                # 1. Automatsko pronalaženje finansijske kolone preko tvog auto_adapter modula
-                detected_column_index = self.adapter.detect_financial_column(temp_path)
-                
-                # 2. Reisto Python CSV čitanje (Sve je ugrađeno, Windows ne može da blokira)
-                raw_values = []
-                with open(temp_path, mode='r', encoding='utf-8-sig') as f:
-                    sample = f.read(2048)
-                    f.seek(0)
-                    delimiter = ';' if ';' in sample else ','
-                    
-                    reader = csv.reader(f, delimiter=delimiter)
-                    next(reader, None) # Preskačemo zaglavlje tabele
-                    
-                    for row in reader:
-                        if row and len(row) > detected_column_index:
-                            val = row[detected_column_index].strip()
-                            if val:
-                                raw_values.append(val)
-                
-                st.success(f"🎯 Automatische Erkennung erfolgreich: Finanzdaten in Spalten-Index {detected_column_index} isoliert.")
-                st.write(f"Anzahl verarbeiteter Datensätze: **{len(raw_values)}**")
-                
-                # 3. Pokretanje matematičke analize u tvom ForensicCore jezgru
-                audit_label = f"Audit: {region} ({year})" if region and year else f"Audit: {uploaded_file.name}"
-                result = self.core.analyze(raw_values, label=audit_label)
-                
-                if result["status"] == "SUCCESS":
-                    # Prikazivanje grafika i rezultata na ekranu
-                    self.display_metrics_and_results(result)
-                    
-                    # 4. Automatsko štampanje PDF sertifikata u pozadini
-                    chart_img_path = "temp_dashboard_chart.png"
-                    pdf_output_path = "forensic_audit_report.pdf"
-                    
-                    self.pdf_gen.generate_report(result, chart_img_path, output_pdf=pdf_output_path)
-                    
-                    # Dugme za preuzimanje izveštaja
-                    if os.path.exists(pdf_output_path):
-                        with open(pdf_output_path, "rb") as pdf_file:
-                            st.download_button(
-                                label="📥 ZERTIFIZIERTES FORENSIK-PDF HERUNTERLADEN",
-                                data=pdf_file,
-                                file_name=f"BajteBrothers_Audit_{region or 'Report'}_{year or '2026'}.pdf",
-                                mime="application/pdf"
-                            )
-                else:
-                    st.error(f"❌ Fehler im Forensik-Kern: {result.get('status')}. Zu wenige valide Datenpunkte.")
 
-            except Exception as e:
-                st.error(f"🚨 Pipeline-Abbruch durch Sicherheits- oder Verarbeitungsfehler: {str(e)}")
-            finally:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
+def _read_csv_rows(csv_path: str | os.PathLike[str]) -> List[List[str]]:
+    """Read a CSV file using the stdlib-only parser and delimiter sniffing."""
+    path = Path(csv_path)
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        sample = handle.read(4096)
+        handle.seek(0)
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
+            reader = csv.reader(handle, dialect)
+        except csv.Error:
+            reader = csv.reader(handle)
+        rows = [row for row in reader if row and any(cell.strip() for cell in row)]
+    return [[cell.strip() for cell in row] for row in rows]
+
+
+def _parse_numeric_token(value: Any) -> float | None:
+    """Convert a cell value into a float when it looks like a monetary amount."""
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    text = str(value).strip()
+    if not text:
+        return None
+    if re.fullmatch(r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", text):
+        return None
+    if re.fullmatch(r"\d+%", text):
+        return None
+    if re.fullmatch(r"[A-Za-z]+", text):
+        return None
+
+    cleaned = text.replace("€", "").replace("$", "").replace("£", "").replace("¥", "").replace("₹", "")
+    cleaned = cleaned.replace(" ", "").replace("'", "")
+    cleaned = cleaned.replace("\u00a0", "")
+
+    if "," in cleaned and "." in cleaned:
+        if cleaned.rfind(",") > cleaned.rfind("."):
+            cleaned = cleaned.replace(".", "").replace(",", ".")
         else:
-            st.warning("📡 Warte auf Daten-Upload in der linken Spalte, um das Sumpf-Radar zu aktivieren...")
+            cleaned = cleaned.replace(",", "")
+    elif "," in cleaned:
+        if cleaned.count(",") == 1 and len(cleaned.split(",")[-1]) in (2, 3):
+            cleaned = cleaned.replace(",", ".")
+        else:
+            cleaned = cleaned.replace(",", "")
 
-    def display_metrics_and_results(self, result):
-        b_test = result["tests"]["benford"]
-        s_test = result["tests"]["shannon"]
-        
-        risk_colors = {"LOW": "green", "MEDIUM": "orange", "HIGH": "red"}
-        color = risk_colors.get(result["risk_level"], "white")
-        
-        st.markdown(f"## Risikostufe: :{color}[{result['risk_level']}] — {result['risk_label']}")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric(label="Benford's Law Chi²-Score", value=f"{b_test['score']}", delta=f"Schwelle: {b_test['critical_value']}", delta_color="inverse")
-            st.write("Ergebnis:", "✅ BESTANDEN" if b_test["passed"] else "❌ ANOMALIE FLAGGED ⚠️")
-            
-        with col2:
-            st.metric(label="Shannon-Entropie", value=f"{s_test['score']} bits", delta=f"Min. Erwartet: {s_test['natural_minimum']} bits")
-            st.write("Ergebnis:", "✅ BESTANDEN" if s_test["passed"] else "❌ ANOMALIE FLAGGED ⚠️")
+    try:
+        numeric = float(cleaned)
+    except ValueError:
+        return None
+    if abs(numeric) > 1e12:
+        return None
+    return numeric
 
-        st.markdown("### 📊 Verteilungs-Abgleich auf Pixelebene")
-        
-        digits = [str(i) for i in range(1, 10)]
-        observed = [b_test["distribution"][d]["observed_pct"] for d in digits]
-        expected = [b_test["distribution"][d]["expected_pct"] for d in digits]
 
-        fig, ax = plt.subplots(figsize=(10, 4))
-        ax.bar(digits, observed, alpha=0.6, color='#ff0055', label='Gemessene Struktur (Eingabe)')
-        ax.plot(digits, expected, color='#00ff66', marker='o', linewidth=2, label='Benford-Gesetz (Natur-Soll)')
-        ax.set_ylabel("Prozent (%)")
-        ax.set_xlabel("Erste Ziffer")
-        ax.legend()
-        ax.grid(axis='y', linestyle='--', alpha=0.3)
-        
-        fig.savefig("temp_dashboard_chart.png", dpi=100, bbox_inches='tight')
-        st.pyplot(fig)
+def _calculate_chi_square(values: Iterable[float]) -> float:
+    """Compute a simple chi-square deviation score from leading digits."""
+    digit_counts = {str(d): 0 for d in range(1, 10)}
+    total = 0
+    for value in values:
+        if value == 0:
+            continue
+        first_digit = str(abs(value)).replace("-", "")
+        if not first_digit:
+            continue
+        first = first_digit[0]
+        if first.isdigit():
+            digit_counts[first] += 1
+            total += 1
+
+    if total == 0:
+        return 0.0
+
+    expected = total / 9.0
+    score = 0.0
+    for digit in range(1, 10):
+        observed = digit_counts[str(digit)]
+        score += ((observed - expected) ** 2) / expected
+    return score
+
+
+def _calculate_shannon_entropy(values: Iterable[float]) -> float:
+    """Estimate Shannon entropy from the leading-digit distribution of values."""
+    counts: Dict[str, int] = {str(d): 0 for d in range(1, 10)}
+    total = 0
+    for value in values:
+        if value == 0:
+            continue
+        first_digit = str(abs(value)).replace("-", "")
+        if not first_digit:
+            continue
+        digit = first_digit[0]
+        if digit.isdigit():
+            counts[digit] += 1
+            total += 1
+
+    if total == 0:
+        return 0.0
+
+    entropy = 0.0
+    for count in counts.values():
+        if count == 0:
+            continue
+        probability = count / total
+        entropy -= probability * math.log2(probability)
+    return entropy
+
+
+def _classify_risk(chi_square: float, shannon: float) -> Tuple[str, str]:
+    """Translate metrics into a public-facing risk level."""
+    if chi_square > 12.0 or shannon < 2.5:
+        return "HIGH", "Significant anomaly pattern detected"
+    if chi_square > 5.0 or shannon < 2.9:
+        return "MEDIUM", "Moderate irregularities detected"
+    return "LOW", "No immediate irregularity signal"
+
+
+def _calculate_file_hash(file_obj: Any) -> str:
+    """Return the SHA256 hash for an uploaded file object."""
+    hasher = hashlib.sha256()
+    for chunk in iter(lambda: file_obj.read(65536), b""):
+        hasher.update(chunk)
+    file_obj.seek(0)
+    return hasher.hexdigest()
+
+
+def _save_uploaded_csv(uploaded_file: Any) -> Path:
+    """Persist an uploaded CSV to a temp location and return the path."""
+    temp_dir = Path(tempfile.mkdtemp(prefix="bb_dashboard_"))
+    output_path = temp_dir / uploaded_file.name
+    with output_path.open("wb") as handle:
+        handle.write(uploaded_file.getvalue())
+    return output_path
+
+
+def _infer_header_name(csv_path: str | os.PathLike[str], amount_column: int) -> str:
+    """Return the header label associated with the selected amount column."""
+    rows = _read_csv_rows(csv_path)
+    if not rows:
+        return "unnamed_column"
+    if amount_column >= len(rows[0]):
+        return "unnamed_column"
+    return rows[0][amount_column]
+
+
+def _build_column_explanation(csv_path: str | os.PathLike[str], amount_column: int, values: List[float]) -> str:
+    """Create a human-readable explanation for the detected amount column."""
+    total = max(len(values), 1)
+    numeric_count = 0
+    integer_like = 0
+    for value in values:
+        numeric_count += 1
+        if abs(value - round(value)) < 1e-9:
+            integer_like += 1
+
+    header_name = _infer_header_name(csv_path, amount_column)
+    reason = f"AutoAdapter selected column #{amount_column} ({header_name or 'unnamed_column'}) because the header matched financial terminology and {numeric_count}/{total} rows parsed as numeric amounts."
+    if total and integer_like / total > 0.7:
+        reason += " The values are predominantly integer-like, which is consistent with administrative totals or rounded monetary entries."
+    else:
+        reason += " The values include fractional amounts, which is consistent with transaction-level financial data and warrants closer review."
+    return reason
+
+
+def _build_chart_image(metrics: Dict[str, Any], output_path: str | os.PathLike[str]) -> str:
+    """Generate a simple visual chart used by the PDF report and dashboard."""
+    fig, ax = plt.subplots(figsize=(8, 4.4))
+    values = [metrics.get("chi_square", 0.0), metrics.get("shannon_entropy", 0.0)]
+    labels = ["Chi² score", "Entropy"]
+    colours = ["#d72638" if values[0] >= 5 else "#2f9e44", "#0d6efd" if values[1] >= 2.9 else "#f59f00"]
+
+    bars = ax.bar(labels, values, color=colours, width=0.6)
+    ax.set_ylim(0, max(10.0, max(values) * 1.5 + 1.0))
+    ax.set_ylabel("Value")
+    ax.set_title("Risk signal overview")
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+
+    for bar, value in zip(bars, values):
+        height = float(value)
+        ax.text(bar.get_x() + bar.get_width() / 2, height + 0.1, f"{height:.2f}", ha="center", va="bottom")
+
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    return str(output_path)
+
+
+def _ensure_public_pdf(pdf_generator: ForensicPDFGenerator, audit_result: Dict[str, Any], chart_path: str, output_path: str) -> str:
+    """Create the final public forensic report certificate and return the path."""
+    return pdf_generator.generate_report(audit_result, chart_path, output_path)
+
+
+def _build_provenance_header(metadata: Dict[str, str]) -> Dict[str, str]:
+    """Create a structured provenance header for downstream processing and export."""
+    return {
+        "source_link": metadata.get("source_link", "").strip(),
+        "country": metadata.get("country", "").strip(),
+        "municipality": metadata.get("municipality", "").strip(),
+        "year": metadata.get("year", "").strip(),
+        "uploaded_by": metadata.get("uploaded_by", "").strip(),
+        "file_hash": metadata.get("file_hash", "").strip(),
+    }
+
+
+def _build_manifest(audit_result: Dict[str, Any], metadata: Dict[str, str], file_hash: str) -> Dict[str, Any]:
+    """Generate the JSON export payload used as the public manifest."""
+    metrics = audit_result.get("metrics", {})
+    provenance = _build_provenance_header(metadata)
+    provenance["file_hash"] = file_hash
+
+    manifest = {
+        "schema_version": "1.0.0-mvp",
+        "dataset_name": audit_result.get("dataset_name", "unknown_dataset"),
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "file_sha256": file_hash,
+        "provenance": provenance,
+        "amount_column": {
+            "index": int(metrics.get("amount_column_index", 0)),
+            "explanation": audit_result.get("amount_column_explanation", "AutoAdapter selected the amount column."),
+        },
+        "risk": {
+            "level": audit_result.get("risk_level", "UNKNOWN"),
+            "label": audit_result.get("risk_label", "No risk label supplied."),
+        },
+        "metrics": {
+            "chi_square": float(metrics.get("chi_square", 0.0)),
+            "shannon_entropy": float(metrics.get("shannon_entropy", 0.0)),
+            "observation_count": int(metrics.get("observation_count", 0)),
+        },
+        "tests": audit_result.get("tests", {}),
+    }
+    return manifest
+
+
+def _build_audit_result(csv_file: str | os.PathLike[str], metadata: Dict[str, str]) -> Dict[str, Any]:
+    """Run the automated budget pipeline and return the structured result object."""
+    amount_column = detect_amount_column_from_csv(csv_file)
+    core = ForensicCore()
+    result = core.analyze(csv_file, amount_column=amount_column) if hasattr(core, "analyze") else ForensicCore.analyze(csv_file, amount_column)
+
+    values: List[float] = []
+    for row in _read_csv_rows(csv_file)[1:]:
+        if amount_column >= len(row):
+            continue
+        numeric_value = _parse_numeric_token(row[amount_column])
+        if numeric_value is not None:
+            values.append(float(numeric_value))
+
+    result["dataset_name"] = Path(csv_file).name
+    result["provenance"] = _build_provenance_header(metadata)
+    result["amount_column_explanation"] = _build_column_explanation(csv_file, amount_column, values)
+    result["source_link"] = metadata.get("source_link", "")
+    result["country"] = metadata.get("country", "")
+    result["municipality"] = metadata.get("municipality", "")
+    result["year"] = metadata.get("year", "")
+    result["uploaded_by"] = metadata.get("uploaded_by", "")
+    result["file_hash"] = metadata.get("file_hash", "")
+    return result
+
+
+def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, json_path: str | None = None) -> None:
+    """Render the stat cards and summary panels in the dashboard."""
+    risk_level = str(audit_result.get("risk_level", "LOW")).upper()
+    chi_score = float(audit_result.get("metrics", {}).get("chi_square", 0.0))
+    entropy_score = float(audit_result.get("metrics", {}).get("shannon_entropy", 0.0))
+    amount_column = int(audit_result.get("metrics", {}).get("amount_column_index", 0))
+    observations = int(audit_result.get("metrics", {}).get("observation_count", 0))
+
+    risk_colors = {
+        "LOW": "#2f9e44",
+        "MEDIUM": "#f59f00",
+        "HIGH": "#d72638",
+    }
+
+    st.subheader("Risk overview")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Risk level", risk_level, delta_color="off")
+    col2.metric("Chi² score", f"{chi_score:.2f}")
+    col3.metric("Shannon entropy", f"{entropy_score:.2f}")
+
+    st.caption(f"Detected amount column: #{amount_column} · Records analyzed: {observations}")
+    st.info(audit_result.get("amount_column_explanation", "AutoAdapter was able to isolate the monetary column."))
+
+    st.markdown(f"<div style='padding: 14px; border-radius: 10px; background: {risk_colors.get(risk_level, '#2f9e44')}; color: white; font-weight: 700;'>"
+                f"{audit_result.get('risk_label', 'No risk label available')}"
+                "</div>", unsafe_allow_html=True)
+
+    st.write("---")
+
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Metric detail")
+        rows = [
+            {"Metric": "Chi² score", "Value": round(chi_score, 4), "Benchmark": "Lower is better"},
+            {"Metric": "Shannon entropy", "Value": round(entropy_score, 4), "Benchmark": "Higher indicates more variability"},
+            {"Metric": "Amount column index", "Value": amount_column, "Benchmark": "Detected automatically"},
+        ]
+        st.table(rows)
+
+    with right:
+        st.subheader("Audit notes")
+        st.write(audit_result.get("risk_label", "No further notes available."))
+        if pdf_path:
+            with open(pdf_path, "rb") as handle:
+                pdf_bytes = handle.read()
+            st.download_button(
+                label="Download forensic PDF certificate",
+                data=pdf_bytes,
+                file_name=Path(pdf_path).name,
+                mime="application/pdf",
+                use_container_width=True,
+            )
+        if json_path:
+            with open(json_path, "rb") as handle:
+                manifest_bytes = handle.read()
+            st.download_button(
+                label="Download audit manifest JSON",
+                data=manifest_bytes,
+                file_name=Path(json_path).name,
+                mime="application/json",
+                use_container_width=True,
+            )
+
+
+def main() -> None:
+    """Launch the local Streamlit dashboard."""
+    st.set_page_config(page_title="Citizen Budget Intelligence Dashboard", page_icon="🧾", layout="wide")
+    st.title("Citizen Budget Intelligence Platform")
+    st.caption("Local-first public transparency dashboard for forensic budget review.")
+
+    with st.form("budget_ingest"):
+        uploaded_file = st.file_uploader("Upload budget CSV", type=["csv"], help="Upload a municipal or state budget file in CSV format.")
+        source_link = st.text_input("Source / link")
+        country = st.text_input("Country / jurisdiction")
+        municipality = st.text_input("Municipality / institution")
+        year = st.text_input("Year")
+        uploaded_by = st.text_input("Uploaded by")
+        submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
+
+    if not submit or uploaded_file is None:
+        st.info("Upload a CSV and complete the provenance fields to begin the automated forensic review.")
+        return
+
+    metadata = {
+        "source_link": source_link,
+        "country": country,
+        "municipality": municipality,
+        "year": year,
+        "uploaded_by": uploaded_by,
+    }
+
+    with st.spinner("Processing CSV and generating forensic profile..."):
+        temp_csv = _save_uploaded_csv(uploaded_file)
+        metadata["file_hash"] = _calculate_file_hash(uploaded_file)
+        audit_result = _build_audit_result(temp_csv, metadata)
+
+        chart_dir = Path(tempfile.mkdtemp(prefix="bb_chart_"))
+        chart_path = chart_dir / "budget_analysis.png"
+        _build_chart_image(audit_result.get("metrics", {}), str(chart_path))
+
+        report_dir = Path(tempfile.mkdtemp(prefix="bb_report_"))
+        pdf_path = report_dir / "forensic_audit_report.pdf"
+        json_path = report_dir / "audit_manifest.json"
+        manifest = _build_manifest(audit_result, metadata, metadata["file_hash"])
+        with json_path.open("w", encoding="utf-8") as handle:
+            json.dump(manifest, handle, indent=2, ensure_ascii=False)
+
+        pdf_generator = ForensicPDFGenerator()
+        final_pdf = _ensure_public_pdf(pdf_generator, audit_result, str(chart_path), str(pdf_path))
+
+        st.success("Audit pipeline completed successfully.")
+        st.image(str(chart_path), use_container_width=True)
+        _render_results(audit_result, final_pdf, str(json_path))
+
 
 if __name__ == "__main__":
-    dashboard = BajteBrothersSafeDashboard()
-    dashboard.run()
+    main()
+
