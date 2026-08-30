@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0-STABLE",
+    "timestamp": 1787972378.8033547,
+    "hashes": {
+        "forensic_core.py": "387b44a92ba4b63eb5e32661e70b1a13058b7ced0338a2ccb7ab20c905404081",
+        "csv_budget_visualizer.py": "b1f48d0de6625ea5d3261394408e8504e2925b3d0aa36033761af3435d95009f"
+    }
+}
