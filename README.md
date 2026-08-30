@@ -283,6 +283,7 @@ The project is now formally open source under the MIT License, with a documented
 This concludes the current development cycle. The code now belongs to the public.
 
 Release note / publish text
+
 Sound of Freedom — MVP Polish Pass
 This release finalizes the forensic audit MVP for civic budget review and strengthens the platform’s credibility, reproducibility, and public transparency.
 
