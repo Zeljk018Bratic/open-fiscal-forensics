@@ -158,43 +158,48 @@ def _parse_numeric_token(value: Any) -> float | None:
 
 
 def _calculate_chi_square(values: Iterable[float]) -> float:
-    """Compute a simple chi-square deviation score from leading digits."""
+    """Compute a simple chi-square deviation score from leading digits (1-9 only)."""
     digit_counts = {str(d): 0 for d in range(1, 10)}
     total = 0
     for value in values:
         if value == 0:
             continue
-        first_digit = str(abs(value)).replace("-", "")
-        if not first_digit:
+        # Convert to string, strip decimals, remove leading zeros to find first significant digit
+        clean_str = f"{abs(value):.10f}".replace(".", "").lstrip("0")
+        if not clean_str:
             continue
-        first = first_digit[0]
-        if first.isdigit():
+        first = clean_str[0]
+        if first in digit_counts:  # Only digits 1-9
             digit_counts[first] += 1
             total += 1
 
     if total == 0:
         return 0.0
 
-    expected = total / 9.0
+    # Benford's Law expected percentages
+    expected_pct = [0, 0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
     score = 0.0
     for digit in range(1, 10):
         observed = digit_counts[str(digit)]
-        score += ((observed - expected) ** 2) / expected
+        exp = total * expected_pct[digit]
+        if exp > 0:
+            score += ((observed - exp) ** 2) / exp
     return score
 
 
 def _calculate_shannon_entropy(values: Iterable[float]) -> float:
-    """Estimate Shannon entropy from the leading-digit distribution of values."""
+    """Estimate Shannon entropy from the leading-digit distribution (1-9 only)."""
     counts: Dict[str, int] = {str(d): 0 for d in range(1, 10)}
     total = 0
     for value in values:
         if value == 0:
             continue
-        first_digit = str(abs(value)).replace("-", "")
-        if not first_digit:
+        # Convert to string, strip decimals, remove leading zeros to find first significant digit
+        clean_str = f"{abs(value):.10f}".replace(".", "").lstrip("0")
+        if not clean_str:
             continue
-        digit = first_digit[0]
-        if digit.isdigit():
+        digit = clean_str[0]
+        if digit in counts:  # Only digits 1-9
             counts[digit] += 1
             total += 1
 
