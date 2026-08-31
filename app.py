@@ -1,763 +1,986 @@
-"""
-Open Fiscal Forensics Framework (OFFF) - Decentralized Validation Layer
-Milestone v2.0 — Secure GossipSub Metadata Distribution Engine
+"""Streamlit Milestone v2.0 dashboard for the Open Fiscal Forensics Framework.
 
-Implements a lightweight, local-first peer-to-peer network node using only
-the Python standard library (socket, threading, json, hmac, hashlib, time,
-collections, secrets, pathlib). Fully compatible with Windows Smart App Control.
+This release advances the dual-tab architecture into a three-tab system:
 
-Message types (GossipSub schema v2.0):
-  - AUDIT_MANIFEST : Launch cryptographic evidence into the mesh
-  - ATTESTATION    : Independent vote (AGREE / CHALLENGE) from peer nodes
-  - HEARTBEAT      : Network health probe (every 30 s) + dead-peer pruning
+1. Live Budget Pipeline (📊): Real-time forensic analysis and report generation.
+2. Historical Audit Registry (📜): Persistent storage and review of past audits.
+3. Mesh Validation Network (🌐): Live P2P GossipSub telemetry and node control.
 
-Security invariants:
-  - HMAC-SHA256 signature verification on every inbound packet
-  - Strict dictionary schema validation (malformed packets dropped instantly)
-  - Bounded sliding seen-set for message-ID deduplication
-  - Soft-fail: never crash the node on bad input
-  - Zero external dependencies
+Architecture:
+- DatabaseRegistry provides SQLite-backed audit persistence.
+- ForensicCore and AutoAdapter handle the mathematical analysis pipeline.
+- P2PNetworkMesh provides the secure, stdlib-only GossipSub transport layer.
+- All exports (PDF, JSON manifest) are automatically persisted to the registry
+  and, when the mesh engine is active, fanout-broadcast as AUDIT_MANIFEST.
+- Pandas-free, pure Python CSV parsing for compliance with restrictive
+  execution environments.
+
+Workflow:
+1. Upload a budget CSV and complete provenance metadata.
+2. Detect the amount column automatically via AutoAdapter.
+3. Run forensic analysis using the ForensicCore pipeline.
+4. Generate PDF report and JSON manifest (both persisted to registry).
+5. (Optional) Broadcast the signed AUDIT_MANIFEST into the validation mesh.
+6. Monitor incoming gossip, attestations and peer health in Tab 3.
 """
 
 from __future__ import annotations
 
+import csv
 import hashlib
-import hmac
 import json
-import secrets
-import socket
-import threading
+import math
+import os
+import re
+import tempfile
 import time
-from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-# Optional forensic core — soft import so the mesh can still run standalone
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import streamlit as st
+
+from auto_adapter import detect_amount_column_from_csv
+from database_registry import DatabaseRegistry
+from pdf_generator import ForensicPDFGenerator
+
+# ---------------------------------------------------------------------------
+# Soft import of the P2P mesh engine (Phase 2)
+# ---------------------------------------------------------------------------
 try:
-    from forensic_core import ForensicCore
+    from p2p_network_mesh import P2PNetworkMesh
+    MESH_AVAILABLE = True
 except ImportError:  # pragma: no cover
-    ForensicCore = None  # type: ignore
+    P2PNetworkMesh = None  # type: ignore
+    MESH_AVAILABLE = False
 
+try:  # pragma: no cover - compatibility layer for future project additions.
+    from forensic_core import ForensicCore
+except ImportError:  # pragma: no cover - local fallback for MVP workflow.
+    class ForensicCore:
+        """Local compatibility shim for forensic evaluation."""
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+        @staticmethod
+        def analyze(csv_path: str | os.PathLike[str], amount_column: int | None = None) -> Dict[str, Any]:
+            """Analyze a CSV file and return a small forensic summary payload."""
+            rows = _read_csv_rows(csv_path)
+            if not rows:
+                raise ValueError("CSV contains no rows.")
+            if amount_column is None:
+                amount_column = detect_amount_column_from_csv(csv_path)
 
-PROTOCOL_VERSION = "2.0"
-MAX_MESSAGE_BYTES = 65_536          # 64 KiB hard cap
-HEARTBEAT_INTERVAL_SEC = 30
-PEER_TIMEOUT_SEC = 90               # 3 missed heartbeats → prune
-SEEN_SET_MAX = 4_096                # bounded sliding window
-DEFAULT_FANOUT = 3
-DEFAULT_TTL = 3
-HMAC_SECRET_ENV_FALLBACK = b"bajte-brothers-mesh-bootstrap-v2-shared-secret"
+            values: List[float] = []
+            for row in rows[1:]:
+                if amount_column >= len(row):
+                    continue
+                value = row[amount_column]
+                numeric = _parse_numeric_token(value)
+                if numeric is not None:
+                    values.append(float(numeric))
 
+            if not values:
+                raise ValueError("No usable monetary values were found in the selected CSV column.")
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+            chi2_score = _calculate_chi_square(values)
+            entropy_score = _calculate_shannon_entropy(values)
+            risk_level, risk_label = _classify_risk(chi2_score, entropy_score)
 
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _generate_msg_id() -> str:
-    """Cryptographically strong unique message identifier."""
-    return "msg_" + secrets.token_hex(16)
-
-
-def _canonical_payload(msg: Dict[str, Any]) -> bytes:
-    """
-    Produce a deterministic byte string for HMAC.
-    Signature is computed over everything except the signature field itself.
-    """
-    clone = {k: v for k, v in msg.items() if k != "signature_hmac"}
-    return json.dumps(clone, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-
-
-def _compute_hmac(secret: bytes, msg: Dict[str, Any]) -> str:
-    return hmac.new(secret, _canonical_payload(msg), hashlib.sha256).hexdigest()
-
-
-def _verify_hmac(secret: bytes, msg: Dict[str, Any]) -> bool:
-    expected = msg.get("signature_hmac")
-    if not expected or not isinstance(expected, str):
-        return False
-    computed = _compute_hmac(secret, msg)
-    return hmac.compare_digest(computed, expected)
-
-
-# ---------------------------------------------------------------------------
-# Bounded sliding seen-set (memory-safe LRU)
-# ---------------------------------------------------------------------------
-
-class BoundedSeenSet:
-    """OrderedDict-backed sliding window of message IDs."""
-
-    def __init__(self, maxlen: int = SEEN_SET_MAX) -> None:
-        self._maxlen = maxlen
-        self._data: OrderedDict[str, float] = OrderedDict()
-        self._lock = threading.Lock()
-
-    def add(self, msg_id: str) -> bool:
-        """
-        Attempt to insert msg_id.
-        Returns True if the ID was new (first time seen), False if already present.
-        """
-        with self._lock:
-            if msg_id in self._data:
-                # Move to end (most recently seen)
-                self._data.move_to_end(msg_id)
-                return False
-            self._data[msg_id] = time.monotonic()
-            while len(self._data) > self._maxlen:
-                self._data.popitem(last=False)
-            return True
-
-    def __contains__(self, msg_id: str) -> bool:
-        with self._lock:
-            return msg_id in self._data
-
-    def __len__(self) -> int:
-        with self._lock:
-            return len(self._data)
-
-
-# ---------------------------------------------------------------------------
-# Schema validators
-# ---------------------------------------------------------------------------
-
-REQUIRED_TOP_LEVEL = {
-    "message_type",
-    "msg_id",
-    "ttl",
-    "sender_node",
-    "signature_hmac",
-}
-
-VALID_MESSAGE_TYPES = {"AUDIT_MANIFEST", "ATTESTATION", "HEARTBEAT"}
-
-
-def _validate_schema(msg: Any) -> Tuple[bool, str]:
-    """
-    Strict dictionary schema check.
-    Returns (ok, reason). On failure the packet must be dropped.
-    """
-    if not isinstance(msg, dict):
-        return False, "not a dict"
-
-    missing = REQUIRED_TOP_LEVEL - set(msg.keys())
-    if missing:
-        return False, f"missing keys: {sorted(missing)}"
-
-    mtype = msg.get("message_type")
-    if mtype not in VALID_MESSAGE_TYPES:
-        return False, f"unknown message_type: {mtype}"
-
-    if not isinstance(msg.get("msg_id"), str) or len(msg["msg_id"]) < 8:
-        return False, "invalid msg_id"
-
-    ttl = msg.get("ttl")
-    if not isinstance(ttl, int) or ttl < 0 or ttl > 16:
-        return False, "invalid ttl"
-
-    if not isinstance(msg.get("sender_node"), str) or not msg["sender_node"]:
-        return False, "invalid sender_node"
-
-    # Type-specific payload checks
-    if mtype == "AUDIT_MANIFEST":
-        if "file_sha256" not in msg or not isinstance(msg["file_sha256"], str):
-            return False, "AUDIT_MANIFEST missing file_sha256"
-        payload = msg.get("payload")
-        if not isinstance(payload, dict):
-            return False, "AUDIT_MANIFEST missing payload dict"
-        for key in ("municipality", "year", "chi_square", "shannon_entropy", "risk_level"):
-            if key not in payload:
-                return False, f"AUDIT_MANIFEST payload missing {key}"
-
-    elif mtype == "ATTESTATION":
-        payload = msg.get("payload")
-        if not isinstance(payload, dict):
-            return False, "ATTESTATION missing payload dict"
-        vote = payload.get("vote")
-        if vote not in ("AGREE", "CHALLENGE"):
-            return False, "ATTESTATION vote must be AGREE or CHALLENGE"
-        if "target_msg_id" not in payload:
-            return False, "ATTESTATION missing target_msg_id"
-        if "file_sha256" not in payload:
-            return False, "ATTESTATION missing file_sha256"
-
-    elif mtype == "HEARTBEAT":
-        # Minimal — only top-level fields required
-        pass
-
-    return True, "ok"
-
-
-# ---------------------------------------------------------------------------
-# Main mesh node
-# ---------------------------------------------------------------------------
-
-class P2PNetworkMesh:
-    """
-    Secure GossipSub-style P2P validation node.
-    All network work runs in daemon threads; the object itself is safe to
-    hold from Streamlit session_state.
-    """
-
-    def __init__(
-        self,
-        host: str = "127.0.0.1",
-        port: int = 6001,
-        node_id: Optional[str] = None,
-        hmac_secret: Optional[bytes] = None,
-        fanout: int = DEFAULT_FANOUT,
-    ) -> None:
-        self.host = host
-        self.port = port
-        self.node_id = node_id or f"Node_{secrets.token_hex(4)}"
-        self.hmac_secret = hmac_secret or HMAC_SECRET_ENV_FALLBACK
-        self.fanout = max(1, fanout)
-
-        self.is_active = False
-        self.server_socket: Optional[socket.socket] = None
-
-        # Peer management
-        self._peers_lock = threading.Lock()
-        self.peers: List[socket.socket] = []
-        self.peer_meta: Dict[socket.socket, Dict[str, Any]] = {}
-
-        # Deduplication
-        self.seen_messages = BoundedSeenSet(SEEN_SET_MAX)
-
-        # Inbound event queue for UI / third-tab consumption
-        self._inbox: List[Dict[str, Any]] = []
-        self._inbox_lock = threading.Lock()
-        self._inbox_max = 256
-
-        # Forensic core (optional)
-        self.core = ForensicCore() if ForensicCore is not None else None
-
-        # Background threads
-        self._heartbeat_thread: Optional[threading.Thread] = None
-        self._listen_thread: Optional[threading.Thread] = None
-
-    # ------------------------------------------------------------------
-    # Lifecycle
-    # ------------------------------------------------------------------
-
-    def start_node(self) -> None:
-        """Bind, listen and launch background threads."""
-        if self.is_active:
-            return
-
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            self.server_socket.bind((self.host, self.port))
-            self.server_socket.listen(8)
-            self.is_active = True
-            print(f"📡 [P2P Node {self.node_id}] Engine active on {self.host}:{self.port}")
-
-            self._listen_thread = threading.Thread(
-                target=self._listen_for_peers, daemon=True, name="p2p-listen"
-            )
-            self._listen_thread.start()
-
-            self._heartbeat_thread = threading.Thread(
-                target=self._heartbeat_loop, daemon=True, name="p2p-heartbeat"
-            )
-            self._heartbeat_thread.start()
-        except Exception as exc:
-            self.is_active = False
-            print(f"🚨 [P2P Node] Failed to start: {exc}")
-
-    def stop_node(self) -> None:
-        """Graceful shutdown."""
-        self.is_active = False
-        if self.server_socket:
-            try:
-                self.server_socket.close()
-            except OSError:
-                pass
-            self.server_socket = None
-
-        with self._peers_lock:
-            for sock in list(self.peers):
-                try:
-                    sock.close()
-                except OSError:
-                    pass
-            self.peers.clear()
-            self.peer_meta.clear()
-
-        print(f"🛑 [P2P Node {self.node_id}] Network engine offline.")
-
-    # ------------------------------------------------------------------
-    # Peer connection
-    # ------------------------------------------------------------------
-
-    def connect_to_peer(self, peer_host: str, peer_port: int) -> bool:
-        """Establish outbound TCP connection to another validator node."""
-        try:
-            peer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            peer_sock.settimeout(8.0)
-            peer_sock.connect((peer_host, peer_port))
-            peer_sock.settimeout(None)
-
-            with self._peers_lock:
-                self.peers.append(peer_sock)
-                self.peer_meta[peer_sock] = {
-                    "host": peer_host,
-                    "port": peer_port,
-                    "last_seen": time.monotonic(),
-                    "node_id": "unknown",
-                }
-            print(f"🔗 [P2P Node] Connected to {peer_host}:{peer_port}")
-            return True
-        except Exception as exc:
-            print(f"⚠️ [P2P Node] Cannot reach {peer_host}:{peer_port}: {exc}")
-            return False
-
-    # ------------------------------------------------------------------
-    # Message construction helpers
-    # ------------------------------------------------------------------
-
-    def _sign(self, msg: Dict[str, Any]) -> Dict[str, Any]:
-        msg["signature_hmac"] = _compute_hmac(self.hmac_secret, msg)
-        return msg
-
-    def build_audit_manifest(
-        self,
-        file_sha256: str,
-        municipality: str,
-        year: str,
-        chi_square: float,
-        shannon_entropy: float,
-        risk_level: str,
-        ttl: int = DEFAULT_TTL,
-    ) -> Dict[str, Any]:
-        """Construct a fully signed AUDIT_MANIFEST packet."""
-        msg = {
-            "message_type": "AUDIT_MANIFEST",
-            "msg_id": _generate_msg_id(),
-            "ttl": ttl,
-            "sender_node": self.node_id,
-            "timestamp_utc": _utc_now_iso(),
-            "version": PROTOCOL_VERSION,
-            "file_sha256": file_sha256,
-            "payload": {
-                "municipality": municipality,
-                "year": year,
-                "chi_square": float(chi_square),
-                "shannon_entropy": float(shannon_entropy),
+            return {
+                "label": "Budget Integrity Review",
                 "risk_level": risk_level,
-            },
-        }
-        return self._sign(msg)
+                "risk_label": risk_label,
+                "metrics": {
+                    "chi_square": round(chi2_score, 4),
+                    "shannon_entropy": round(entropy_score, 4),
+                    "amount_column_index": int(amount_column),
+                    "observation_count": len(values),
+                },
+                "tests": {
+                    "benford": {
+                        "score": round(chi2_score, 4),
+                        "critical_value": 10.0,
+                        "passed": chi2_score < 10.0,
+                    },
+                    "shannon": {
+                        "score": round(entropy_score, 4),
+                        "natural_minimum": 2.7,
+                        "passed": entropy_score >= 2.7,
+                    },
+                },
+            }
 
-    def build_attestation(
-        self,
-        target_msg_id: str,
-        file_sha256: str,
-        vote: str,
-        reason: str = "",
-        ttl: int = DEFAULT_TTL,
-    ) -> Dict[str, Any]:
-        """Construct a signed ATTESTATION (AGREE / CHALLENGE)."""
-        if vote not in ("AGREE", "CHALLENGE"):
-            raise ValueError("vote must be AGREE or CHALLENGE")
-        msg = {
-            "message_type": "ATTESTATION",
-            "msg_id": _generate_msg_id(),
-            "ttl": ttl,
-            "sender_node": self.node_id,
-            "timestamp_utc": _utc_now_iso(),
-            "version": PROTOCOL_VERSION,
-            "payload": {
-                "target_msg_id": target_msg_id,
-                "file_sha256": file_sha256,
-                "vote": vote,
-                "reason": reason,
-            },
-        }
-        return self._sign(msg)
 
-    def build_heartbeat(self) -> Dict[str, Any]:
-        """Ultra-small HEARTBEAT packet."""
-        msg = {
-            "message_type": "HEARTBEAT",
-            "msg_id": _generate_msg_id(),
-            "ttl": 1,
-            "sender_node": self.node_id,
-            "timestamp_utc": _utc_now_iso(),
-            "version": PROTOCOL_VERSION,
-            "payload": {
-                "peer_count": len(self.peers),
-                "uptime_hint": True,
-            },
-        }
-        return self._sign(msg)
+# ---------------------------------------------------------------------------
+# Pure-Python helpers (unchanged from v1.2)
+# ---------------------------------------------------------------------------
 
-    # ------------------------------------------------------------------
-    # Gossip broadcast
-    # ------------------------------------------------------------------
-
-    def broadcast_gossip(self, msg: Dict[str, Any]) -> int:
-        """
-        Epidemic-style fanout broadcast.
-        Returns number of peers that successfully received the packet.
-        """
-        # Ensure signed
-        if "signature_hmac" not in msg:
-            msg = self._sign(msg)
-
-        # Mark as seen locally so we don't re-process our own broadcast
-        self.seen_messages.add(msg["msg_id"])
-
-        payload = json.dumps(msg, ensure_ascii=False).encode("utf-8")
-        if len(payload) > MAX_MESSAGE_BYTES:
-            print("🚨 [Gossip] Packet exceeds MAX_MESSAGE_BYTES — dropped")
-            return 0
-
-        sent = 0
-        dead: List[socket.socket] = []
-
-        with self._peers_lock:
-            # Random subset for fanout (simple shuffle via secrets)
-            candidates = list(self.peers)
-            if len(candidates) > self.fanout:
-                # Partial Fisher-Yates using secrets
-                for i in range(self.fanout):
-                    j = secrets.randbelow(len(candidates) - i) + i
-                    candidates[i], candidates[j] = candidates[j], candidates[i]
-                candidates = candidates[: self.fanout]
-
-            for sock in candidates:
-                try:
-                    sock.sendall(payload + b"\n")
-                    sent += 1
-                except Exception:
-                    dead.append(sock)
-
-            for sock in dead:
-                self._remove_peer(sock)
-
-        return sent
-
-    def _remove_peer(self, sock: socket.socket) -> None:
-        """Internal: close and forget a peer (caller must hold _peers_lock)."""
+def _read_csv_rows(csv_path: str | os.PathLike[str]) -> List[List[str]]:
+    """Read a CSV file using the stdlib-only parser and delimiter sniffing."""
+    path = Path(csv_path)
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        sample = handle.read(4096)
+        handle.seek(0)
         try:
-            sock.close()
-        except OSError:
-            pass
-        if sock in self.peers:
-            self.peers.remove(sock)
-        self.peer_meta.pop(sock, None)
+            dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
+            reader = csv.reader(handle, dialect)
+        except csv.Error:
+            reader = csv.reader(handle)
+        rows = [row for row in reader if row and any(cell.strip() for cell in row)]
+    return [[cell.strip() for cell in row] for row in rows]
 
-    # ------------------------------------------------------------------
-    # Inbound processing pipeline
-    # ------------------------------------------------------------------
 
-    def _listen_for_peers(self) -> None:
-        while self.is_active and self.server_socket:
-            try:
-                client_sock, address = self.server_socket.accept()
-                client_sock.settimeout(30.0)
-                t = threading.Thread(
-                    target=self._handle_peer_stream,
-                    args=(client_sock, address),
-                    daemon=True,
-                    name=f"p2p-peer-{address[0]}:{address[1]}",
-                )
-                t.start()
-            except OSError:
-                break
-            except Exception:
-                if not self.is_active:
-                    break
+def _parse_numeric_token(value: Any) -> float | None:
+    """Convert a cell value into a float when it looks like a monetary amount."""
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
 
-    def _handle_peer_stream(self, client_sock: socket.socket, address: Tuple[str, int]) -> None:
+    text = str(value).strip()
+    if not text:
+        return None
+    if re.fullmatch(r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", text):
+        return None
+    if re.fullmatch(r"\d+%", text):
+        return None
+    if re.fullmatch(r"[A-Za-z]+", text):
+        return None
+
+    cleaned = text.replace("€", "").replace("$", "").replace("£", "").replace("¥", "").replace("₹", "")
+    cleaned = cleaned.replace(" ", "").replace("'", "")
+    cleaned = cleaned.replace("\u00a0", "")
+
+    if "," in cleaned and "." in cleaned:
+        if cleaned.rfind(",") > cleaned.rfind("."):
+            cleaned = cleaned.replace(".", "").replace(",", ".")
+        else:
+            cleaned = cleaned.replace(",", "")
+    elif "," in cleaned:
+        if cleaned.count(",") == 1 and len(cleaned.split(",")[-1]) in (2, 3):
+            cleaned = cleaned.replace(",", ".")
+        else:
+            cleaned = cleaned.replace(",", "")
+
+    try:
+        numeric = float(cleaned)
+    except ValueError:
+        return None
+    if abs(numeric) > 1e12:
+        return None
+    return numeric
+
+
+def _calculate_chi_square(values: Iterable[float]) -> float:
+    """Compute a simple chi-square deviation score from leading digits (1-9 only)."""
+    digit_counts = {str(d): 0 for d in range(1, 10)}
+    total = 0
+    for value in values:
+        if value == 0:
+            continue
+        clean_str = f"{abs(value):.10f}".replace(".", "").lstrip("0")
+        if not clean_str:
+            continue
+        first = clean_str[0]
+        if first in digit_counts:
+            digit_counts[first] += 1
+            total += 1
+
+    if total == 0:
+        return 0.0
+
+    expected_pct = [0, 0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
+    score = 0.0
+    for digit in range(1, 10):
+        observed = digit_counts[str(digit)]
+        exp = total * expected_pct[digit]
+        if exp > 0:
+            score += ((observed - exp) ** 2) / exp
+    return score
+
+
+def _calculate_shannon_entropy(values: Iterable[float]) -> float:
+    """Estimate Shannon entropy from the leading-digit distribution (1-9 only)."""
+    counts: Dict[str, int] = {str(d): 0 for d in range(1, 10)}
+    total = 0
+    for value in values:
+        if value == 0:
+            continue
+        clean_str = f"{abs(value):.10f}".replace(".", "").lstrip("0")
+        if not clean_str:
+            continue
+        digit = clean_str[0]
+        if digit in counts:
+            counts[digit] += 1
+            total += 1
+
+    if total == 0:
+        return 0.0
+
+    entropy = 0.0
+    for count in counts.values():
+        if count == 0:
+            continue
+        probability = count / total
+        entropy -= probability * math.log2(probability)
+    return entropy
+
+
+def _classify_risk(chi_square: float, shannon: float) -> Tuple[str, str]:
+    """Translate metrics into a public-facing risk level."""
+    if chi_square > 12.0 or shannon < 2.5:
+        return "HIGH", "Significant anomaly pattern detected"
+    if chi_square > 5.0 or shannon < 2.9:
+        return "MEDIUM", "Moderate irregularities detected"
+    return "LOW", "No immediate irregularity signal"
+
+
+def _calculate_file_hash(file_obj: Any) -> str:
+    """Return the SHA256 hash for an uploaded file object."""
+    hasher = hashlib.sha256()
+    for chunk in iter(lambda: file_obj.read(65536), b""):
+        hasher.update(chunk)
+    file_obj.seek(0)
+    return hasher.hexdigest()
+
+
+def _save_uploaded_csv(uploaded_file: Any) -> Path:
+    """Persist an uploaded CSV to a temp location and return the path."""
+    temp_dir = Path(tempfile.mkdtemp(prefix="bb_dashboard_"))
+    output_path = temp_dir / uploaded_file.name
+    with output_path.open("wb") as handle:
+        handle.write(uploaded_file.getvalue())
+    return output_path
+
+
+def _infer_header_name(csv_path: str | os.PathLike[str], amount_column: int) -> str:
+    """Return the header label associated with the selected amount column."""
+    rows = _read_csv_rows(csv_path)
+    if not rows:
+        return "unnamed_column"
+    if amount_column >= len(rows[0]):
+        return "unnamed_column"
+    return rows[0][amount_column]
+
+
+def _build_column_explanation(csv_path: str | os.PathLike[str], amount_column: int, values: List[float]) -> str:
+    """Create a human-readable explanation for the detected amount column."""
+    total = max(len(values), 1)
+    numeric_count = 0
+    integer_like = 0
+    for value in values:
+        numeric_count += 1
+        if abs(value - round(value)) < 1e-9:
+            integer_like += 1
+
+    header_name = _infer_header_name(csv_path, amount_column)
+    reason = (
+        f"AutoAdapter selected column #{amount_column} ({header_name or 'unnamed_column'}) because the header matched financial terminology "
+        f"and {numeric_count}/{total} rows parsed as numeric monetary values."
+    )
+    if total and integer_like / total > 0.7:
+        reason += " The values are predominantly integer-like, which is consistent with rounded administrative totals or standardized ledger entries."
+    else:
+        reason += " The values include fractional amounts, which is consistent with transaction-level financial entries and merits deeper review."
+    return reason
+
+
+def _build_chart_image(metrics: Dict[str, Any], output_path: str | os.PathLike[str]) -> str:
+    """Generate a simple visual chart used by the PDF report and dashboard."""
+    fig, ax = plt.subplots(figsize=(8, 4.4))
+    values = [metrics.get("chi_square", 0.0), metrics.get("shannon_entropy", 0.0)]
+    labels = ["Chi² score", "Entropy"]
+    colours = ["#d72638" if values[0] >= 5 else "#2f9e44", "#0d6efd" if values[1] >= 2.9 else "#f59f00"]
+
+    bars = ax.bar(labels, values, color=colours, width=0.6)
+    ax.set_ylim(0, max(10.0, max(values) * 1.5 + 1.0))
+    ax.set_ylabel("Value")
+    ax.set_title("Risk signal overview")
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+
+    for bar, value in zip(bars, values):
+        height = float(value)
+        ax.text(bar.get_x() + bar.get_width() / 2, height + 0.1, f"{height:.2f}", ha="center", va="bottom")
+
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    return str(output_path)
+
+
+def _ensure_public_pdf(pdf_generator: ForensicPDFGenerator, audit_result: Dict[str, Any], chart_path: str, output_path: str) -> str:
+    """Create the final public forensic report certificate and return the path."""
+    return pdf_generator.generate_report(audit_result, chart_path, output_path)
+
+
+def _build_provenance_header(metadata: Dict[str, str]) -> Dict[str, str]:
+    """Create a structured provenance header for downstream processing and export."""
+    return {
+        "source_link": metadata.get("source_link", "").strip(),
+        "country": metadata.get("country", "").strip(),
+        "municipality": metadata.get("municipality", "").strip(),
+        "year": metadata.get("year", "").strip(),
+        "uploaded_by": metadata.get("uploaded_by", "").strip(),
+        "file_hash": metadata.get("file_hash", "").strip(),
+    }
+
+
+def _build_manifest(audit_result: Dict[str, Any], metadata: Dict[str, str], file_hash: str) -> Dict[str, Any]:
+    """Generate the JSON export payload used as the public manifest."""
+    metrics = audit_result.get("metrics", {})
+    provenance = _build_provenance_header(metadata)
+    provenance["file_hash"] = file_hash
+
+    manifest = {
+        "schema_version": "1.0.0-mvp",
+        "dataset_name": audit_result.get("dataset_name", "unknown_dataset"),
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "file_sha256": file_hash,
+        "provenance": provenance,
+        "amount_column": {
+            "index": int(metrics.get("amount_column_index", 0)),
+            "explanation": audit_result.get("amount_column_explanation", "AutoAdapter selected the amount column."),
+        },
+        "risk": {
+            "level": audit_result.get("risk_level", "UNKNOWN"),
+            "label": audit_result.get("risk_label", "No risk label supplied."),
+        },
+        "metrics": {
+            "chi_square": float(metrics.get("chi_square", 0.0)),
+            "shannon_entropy": float(metrics.get("shannon_entropy", 0.0)),
+            "observation_count": int(metrics.get("observation_count", 0)),
+        },
+        "tests": audit_result.get("tests", {}),
+    }
+    return manifest
+
+
+def _build_audit_result(csv_file: str | os.PathLike[str], metadata: Dict[str, str]) -> Dict[str, Any]:
+    """Run the automated budget pipeline and return the structured result object."""
+    amount_column = detect_amount_column_from_csv(csv_file)
+    core = ForensicCore()
+    result = core.analyze(csv_file, amount_column=amount_column) if hasattr(core, "analyze") else ForensicCore.analyze(csv_file, amount_column)
+
+    values: List[float] = []
+    for row in _read_csv_rows(csv_file)[1:]:
+        if amount_column >= len(row):
+            continue
+        numeric_value = _parse_numeric_token(row[amount_column])
+        if numeric_value is not None:
+            values.append(float(numeric_value))
+
+    result["dataset_name"] = Path(csv_file).name
+    result["provenance"] = _build_provenance_header(metadata)
+    result["amount_column_explanation"] = _build_column_explanation(csv_file, amount_column, values)
+    result["source_link"] = metadata.get("source_link", "")
+    result["country"] = metadata.get("country", "")
+    result["municipality"] = metadata.get("municipality", "")
+    result["year"] = metadata.get("year", "")
+    result["uploaded_by"] = metadata.get("uploaded_by", "")
+    result["file_hash"] = metadata.get("file_hash", "")
+    return result
+
+
+def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, json_path: str | None = None) -> None:
+    """Render the stat cards and summary panels in the dashboard."""
+    risk_level = str(audit_result.get("risk_level", "LOW")).upper()
+    chi_score = float(audit_result.get("metrics", {}).get("chi_square", 0.0))
+    entropy_score = float(audit_result.get("metrics", {}).get("shannon_entropy", 0.0))
+    amount_column = int(audit_result.get("metrics", {}).get("amount_column_index", 0))
+    observations = int(audit_result.get("metrics", {}).get("observation_count", 0))
+    file_hash = str(audit_result.get("file_hash", "")).strip()
+
+    risk_colors = {
+        "LOW": "#2f9e44",
+        "MEDIUM": "#f59f00",
+        "HIGH": "#d72638",
+    }
+
+    audit_notes_map = {
+        "HIGH": (
+            "⚠️ **CRITICAL FINDINGS DETECTED**\n\n"
+            "The forensic analysis has identified a statistically significant anomaly pattern in this dataset. "
+            "First-digit distribution and entropy measurements deviate substantially from Benford's Law expectations. "
+            "This suggests either: (1) potential data fabrication or manual rounding, (2) genuine structural anomalies in the financial records, "
+            "or (3) domain-specific legitimate patterns warranting human expert review. "
+            "**Manual auditor verification is strongly recommended before publication or policy action.**"
+        ),
+        "MEDIUM": (
+            "⚡ **MODERATE IRREGULARITIES DETECTED**\n\n"
+            "The analysis has identified moderate deviations from Benford's Law baseline expectations. "
+            "While not critical, these irregularities warrant closer examination by a financial auditor. "
+            "The dataset shows patterns consistent with either natural variation or minor data quality issues. "
+            "Consider performing targeted spot-checks on high-value transactions and date-range analysis."
+        ),
+        "LOW": (
+            "✓ **INTEGRITY INDICATORS PASS**\n\n"
+            "Statistical analysis shows no immediate anomaly signals. First-digit distribution aligns with Benford's Law expectations, "
+            "and Shannon entropy remains within natural ranges. Data distribution appears consistent with authentic financial records. "
+            "**Important:** This test is a mathematical integrity indicator and does not replace manual accounting review or institutional audit protocols."
+        ),
+    }
+
+    st.subheader("Risk overview")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Risk level", risk_level, delta_color="off")
+    col2.metric("Benford chi-square", f"{chi_score:.4f}")
+    col3.metric("Shannon entropy", f"{entropy_score:.4f} bits")
+
+    st.caption(f"Detected amount column: #{amount_column} · Records analyzed: {observations}")
+    st.info(audit_result.get("amount_column_explanation", "AutoAdapter isolated the monetary column with a statistically valid threshold."))
+
+    st.markdown(
+        f"<div style='padding: 14px; border-radius: 10px; background: {risk_colors.get(risk_level, '#2f9e44')}; color: white; font-weight: 700;'>"
+        f"{audit_result.get('risk_label', 'No risk label available')}"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.write("---")
+
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Metric detail")
+
+        html_table = f"""
+        <table style="
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            border: 1px solid #dfe2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        ">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Metric</th>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Value</th>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Benchmark</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Benford chi-square</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2; font-family: monospace;">{chi_score:.4f}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Lower is better</td>
+                </tr>
+                <tr style="background-color: #fcfcfd;">
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Shannon entropy</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2; font-family: monospace;">{entropy_score:.4f}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Higher indicates greater distribution variability</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Amount column index</td>
+                    <td style="padding: 10px; font-family: monospace;">#{amount_column}</td>
+                    <td style="padding: 10px;">Detected automatically</td>
+                </tr>
+            </tbody>
+        </table>
         """
-        Read length-delimited (newline-terminated) JSON packets.
-        Soft-fail on every error — never let one bad peer kill the node.
-        """
-        buffer = b""
-        try:
-            while self.is_active:
-                chunk = client_sock.recv(8192)
-                if not chunk:
-                    break
-                buffer += chunk
+        st.markdown(html_table, unsafe_allow_html=True)
 
-                # Process complete lines
-                while b"\n" in buffer:
-                    line, buffer = buffer.split(b"\n", 1)
-                    if not line.strip():
-                        continue
-                    if len(line) > MAX_MESSAGE_BYTES:
-                        print(f"🚨 [P2P] Oversized packet from {address} — dropped")
-                        continue
-                    self._process_inbound(line, client_sock, address)
-        except Exception:
-            pass
-        finally:
-            try:
-                client_sock.close()
-            except OSError:
-                pass
+    with right:
+        st.subheader("Audit notes")
+        st.markdown(audit_notes_map.get(risk_level, audit_notes_map["LOW"]))
 
-    def _process_inbound(
-        self,
-        raw: bytes,
-        source_sock: socket.socket,
-        address: Tuple[str, int],
-    ) -> None:
-        """Full validation pipeline for one inbound packet."""
-        # 1. JSON decode
-        try:
-            msg = json.loads(raw.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            print(f"🚨 [P2P] Malformed JSON from {address} — dropped")
-            return
+        if file_hash:
+            st.divider()
+            st.markdown("**Dataset Hash (SHA256)**")
+            st.code(file_hash, language="text")
 
-        # 2. Strict schema validation
-        ok, reason = _validate_schema(msg)
-        if not ok:
-            print(f"🚨 [P2P] Schema reject from {address}: {reason}")
-            return
+        if pdf_path or json_path:
+            st.divider()
+            st.markdown("**Export & Download**")
 
-        # 3. Cryptographic signature check
-        if not _verify_hmac(self.hmac_secret, msg):
-            print(f"🚨 [P2P] HMAC failure from {address} (sender={msg.get('sender_node')}) — dropped")
-            return
+        if pdf_path:
+            with open(pdf_path, "rb") as handle:
+                pdf_bytes = handle.read()
+            st.download_button(
+                label="📄 Download forensic PDF certificate",
+                data=pdf_bytes,
+                file_name=Path(pdf_path).name,
+                mime="application/pdf",
+                use_container_width=True,
+            )
+        if json_path:
+            with open(json_path, "rb") as handle:
+                manifest_bytes = handle.read()
+            st.download_button(
+                label="📋 Download audit manifest JSON",
+                data=manifest_bytes,
+                file_name=Path(json_path).name,
+                mime="application/json",
+                use_container_width=True,
+            )
 
-        # 4. Seen-set deduplication
-        msg_id = msg["msg_id"]
-        is_new = self.seen_messages.add(msg_id)
-        if not is_new:
-            # Duplicate — silently ignore (already processed / rebroadcast)
-            return
 
-        # 5. Update peer meta if we know this socket
-        with self._peers_lock:
-            if source_sock in self.peer_meta:
-                self.peer_meta[source_sock]["last_seen"] = time.monotonic()
-                self.peer_meta[source_sock]["node_id"] = msg.get("sender_node", "unknown")
-
-        # 6. Dispatch by type
-        mtype = msg["message_type"]
-        print(f"📥 [P2P Node {self.node_id}] {mtype} from {msg.get('sender_node')} (ttl={msg.get('ttl')})")
-
-        if mtype == "AUDIT_MANIFEST":
-            self._handle_audit_manifest(msg)
-        elif mtype == "ATTESTATION":
-            self._handle_attestation(msg)
-        elif mtype == "HEARTBEAT":
-            self._handle_heartbeat(msg, source_sock)
-
-        # 7. Push to inbox for UI / third-tab consumers
-        self._push_inbox(msg)
-
-        # 8. Re-broadcast if TTL remains (epidemic gossip)
-        ttl = msg.get("ttl", 0)
-        if ttl > 1:
-            rebroadcast = dict(msg)
-            rebroadcast["ttl"] = ttl - 1
-            # Re-sign after TTL mutation
-            rebroadcast = self._sign(rebroadcast)
-            self.broadcast_gossip(rebroadcast)
-
-    # ------------------------------------------------------------------
-    # Type-specific handlers
-    # ------------------------------------------------------------------
-
-    def _handle_audit_manifest(self, msg: Dict[str, Any]) -> None:
-        """Autonomous validation loop for an incoming AUDIT_MANIFEST."""
-        payload = msg.get("payload", {})
-        municipality = payload.get("municipality", "Unknown")
-        file_hash = msg.get("file_sha256", "")
-        chi2 = payload.get("chi_square", 0.0)
-        entropy = payload.get("shannon_entropy", 0.0)
-        risk = payload.get("risk_level", "UNKNOWN")
-
-        print(f"🔄 [Agent Loop] Independent check → {municipality} | Chi²={chi2} Entropy={entropy} Risk={risk}")
-
-        # In a full deployment the node would fetch the original CSV via
-        # evidence-request / IPFS and re-run ForensicCore.analyze().
-        # For v2.0 bootstrap we perform a lightweight consistency attestation
-        # based on the cryptographic hash and declared metrics.
-        vote = "AGREE"
-        reason = "Metrics and hash accepted under current local policy"
-
-        # Optional deeper check if ForensicCore is present and local data available
-        if self.core is not None:
-            # Placeholder for future local re-computation
-            pass
-
-        attestation = self.build_attestation(
-            target_msg_id=msg["msg_id"],
-            file_sha256=file_hash,
-            vote=vote,
-            reason=reason,
-        )
-        self.broadcast_gossip(attestation)
-        print(f"🔒 [Signature] Node {self.node_id} issued {vote} for {municipality}")
-
-    def _handle_attestation(self, msg: Dict[str, Any]) -> None:
-        payload = msg.get("payload", {})
-        vote = payload.get("vote")
-        target = payload.get("target_msg_id")
-        sender = msg.get("sender_node")
-        print(f"🗳️  [Attestation] {sender} voted {vote} on {target}")
-
-    def _handle_heartbeat(self, msg: Dict[str, Any], source_sock: socket.socket) -> None:
-        # last_seen already updated in _process_inbound
+def _get_last_audit_metadata(db: DatabaseRegistry) -> Dict[str, str]:
+    """Fetch the most recent audit's provenance metadata from the registry for form auto-population fallback."""
+    try:
+        last_audits = db.fetch_all_audits(limit=1)
+        if last_audits:
+            audit = last_audits[0]
+            manifest = audit.get("manifest", {})
+            provenance = manifest.get("provenance", {})
+            return {
+                "source_link": provenance.get("source_link", ""),
+                "country": provenance.get("country", ""),
+                "municipality": provenance.get("municipality", ""),
+                "year": provenance.get("year", ""),
+                "uploaded_by": provenance.get("uploaded_by", ""),
+            }
+    except Exception:
         pass
+    return {"source_link": "", "country": "", "municipality": "", "year": "", "uploaded_by": ""}
 
-    # ------------------------------------------------------------------
-    # Heartbeat + dead-peer pruning
-    # ------------------------------------------------------------------
 
-    def _heartbeat_loop(self) -> None:
-        while self.is_active:
-            time.sleep(HEARTBEAT_INTERVAL_SEC)
-            if not self.is_active:
-                break
-            hb = self.build_heartbeat()
-            self.broadcast_gossip(hb)
-            self._prune_dead_peers()
+def _render_audit_registry(db: DatabaseRegistry) -> None:
+    """Render the historical audit registry tab."""
+    st.subheader("Registry Statistics")
 
-    def _prune_dead_peers(self) -> None:
-        now = time.monotonic()
-        with self._peers_lock:
-            dead = [
-                sock
-                for sock, meta in self.peer_meta.items()
-                if now - meta.get("last_seen", 0) > PEER_TIMEOUT_SEC
-            ]
-            for sock in dead:
-                meta = self.peer_meta.get(sock, {})
-                print(f"💀 [P2P] Pruning dead peer {meta.get('node_id')} ({meta.get('host')}:{meta.get('port')})")
-                self._remove_peer(sock)
+    total_count = db.get_audit_count()
+    risk_summary = db.get_risk_summary()
 
-    # ------------------------------------------------------------------
-    # Inbox for Streamlit third-tab consumption
-    # ------------------------------------------------------------------
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total audits", total_count)
+    col2.metric("🔴 High risk", risk_summary.get("HIGH", 0))
+    col3.metric("🟡 Medium risk", risk_summary.get("MEDIUM", 0))
+    col4.metric("🟢 Low risk", risk_summary.get("LOW", 0))
 
-    def _push_inbox(self, msg: Dict[str, Any]) -> None:
-        with self._inbox_lock:
-            self._inbox.append(msg)
-            while len(self._inbox) > self._inbox_max:
-                self._inbox.pop(0)
+    st.write("---")
 
-    def drain_inbox(self) -> List[Dict[str, Any]]:
-        """Return and clear the current inbox (thread-safe)."""
-        with self._inbox_lock:
-            items = list(self._inbox)
-            self._inbox.clear()
-            return items
+    if total_count == 0:
+        st.info("No audits have been registered yet. Upload and process a CSV to begin building the historical registry.")
+        return
 
-    def peek_inbox(self) -> List[Dict[str, Any]]:
-        """Non-destructive view of the inbox."""
-        with self._inbox_lock:
-            return list(self._inbox)
+    st.subheader("Filter & Search")
+    filter_col1, filter_col2 = st.columns(2)
 
-    # ------------------------------------------------------------------
-    # Status helpers (for UI)
-    # ------------------------------------------------------------------
+    with filter_col1:
+        filter_risk = st.selectbox("Filter by risk level", ["All", "HIGH", "MEDIUM", "LOW"], key="filter_risk")
 
-    def status(self) -> Dict[str, Any]:
-        with self._peers_lock:
-            peer_count = len(self.peers)
-            peer_list = [
-                {
-                    "node_id": meta.get("node_id"),
-                    "host": meta.get("host"),
-                    "port": meta.get("port"),
-                    "last_seen_ago_sec": round(time.monotonic() - meta.get("last_seen", 0), 1),
-                }
-                for meta in self.peer_meta.values()
-            ]
-        return {
-            "node_id": self.node_id,
-            "is_active": self.is_active,
-            "listen": f"{self.host}:{self.port}",
-            "peer_count": peer_count,
-            "peers": peer_list,
-            "seen_messages": len(self.seen_messages),
-            "inbox_size": len(self._inbox),
-            "protocol_version": PROTOCOL_VERSION,
-        }
+    with filter_col2:
+        limit_records = st.number_input("Limit records displayed", min_value=1, max_value=1000, value=50, step=10)
+
+    if filter_risk == "All":
+        audits = db.fetch_all_audits(limit=limit_records)
+    else:
+        audits = db.fetch_audits_by_risk_level(filter_risk)
+        audits = audits[:limit_records]
+
+    if not audits:
+        st.warning(f"No audits found with risk level: {filter_risk}")
+        return
+
+    st.subheader(f"Audit Records ({len(audits)})")
+
+    for idx, audit in enumerate(audits, start=1):
+        with st.expander(
+            f"#{audit['id']} · {audit['dataset_name']} · {audit['risk_level']} · {audit['country'] or 'N/A'} · {audit['audit_year'] or 'N/A'}"
+        ):
+            risk_colors = {"HIGH": "#d72638", "MEDIUM": "#f59f00", "LOW": "#2f9e44"}
+            risk_color = risk_colors.get(audit["risk_level"], "#999")
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Risk level", audit["risk_level"], delta_color="off")
+            col2.metric("Chi² score", f"{audit['chi_square']:.4f}")
+            col3.metric("Shannon entropy", f"{audit['shannon_entropy']:.4f}")
+
+            st.markdown("**Provenance**")
+            prov_cols = st.columns(2)
+            with prov_cols[0]:
+                st.write(f"**Country:** {audit['country'] or 'N/A'}")
+                st.write(f"**Municipality:** {audit['municipality'] or 'N/A'}")
+                st.write(f"**Year:** {audit['audit_year'] or 'N/A'}")
+            with prov_cols[1]:
+                st.write(f"**Uploaded by:** {audit['uploaded_by'] or 'N/A'}")
+                st.write(f"**Source:** {audit['source_link'] or 'N/A'}")
+
+            st.markdown("**Analysis Metrics**")
+            metric_cols = st.columns(3)
+            with metric_cols[0]:
+                st.write(f"**Observations:** {audit['observation_count']}")
+            with metric_cols[1]:
+                st.write(f"**Amount column:** #{audit['amount_column_index']}")
+            with metric_cols[2]:
+                benford_status = "✓ Passed" if audit["benford_passed"] else "✗ Failed"
+                shannon_status = "✓ Passed" if audit["shannon_passed"] else "✗ Failed"
+                st.write(f"**Benford:** {benford_status}")
+                st.write(f"**Shannon:** {shannon_status}")
+
+            st.markdown("**Timestamps**")
+            ts_cols = st.columns(2)
+            with ts_cols[0]:
+                st.caption(f"**Audit:** {audit['generated_at_utc'][:19]}")
+            with ts_cols[1]:
+                st.caption(f"**Registered:** {audit['registered_at_utc'][:19]}")
+
+            st.markdown("**Dataset Hash**")
+            st.code(audit["file_sha256"], language="text")
+
+            with st.expander("View full manifest (JSON)"):
+                st.json(audit.get("manifest", {}))
 
 
 # ---------------------------------------------------------------------------
-# Local smoke-test / validation compilation entry-point
+# Phase 3 — Mesh Validation Network tab (Lazy-Polling)
 # ---------------------------------------------------------------------------
+
+def _ensure_mesh_node(port: int = 6001) -> Optional[Any]:
+    """
+    Lazily create or return the P2PNetworkMesh instance stored in session_state.
+    The node object lives across Streamlit reruns; network work stays in daemon threads.
+    """
+    if not MESH_AVAILABLE or P2PNetworkMesh is None:
+        return None
+
+    if "mesh_node" not in st.session_state or st.session_state.mesh_node is None:
+        st.session_state.mesh_node = P2PNetworkMesh(
+            host="127.0.0.1",
+            port=port,
+            node_id=f"Node_{secrets_token_hex_safe()}",
+        )
+    return st.session_state.mesh_node
+
+
+def secrets_token_hex_safe(nbytes: int = 4) -> str:
+    """Tiny helper so we do not need to import secrets at module level for the fallback path."""
+    import secrets
+    return secrets.token_hex(nbytes)
+
+
+def _render_mesh_tab() -> None:
+    """
+    Third tab: 🌐 Mesh Validation Network
+    Thread-safe node control + live telemetry via Lazy-Polling.
+    """
+    st.subheader("🌐 Mesh Validation Network")
+    st.caption(
+        "Secure GossipSub transport layer · stdlib-only · HMAC-SHA256 signed packets · "
+        "bounded seen-set · automatic dead-peer pruning"
+    )
+
+    if not MESH_AVAILABLE:
+        st.error(
+            "P2PNetworkMesh module not found. Place the validated `p2p_network_mesh.py` "
+            "from Phase 2 next to `app.py` and restart the dashboard."
+        )
+        return
+
+    # ---- Node control panel ----
+    st.markdown("### Node Control")
+    ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 1, 1])
+
+    with ctrl_col1:
+        listen_port = st.number_input(
+            "Local listener port",
+            min_value=1024,
+            max_value=65535,
+            value=int(st.session_state.get("mesh_port", 6001)),
+            step=1,
+            key="mesh_port_input",
+        )
+        st.session_state.mesh_port = listen_port
+
+    node = _ensure_mesh_node(port=int(listen_port))
+
+    with ctrl_col2:
+        if st.button("▶️ Start P2P Engine", use_container_width=True, type="primary"):
+            if node is not None:
+                # Recreate if port changed
+                if getattr(node, "port", None) != int(listen_port) or not node.is_active:
+                    if node.is_active:
+                        node.stop_node()
+                    st.session_state.mesh_node = P2PNetworkMesh(
+                        host="127.0.0.1",
+                        port=int(listen_port),
+                        node_id=node.node_id,
+                    )
+                    node = st.session_state.mesh_node
+                node.start_node()
+                st.success(f"Engine active on 127.0.0.1:{listen_port}")
+                st.rerun()
+
+    with ctrl_col3:
+        if st.button("⏹ Stop P2P Engine", use_container_width=True):
+            if node is not None and node.is_active:
+                node.stop_node()
+                st.info("Engine stopped.")
+                st.rerun()
+
+    # ---- Telemetry grid (from node.status()) ----
+    st.markdown("### Live Telemetry")
+    if node is None:
+        st.warning("Mesh node not initialised.")
+        return
+
+    status = node.status()
+    is_active = status.get("is_active", False)
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Node ID", status.get("node_id", "—"))
+    m2.metric("Engine", "🟢 ACTIVE" if is_active else "🔴 OFFLINE")
+    m3.metric("Connected peers", status.get("peer_count", 0))
+    m4.metric("Seen messages", status.get("seen_messages", 0))
+
+    # Peer table (native HTML, no pandas)
+    peers = status.get("peers", [])
+    if peers:
+        st.markdown("#### Active Peers")
+        rows_html = ""
+        for p in peers:
+            rows_html += (
+                f"<tr>"
+                f"<td style='padding:8px;border-bottom:1px solid #eef0f2;font-family:monospace;'>{p.get('node_id','?')}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #eef0f2;'>{p.get('host','?')}:{p.get('port','?')}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #eef0f2;'>{p.get('last_seen_ago_sec','?')} s ago</td>"
+                f"</tr>"
+            )
+        peer_table = f"""
+        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;border:1px solid #dfe2e6;border-radius:8px;overflow:hidden;">
+            <thead>
+                <tr style="background:#f8f9fa;">
+                    <th style="text-align:left;padding:10px;border-bottom:1px solid #dfe2e6;">Node ID</th>
+                    <th style="text-align:left;padding:10px;border-bottom:1px solid #dfe2e6;">Address</th>
+                    <th style="text-align:left;padding:10px;border-bottom:1px solid #dfe2e6;">Last seen</th>
+                </tr>
+            </thead>
+            <tbody>{rows_html}</tbody>
+        </table>
+        """
+        st.markdown(peer_table, unsafe_allow_html=True)
+    else:
+        st.caption("No active peers yet. Use **Connect to peer** below or wait for inbound connections.")
+
+    # Manual peer connection
+    with st.expander("🔗 Connect to remote peer"):
+        peer_host = st.text_input("Peer host", value="127.0.0.1", key="peer_host_input")
+        peer_port = st.number_input("Peer port", min_value=1024, max_value=65535, value=6002, key="peer_port_input")
+        if st.button("Connect", key="connect_peer_btn"):
+            if node.is_active:
+                ok = node.connect_to_peer(peer_host, int(peer_port))
+                if ok:
+                    st.success(f"Connected to {peer_host}:{peer_port}")
+                else:
+                    st.error("Connection failed.")
+                st.rerun()
+            else:
+                st.warning("Start the P2P engine first.")
+
+    st.write("---")
+
+    # ---- Incoming gossip stream (drain_inbox) ----
+    st.markdown("### Incoming Gossip Stream")
+    refresh_col, clear_col = st.columns([1, 1])
+    with refresh_col:
+        if st.button("🔄 Refresh inbox", use_container_width=True):
+            st.rerun()
+    with clear_col:
+        if st.button("🗑 Clear local history view", use_container_width=True):
+            st.session_state.mesh_history = []
+            st.rerun()
+
+    # Accumulate history in session_state so the operator can review past packets
+    if "mesh_history" not in st.session_state:
+        st.session_state.mesh_history = []
+
+    if node.is_active:
+        new_packets = node.drain_inbox()
+        for pkt in new_packets:
+            st.session_state.mesh_history.append(pkt)
+        # Keep a bounded local view
+        if len(st.session_state.mesh_history) > 200:
+            st.session_state.mesh_history = st.session_state.mesh_history[-200:]
+
+    history = st.session_state.mesh_history
+    if not history:
+        st.info("Inbox empty. When other validators broadcast AUDIT_MANIFEST or ATTESTATION packets they will appear here.")
+    else:
+        st.caption(f"Showing last {len(history)} packets (newest first)")
+        for pkt in reversed(history[-50:]):  # newest first, limited display
+            mtype = pkt.get("message_type", "?")
+            sender = pkt.get("sender_node", "?")
+            ts = pkt.get("timestamp_utc", "")[:19]
+            msg_id = pkt.get("msg_id", "")[:18]
+
+            icon = {"AUDIT_MANIFEST": "📦", "ATTESTATION": "🗳️", "HEARTBEAT": "💓"}.get(mtype, "📨")
+            title = f"{icon} {mtype} · {sender} · {ts}"
+
+            with st.expander(title):
+                if mtype == "AUDIT_MANIFEST":
+                    payload = pkt.get("payload", {})
+                    st.markdown(
+                        f"**Municipality:** {payload.get('municipality', '—')}  \n"
+                        f"**Year:** {payload.get('year', '—')}  \n"
+                        f"**Chi²:** `{payload.get('chi_square', '—')}`  \n"
+                        f"**Entropy:** `{payload.get('shannon_entropy', '—')}`  \n"
+                        f"**Risk:** `{payload.get('risk_level', '—')}`  \n"
+                        f"**File SHA-256:** `{pkt.get('file_sha256', '—')}`"
+                    )
+                elif mtype == "ATTESTATION":
+                    payload = pkt.get("payload", {})
+                    vote = payload.get("vote", "?")
+                    colour = "#2f9e44" if vote == "AGREE" else "#d72638"
+                    st.markdown(
+                        f"<span style='color:{colour};font-weight:700;'>Vote: {vote}</span>  \n"
+                        f"**Target msg:** `{payload.get('target_msg_id', '—')}`  \n"
+                        f"**File SHA-256:** `{payload.get('file_sha256', '—')}`  \n"
+                        f"**Reason:** {payload.get('reason', '—')}",
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.json(pkt)
+
+                st.caption(f"msg_id: {msg_id}… · ttl={pkt.get('ttl')} · version={pkt.get('version')}")
+
+
+# ---------------------------------------------------------------------------
+# Main entry
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    """Launch the Milestone v2.0 Streamlit dashboard with three-tab architecture."""
+    st.set_page_config(
+        page_title="Citizen Budget Intelligence Platform (v2.0)",
+        page_icon="🧾",
+        layout="wide",
+    )
+
+    st.title("Citizen Budget Intelligence Platform")
+    st.caption(
+        "Milestone v2.0 · Local-first public transparency dashboard · "
+        "Forensic budget review · Persistent registry · Decentralized validation mesh"
+    )
+
+    # Initialize database
+    db = DatabaseRegistry("audit_registry.db")
+
+    # Fetch last audit metadata as fallback for form auto-population
+    last_audit_metadata = _get_last_audit_metadata(db)
+
+    # Session-state defaults
+    st.session_state.setdefault("source_link", last_audit_metadata.get("source_link", ""))
+    st.session_state.setdefault("country", last_audit_metadata.get("country", ""))
+    st.session_state.setdefault("municipality", last_audit_metadata.get("municipality", ""))
+    st.session_state.setdefault("year", last_audit_metadata.get("year", ""))
+    st.session_state.setdefault("uploaded_by", last_audit_metadata.get("uploaded_by", ""))
+    st.session_state.setdefault("uploaded_file", None)
+    st.session_state.setdefault("mesh_port", 6001)
+    st.session_state.setdefault("mesh_node", None)
+    st.session_state.setdefault("mesh_history", [])
+
+    # Three main tabs
+    tab_live, tab_registry, tab_mesh = st.tabs([
+        "📊 Live Budget Pipeline",
+        "📜 Historical Audit Registry",
+        "🌐 Mesh Validation Network",
+    ])
+
+    # ------------------------------------------------------------------
+    # Tab 1 — Live Budget Pipeline
+    # ------------------------------------------------------------------
+    with tab_live:
+        st.subheader("Upload & Process Budget Data")
+
+        with st.form("budget_ingest"):
+            uploaded_file = st.file_uploader(
+                "Upload budget CSV",
+                type=["csv"],
+                help="Upload a municipal or state budget file in CSV format.",
+            )
+            st.text_input("Source / link", key="source_link", help="Link to the budget source document or public portal")
+            st.text_input("Country / jurisdiction", key="country", help="Country or jurisdiction name")
+            st.text_input("Municipality / institution", key="municipality", help="Municipality or institution name")
+            st.text_input("Year", key="year", help="Budget year or fiscal period")
+            st.text_input("Uploaded by", key="uploaded_by", help="Name or identifier of uploader")
+            submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
+
+        if not submit or uploaded_file is None:
+            st.info("Upload a CSV file and complete the provenance metadata to begin the automated forensic review.")
+        else:
+            metadata = {
+                "source_link": st.session_state.source_link,
+                "country": st.session_state.country,
+                "municipality": st.session_state.municipality,
+                "year": st.session_state.year,
+                "uploaded_by": st.session_state.uploaded_by,
+            }
+
+            with st.spinner("Processing CSV file and generating forensic report..."):
+                temp_csv = _save_uploaded_csv(uploaded_file)
+                metadata["file_hash"] = _calculate_file_hash(uploaded_file)
+                audit_result = _build_audit_result(temp_csv, metadata)
+                audit_result["file_hash"] = metadata["file_hash"]
+
+                # Generate chart
+                chart_dir = Path(tempfile.mkdtemp(prefix="bb_chart_"))
+                chart_path = chart_dir / "budget_analysis.png"
+                _build_chart_image(audit_result.get("metrics", {}), str(chart_path))
+
+                # Generate manifest and persist
+                report_dir = Path(tempfile.mkdtemp(prefix="bb_report_"))
+                pdf_path = report_dir / "forensic_audit_report.pdf"
+                json_path = report_dir / "audit_manifest.json"
+
+                manifest = _build_manifest(audit_result, metadata, metadata["file_hash"])
+
+                # Write manifest to JSON
+                with json_path.open("w", encoding="utf-8") as handle:
+                    json.dump(manifest, handle, indent=2, ensure_ascii=False)
+
+                # Persist manifest to database registry
+                try:
+                    audit_id = db.register_audit(manifest)
+                    st.success(f"✓ Audit persisted to registry (ID: {audit_id})")
+                except Exception as e:
+                    st.error(f"Failed to persist audit to registry: {e}")
+
+                # ---- Phase 3: Automated Gossip Fanout ----
+                node = st.session_state.get("mesh_node")
+                if (
+                    MESH_AVAILABLE
+                    and node is not None
+                    and getattr(node, "is_active", False)
+                ):
+                    try:
+                        metrics = audit_result.get("metrics", {})
+                        gossip_pkt = node.build_audit_manifest(
+                            file_sha256=metadata["file_hash"],
+                            municipality=metadata.get("municipality") or "Unknown",
+                            year=metadata.get("year") or "",
+                            chi_square=float(metrics.get("chi_square", 0.0)),
+                            shannon_entropy=float(metrics.get("shannon_entropy", 0.0)),
+                            risk_level=str(audit_result.get("risk_level", "UNKNOWN")),
+                        )
+                        sent = node.broadcast_gossip(gossip_pkt)
+                        st.info(f"📡 AUDIT_MANIFEST broadcast to mesh ({sent} peer(s) reached)")
+                    except Exception as exc:
+                        st.warning(f"Mesh broadcast skipped: {exc}")
+
+                # Generate PDF
+                pdf_generator = ForensicPDFGenerator()
+                final_pdf = _ensure_public_pdf(pdf_generator, audit_result, str(chart_path), str(pdf_path))
+
+                st.success("Audit pipeline completed successfully.")
+                st.image(str(chart_path), use_container_width=True)
+                _render_results(audit_result, final_pdf, str(json_path))
+
+    # ------------------------------------------------------------------
+    # Tab 2 — Historical Audit Registry
+    # ------------------------------------------------------------------
+    with tab_registry:
+        st.subheader("Historical Audit Registry")
+        _render_audit_registry(db)
+
+    # ------------------------------------------------------------------
+    # Tab 3 — Mesh Validation Network
+    # ------------------------------------------------------------------
+    with tab_mesh:
+        _render_mesh_tab()
+
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("OFFF P2P GossipSub Engine — validation compilation test")
-    print("=" * 60)
-
-    node = P2PNetworkMesh(host="127.0.0.1", port=6001, node_id="Node_42")
-    node.start_node()
-    time.sleep(0.5)
-
-    # Build and self-sign an AUDIT_MANIFEST (Zagreb example)
-    manifest = node.build_audit_manifest(
-        file_sha256="d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35",
-        municipality="Grad Zagreb",
-        year="2025",
-        chi_square=24.6958,
-        shannon_entropy=2.7492,
-        risk_level="HIGH",
-    )
-    print("\n[TEST] Built AUDIT_MANIFEST:")
-    print(json.dumps(manifest, indent=2, ensure_ascii=False))
-
-    # Verify own signature
-    assert _verify_hmac(node.hmac_secret, manifest), "Self-signature must verify"
-    print("[TEST] HMAC self-check: PASS")
-
-    # Schema validation
-    ok, reason = _validate_schema(manifest)
-    assert ok, f"Schema must pass: {reason}"
-    print("[TEST] Schema validation: PASS")
-
-    # Seen-set
-    assert node.seen_messages.add(manifest["msg_id"]) is True
-    assert node.seen_messages.add(manifest["msg_id"]) is False
-    print("[TEST] Seen-set dedup: PASS")
-
-    # Attestation
-    att = node.build_attestation(
-        target_msg_id=manifest["msg_id"],
-        file_sha256=manifest["file_sha256"],
-        vote="AGREE",
-        reason="Local metrics consistent",
-    )
-    assert _verify_hmac(node.hmac_secret, att)
-    ok, _ = _validate_schema(att)
-    assert ok
-    print("[TEST] ATTESTATION build + sign: PASS")
-
-    # Heartbeat
-    hb = node.build_heartbeat()
-    assert _verify_hmac(node.hmac_secret, hb)
-    ok, _ = _validate_schema(hb)
-    assert ok
-    print("[TEST] HEARTBEAT build + sign: PASS")
-
-    # Malformed packet rejection
-    bad = {"message_type": "AUDIT_MANIFEST"}  # missing required keys
-    ok, reason = _validate_schema(bad)
-    assert not ok
-    print(f"[TEST] Malformed reject: PASS ({reason})")
-
-    # Status
-    print("\n[STATUS]", json.dumps(node.status(), indent=2))
-
-    node.stop_node()
-    print("\n✅ All validation compilation tests passed. Engine ready for mesh.")
+    main()
