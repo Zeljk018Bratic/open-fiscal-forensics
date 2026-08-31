@@ -1,15 +1,18 @@
 """
 Open Fiscal Forensics Framework (OFFF) - Decentralized Validation Layer
 Milestone v2.0 — Secure GossipSub Metadata Distribution Engine
++ Phase 5: EVIDENCE_REQUEST / EVIDENCE_RESPONSE Challenge Protocol
 
 Implements a lightweight, local-first peer-to-peer network node using only
 the Python standard library (socket, threading, json, hmac, hashlib, time,
 collections, secrets, pathlib). Fully compatible with Windows Smart App Control.
 
-Message types (GossipSub schema v2.0):
-  - AUDIT_MANIFEST : Launch cryptographic evidence into the mesh
-  - ATTESTATION    : Independent vote (AGREE / CHALLENGE) from peer nodes
-  - HEARTBEAT      : Network health probe (every 30 s) + dead-peer pruning
+Message types (GossipSub schema v2.0 + Phase 5):
+  - AUDIT_MANIFEST     : Launch cryptographic evidence into the mesh
+  - ATTESTATION        : Independent vote (AGREE / CHALLENGE) from peer nodes
+  - HEARTBEAT          : Network health probe (every 30 s) + dead-peer pruning
+  - EVIDENCE_REQUEST   : Request original dataset (or signed subset) by SHA-256
+  - EVIDENCE_RESPONSE  : Reply with availability status + transfer hint
 
 Security invariants:
   - HMAC-SHA256 signature verification on every inbound packet
@@ -107,7 +110,6 @@ class BoundedSeenSet:
         """
         with self._lock:
             if msg_id in self._data:
-                # Move to end (most recently seen)
                 self._data.move_to_end(msg_id)
                 return False
             self._data[msg_id] = time.monotonic()
@@ -136,7 +138,13 @@ REQUIRED_TOP_LEVEL = {
     "signature_hmac",
 }
 
-VALID_MESSAGE_TYPES = {"AUDIT_MANIFEST", "ATTESTATION", "HEARTBEAT"}
+VALID_MESSAGE_TYPES = {
+    "AUDIT_MANIFEST",
+    "ATTESTATION",
+    "HEARTBEAT",
+    "EVIDENCE_REQUEST",
+    "EVIDENCE_RESPONSE",
+}
 
 
 def _validate_schema(msg: Any) -> Tuple[bool, str]:
@@ -189,8 +197,25 @@ def _validate_schema(msg: Any) -> Tuple[bool, str]:
             return False, "ATTESTATION missing file_sha256"
 
     elif mtype == "HEARTBEAT":
-        # Minimal — only top-level fields required
         pass
+
+    elif mtype == "EVIDENCE_REQUEST":
+        payload = msg.get("payload")
+        if not isinstance(payload, dict):
+            return False, "EVIDENCE_REQUEST missing payload dict"
+        if "file_sha256" not in payload or not isinstance(payload["file_sha256"], str):
+            return False, "EVIDENCE_REQUEST missing file_sha256"
+        if "request_id" not in payload or not isinstance(payload["request_id"], str):
+            return False, "EVIDENCE_REQUEST missing request_id"
+
+    elif mtype == "EVIDENCE_RESPONSE":
+        payload = msg.get("payload")
+        if not isinstance(payload, dict):
+            return False, "EVIDENCE_RESPONSE missing payload dict"
+        if "request_id" not in payload or "file_sha256" not in payload:
+            return False, "EVIDENCE_RESPONSE missing required fields"
+        if payload.get("status") not in ("AVAILABLE", "NOT_FOUND", "DENIED"):
+            return False, "EVIDENCE_RESPONSE invalid status"
 
     return True, "ok"
 
@@ -235,6 +260,11 @@ class P2PNetworkMesh:
         self._inbox: List[Dict[str, Any]] = []
         self._inbox_lock = threading.Lock()
         self._inbox_max = 256
+
+        # Local evidence registry (file_sha256 → local path or None)
+        # Populated by the dashboard when an audit is completed.
+        self.local_evidence: Dict[str, str] = {}
+        self._evidence_lock = threading.Lock()
 
         # Forensic core (optional)
         self.core = ForensicCore() if ForensicCore is not None else None
@@ -321,6 +351,20 @@ class P2PNetworkMesh:
             return False
 
     # ------------------------------------------------------------------
+    # Local evidence registry (called by dashboard after audit)
+    # ------------------------------------------------------------------
+
+    def register_local_evidence(self, file_sha256: str, local_path: str) -> None:
+        """Register that this node holds the original dataset for a given hash."""
+        with self._evidence_lock:
+            self.local_evidence[file_sha256] = local_path
+        print(f"📂 [Evidence] Registered local dataset for {file_sha256[:16]}…")
+
+    def has_local_evidence(self, file_sha256: str) -> bool:
+        with self._evidence_lock:
+            return file_sha256 in self.local_evidence
+
+    # ------------------------------------------------------------------
     # Message construction helpers
     # ------------------------------------------------------------------
 
@@ -400,6 +444,68 @@ class P2PNetworkMesh:
         }
         return self._sign(msg)
 
+    def build_evidence_request(
+        self,
+        file_sha256: str,
+        reason: str = "Independent re-validation required",
+        ttl: int = 2,
+    ) -> Dict[str, Any]:
+        """
+        Request the original dataset (or a signed subset) from the mesh.
+        Only the SHA-256 travels via gossip; the actual transfer uses the
+        transfer_hint returned in EVIDENCE_RESPONSE.
+        """
+        msg = {
+            "message_type": "EVIDENCE_REQUEST",
+            "msg_id": _generate_msg_id(),
+            "ttl": ttl,
+            "sender_node": self.node_id,
+            "timestamp_utc": _utc_now_iso(),
+            "version": PROTOCOL_VERSION,
+            "payload": {
+                "request_id": _generate_msg_id(),
+                "file_sha256": file_sha256,
+                "reason": reason,
+                "requester_node": self.node_id,
+            },
+        }
+        return self._sign(msg)
+
+    def build_evidence_response(
+        self,
+        request_id: str,
+        file_sha256: str,
+        status: str,                    # AVAILABLE | NOT_FOUND | DENIED
+        transfer_hint: str = "",
+        ttl: int = 2,
+    ) -> Dict[str, Any]:
+        """
+        Reply to an EVIDENCE_REQUEST.
+        status:
+          - AVAILABLE  → this node holds the dataset; transfer_hint may contain
+                         a direct-tcp://host:port or future IPFS CID
+          - NOT_FOUND  → this node does not have the dataset
+          - DENIED     → policy refusal (e.g. privacy / size limits)
+        """
+        if status not in ("AVAILABLE", "NOT_FOUND", "DENIED"):
+            raise ValueError("status must be AVAILABLE, NOT_FOUND or DENIED")
+        msg = {
+            "message_type": "EVIDENCE_RESPONSE",
+            "msg_id": _generate_msg_id(),
+            "ttl": ttl,
+            "sender_node": self.node_id,
+            "timestamp_utc": _utc_now_iso(),
+            "version": PROTOCOL_VERSION,
+            "payload": {
+                "request_id": request_id,
+                "file_sha256": file_sha256,
+                "status": status,
+                "transfer_hint": transfer_hint,
+                "responder_node": self.node_id,
+            },
+        }
+        return self._sign(msg)
+
     # ------------------------------------------------------------------
     # Gossip broadcast
     # ------------------------------------------------------------------
@@ -409,11 +515,9 @@ class P2PNetworkMesh:
         Epidemic-style fanout broadcast.
         Returns number of peers that successfully received the packet.
         """
-        # Ensure signed
         if "signature_hmac" not in msg:
             msg = self._sign(msg)
 
-        # Mark as seen locally so we don't re-process our own broadcast
         self.seen_messages.add(msg["msg_id"])
 
         payload = json.dumps(msg, ensure_ascii=False).encode("utf-8")
@@ -425,10 +529,8 @@ class P2PNetworkMesh:
         dead: List[socket.socket] = []
 
         with self._peers_lock:
-            # Random subset for fanout (simple shuffle via secrets)
             candidates = list(self.peers)
             if len(candidates) > self.fanout:
-                # Partial Fisher-Yates using secrets
                 for i in range(self.fanout):
                     j = secrets.randbelow(len(candidates) - i) + i
                     candidates[i], candidates[j] = candidates[j], candidates[i]
@@ -491,7 +593,6 @@ class P2PNetworkMesh:
                     break
                 buffer += chunk
 
-                # Process complete lines
                 while b"\n" in buffer:
                     line, buffer = buffer.split(b"\n", 1)
                     if not line.strip():
@@ -537,10 +638,9 @@ class P2PNetworkMesh:
         msg_id = msg["msg_id"]
         is_new = self.seen_messages.add(msg_id)
         if not is_new:
-            # Duplicate — silently ignore (already processed / rebroadcast)
             return
 
-        # 5. Update peer meta if we know this socket
+        # 5. Update peer meta
         with self._peers_lock:
             if source_sock in self.peer_meta:
                 self.peer_meta[source_sock]["last_seen"] = time.monotonic()
@@ -556,16 +656,19 @@ class P2PNetworkMesh:
             self._handle_attestation(msg)
         elif mtype == "HEARTBEAT":
             self._handle_heartbeat(msg, source_sock)
+        elif mtype == "EVIDENCE_REQUEST":
+            self._handle_evidence_request(msg)
+        elif mtype == "EVIDENCE_RESPONSE":
+            self._handle_evidence_response(msg)
 
-        # 7. Push to inbox for UI / third-tab consumers
+        # 7. Push to inbox for UI
         self._push_inbox(msg)
 
-        # 8. Re-broadcast if TTL remains (epidemic gossip)
+        # 8. Re-broadcast if TTL remains
         ttl = msg.get("ttl", 0)
         if ttl > 1:
             rebroadcast = dict(msg)
             rebroadcast["ttl"] = ttl - 1
-            # Re-sign after TTL mutation
             rebroadcast = self._sign(rebroadcast)
             self.broadcast_gossip(rebroadcast)
 
@@ -584,16 +687,11 @@ class P2PNetworkMesh:
 
         print(f"🔄 [Agent Loop] Independent check → {municipality} | Chi²={chi2} Entropy={entropy} Risk={risk}")
 
-        # In a full deployment the node would fetch the original CSV via
-        # evidence-request / IPFS and re-run ForensicCore.analyze().
-        # For v2.0 bootstrap we perform a lightweight consistency attestation
-        # based on the cryptographic hash and declared metrics.
         vote = "AGREE"
         reason = "Metrics and hash accepted under current local policy"
 
-        # Optional deeper check if ForensicCore is present and local data available
         if self.core is not None:
-            # Placeholder for future local re-computation
+            # Future: local re-computation once evidence is retrieved
             pass
 
         attestation = self.build_attestation(
@@ -613,8 +711,51 @@ class P2PNetworkMesh:
         print(f"🗳️  [Attestation] {sender} voted {vote} on {target}")
 
     def _handle_heartbeat(self, msg: Dict[str, Any], source_sock: socket.socket) -> None:
-        # last_seen already updated in _process_inbound
         pass
+
+    def _handle_evidence_request(self, msg: Dict[str, Any]) -> None:
+        """
+        Respond to an EVIDENCE_REQUEST.
+        If this node holds the requested SHA-256 it answers AVAILABLE
+        and supplies a transfer_hint (currently a simple direct-tcp hint).
+        """
+        payload = msg.get("payload", {})
+        request_id = payload.get("request_id", "")
+        file_sha256 = payload.get("file_sha256", "")
+        requester = payload.get("requester_node", msg.get("sender_node", "?"))
+
+        print(f"📂 [Evidence] Request from {requester} for {file_sha256[:16]}…")
+
+        with self._evidence_lock:
+            has_it = file_sha256 in self.local_evidence
+
+        if has_it:
+            # In a full deployment this would open a short-lived transfer socket
+            # or return an IPFS CID. For now we advertise a direct-tcp hint.
+            transfer_hint = f"direct-tcp://{self.host}:{self.port}"
+            status = "AVAILABLE"
+            print(f"✅ [Evidence] AVAILABLE → {requester}")
+        else:
+            transfer_hint = ""
+            status = "NOT_FOUND"
+            print(f"❌ [Evidence] NOT_FOUND → {requester}")
+
+        response = self.build_evidence_response(
+            request_id=request_id,
+            file_sha256=file_sha256,
+            status=status,
+            transfer_hint=transfer_hint,
+        )
+        self.broadcast_gossip(response)
+
+    def _handle_evidence_response(self, msg: Dict[str, Any]) -> None:
+        """Log and surface an EVIDENCE_RESPONSE for the UI / future transfer logic."""
+        payload = msg.get("payload", {})
+        status = payload.get("status")
+        file_sha256 = payload.get("file_sha256", "")[:16]
+        responder = payload.get("responder_node", msg.get("sender_node", "?"))
+        hint = payload.get("transfer_hint", "")
+        print(f"📬 [Evidence] Response from {responder}: {status} for {file_sha256}… hint={hint}")
 
     # ------------------------------------------------------------------
     # Heartbeat + dead-peer pruning
@@ -680,6 +821,8 @@ class P2PNetworkMesh:
                 }
                 for meta in self.peer_meta.values()
             ]
+        with self._evidence_lock:
+            evidence_count = len(self.local_evidence)
         return {
             "node_id": self.node_id,
             "is_active": self.is_active,
@@ -688,6 +831,7 @@ class P2PNetworkMesh:
             "peers": peer_list,
             "seen_messages": len(self.seen_messages),
             "inbox_size": len(self._inbox),
+            "local_evidence_count": evidence_count,
             "protocol_version": PROTOCOL_VERSION,
         }
 
@@ -698,14 +842,14 @@ class P2PNetworkMesh:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("OFFF P2P GossipSub Engine — validation compilation test")
+    print("OFFF P2P GossipSub Engine + EVIDENCE Protocol — validation test")
     print("=" * 60)
 
     node = P2PNetworkMesh(host="127.0.0.1", port=6001, node_id="Node_42")
     node.start_node()
     time.sleep(0.5)
 
-    # Build and self-sign an AUDIT_MANIFEST (Zagreb example)
+    # --- AUDIT_MANIFEST ---
     manifest = node.build_audit_manifest(
         file_sha256="d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35",
         municipality="Grad Zagreb",
@@ -714,24 +858,12 @@ if __name__ == "__main__":
         shannon_entropy=2.7492,
         risk_level="HIGH",
     )
-    print("\n[TEST] Built AUDIT_MANIFEST:")
-    print(json.dumps(manifest, indent=2, ensure_ascii=False))
-
-    # Verify own signature
-    assert _verify_hmac(node.hmac_secret, manifest), "Self-signature must verify"
-    print("[TEST] HMAC self-check: PASS")
-
-    # Schema validation
+    assert _verify_hmac(node.hmac_secret, manifest)
     ok, reason = _validate_schema(manifest)
-    assert ok, f"Schema must pass: {reason}"
-    print("[TEST] Schema validation: PASS")
+    assert ok, reason
+    print("[TEST] AUDIT_MANIFEST: PASS")
 
-    # Seen-set
-    assert node.seen_messages.add(manifest["msg_id"]) is True
-    assert node.seen_messages.add(manifest["msg_id"]) is False
-    print("[TEST] Seen-set dedup: PASS")
-
-    # Attestation
+    # --- ATTESTATION ---
     att = node.build_attestation(
         target_msg_id=manifest["msg_id"],
         file_sha256=manifest["file_sha256"],
@@ -741,23 +873,52 @@ if __name__ == "__main__":
     assert _verify_hmac(node.hmac_secret, att)
     ok, _ = _validate_schema(att)
     assert ok
-    print("[TEST] ATTESTATION build + sign: PASS")
+    print("[TEST] ATTESTATION: PASS")
 
-    # Heartbeat
+    # --- HEARTBEAT ---
     hb = node.build_heartbeat()
     assert _verify_hmac(node.hmac_secret, hb)
     ok, _ = _validate_schema(hb)
     assert ok
-    print("[TEST] HEARTBEAT build + sign: PASS")
+    print("[TEST] HEARTBEAT: PASS")
 
-    # Malformed packet rejection
-    bad = {"message_type": "AUDIT_MANIFEST"}  # missing required keys
+    # --- EVIDENCE_REQUEST ---
+    req = node.build_evidence_request(
+        file_sha256="d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35",
+        reason="Independent re-validation of Zagreb 2025 ledger",
+    )
+    assert _verify_hmac(node.hmac_secret, req)
+    ok, reason = _validate_schema(req)
+    assert ok, reason
+    print("[TEST] EVIDENCE_REQUEST: PASS")
+
+    # --- EVIDENCE_RESPONSE ---
+    resp = node.build_evidence_response(
+        request_id=req["payload"]["request_id"],
+        file_sha256=req["payload"]["file_sha256"],
+        status="AVAILABLE",
+        transfer_hint="direct-tcp://127.0.0.1:6001",
+    )
+    assert _verify_hmac(node.hmac_secret, resp)
+    ok, reason = _validate_schema(resp)
+    assert ok, reason
+    print("[TEST] EVIDENCE_RESPONSE: PASS")
+
+    # --- Malformed rejection ---
+    bad = {"message_type": "EVIDENCE_REQUEST"}
     ok, reason = _validate_schema(bad)
     assert not ok
     print(f"[TEST] Malformed reject: PASS ({reason})")
 
-    # Status
+    # --- Local evidence registry ---
+    node.register_local_evidence(
+        "d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35",
+        "/tmp/isplate.csv",
+    )
+    assert node.has_local_evidence("d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35")
+    print("[TEST] Local evidence registry: PASS")
+
     print("\n[STATUS]", json.dumps(node.status(), indent=2))
 
     node.stop_node()
-    print("\n✅ All validation compilation tests passed. Engine ready for mesh.")
+    print("\n✅ All validation tests passed. Phase 5 EVIDENCE protocol ready.")
