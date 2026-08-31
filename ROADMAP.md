@@ -1,3 +1,5 @@
+1. ROADMAP.md (refactored)
+Markdown
 # Roadmap
 
 ## Mission
@@ -16,212 +18,170 @@ All milestones below are intentionally constrained to software architecture, rep
 
 ## Milestone v1.1 — Data Enrichment & Local Reporting
 
-Status: Short-term / immediate implementation
+**Status: Completed**
 
 ### Objective
-
 Increase the operational value of the current dashboard by turning the local workflow into a structured forensic evidence pipeline with metadata-aware reporting and exportable summaries.
 
-### Technical Scope
-
-#### 1. Integrate automatic CSV column detection into the Streamlit UI
-- Connect the upload workflow directly to `auto_adapter.py`.
-- Detect the monetary column automatically after the CSV is uploaded.
-- Surface the detected index and column name in the dashboard.
-- Preserve fallback logic when the header is non-standard or multilingual.
-- Log the selected column in the report context for transparency.
-
-#### 2. Add provenance metadata to the PDF certificate
-- Extend `pdf_generator.py` to include provenance fields in the generated report.
-- Embed metadata in the final PDF such as:
-  - source name / link
-  - jurisdiction / municipality
-  - fiscal year
-  - uploader identity
-  - SHA-256 file hash
-  - upload timestamp
-- Keep the report layout clean and publication-ready for public release.
-
-#### 3. Export structured summaries in machine-readable formats
-- Add JSON export for the audit payload.
-- Add Markdown export for quick release summaries.
-- Include both raw technical results and human-readable risk notes.
-- Generate a compact public summary suitable for journalists, technical reviewers, and community distribution.
-
-#### 4. Improve report composition and public readability
-- Add a summary block with:
-  - dataset name
-  - source
-  - year
-  - risk level
-  - detected amount column
-  - pass/fail thresholds
-- Keep the visual output deterministic and reproducible.
-
-### Expected Deliverables
-- Streamlit upload + detection workflow integrated end-to-end
-- PDF certificate enriched with provenance metadata
-- JSON and Markdown export actions from the UI
-- Consolidated public summary output for reuse and sharing
-
-### Acceptance Criteria
-- A CSV upload automatically resolves the financial column without manual intervention.
-- The generated PDF includes provenance and validation context.
-- Users can export technical and public-facing summaries directly from the dashboard.
-- The existing forensic logic remains unchanged and reproducible.
+### Delivered
+- Automatic CSV column detection via `auto_adapter.py` integrated into the Streamlit upload workflow
+- Provenance metadata embedded in PDF certificates (source, jurisdiction, year, uploader, SHA-256, timestamp)
+- JSON and Markdown export of audit payloads
+- Clean public summary block for journalists and reviewers
 
 ---
 
 ## Milestone v1.2 — Community Submission Registry
 
-Status: Medium-term / next operational layer
+**Status: Completed & Closed**
 
 ### Objective
-
 Turn the project into a local registry for validated budget submissions, enabling traceable intake, review management, and independent review workflows without requiring a full external infrastructure.
 
-### Technical Scope
-
-#### 1. Local registry with persistent storage
-- Implement a local SQLite database as the canonical metadata store.
-- Create a schema for:
-  - dataset metadata
-  - provenance details
-  - analysis result snapshots
-  - reviewer notes
-  - status transitions
-  - checksum records
-- Support historical queries by dataset, source, municipality, and year.
-
-#### 2. Review-status lifecycle
-Implement a formal review state model:
-- Verified
-- Pending
-- Flagged
-- Rejected
-
-Each dataset should track:
-- current status
-- who changed the status
-- timestamp of change
-- reason for transition
-- evidence references
-
-#### 3. Independent validator preparation
-- Add a validator record model with identity and signing capability metadata.
-- Prepare a signature log so that future validators can attest to results without changing the underlying analytics engine.
-- Store signed summaries in a local append-only log format.
-- Keep signature verification local and reproducible.
-
-#### 4. Audit history and reproducibility
-- Each run should save a snapshot of:
-  - source file hash
-  - parsed amount column index
-  - result metrics
-  - generated PDF path
-  - generation timestamp
-- Preserve the original dataset and analysis output for later inspection.
-
-### Expected Deliverables
-- SQLite-based submission registry
-- Dataset review queue with lifecycle management
-- Signed audit history records
-- Local validator identity and attestation layer
-
-### Acceptance Criteria
-- Every uploaded budget is persisted with provenance and run history.
-- Review status transitions are recorded immutably in the local database.
-- A validator can inspect a dataset and sign a result without altering the core analysis rules.
-- The system remains local-first and does not require a server deployment.
+### Delivered
+- SQLite-backed `DatabaseRegistry` with full audit lifecycle schema
+- Review-status model preparation (Verified / Pending / Flagged / Rejected)
+- Form-state persistence across Streamlit reruns
+- Immutable registration of every successful audit (metrics, provenance, full JSON manifest)
+- Risk-level filtering and historical query interface
 
 ---
 
 ## Milestone v2.0 — Decentralized Validation Layer
 
-Status: Long-term / network-scale extension
+**Status: Phase 2 & Phase 3 Completed · Phase 4 (Hardening) In Progress**
 
 ### Objective
-
 Move from a local trusted registry to a decentralized validation mesh where independent nodes can share audit results and exchange evidence using peer-to-peer protocols while preserving privacy and traceability.
 
-### Technical Scope
+### Phase 2 — P2P Mesh Hardening (Completed & Closed)
+- Secure GossipSub-style message schema (`AUDIT_MANIFEST`, `ATTESTATION`, `HEARTBEAT`)
+- HMAC-SHA256 signature verification (timing-safe)
+- Strict dictionary schema validation with instant drop of malformed packets
+- Bounded sliding seen-set (`BoundedSeenSet` / OrderedDict LRU) preventing re-broadcast loops
+- Multi-thread architecture (listener, heartbeat, peer prune) — all daemon, soft-fail
+- Epidemic fanout gossip (default fanout = 3) with TTL decrement
+- Zero external dependencies (pure Python standard library)
 
-#### 1. Serverless P2P groundwork
-- Implement a browser- and Node-compatible peer layer with `js-libp2p`.
-- Use a modular peer identity and connection lifecycle.
-- Define message schemas for:
-  - dataset announcement
-  - provenance hash exchange
-  - audit result broadcast
-  - validator attestation
-  - evidence request / response
+### Phase 3 — App Integration (Completed & Closed)
+- Third Streamlit tab: **🌐 Mesh Validation Network**
+- Thread-safe node lifecycle control (Start / Stop) with dynamic listener port
+- Automated gossip fanout: successful Tab-1 audits are automatically broadcast when the engine is active
+- Live telemetry grid driven by `node.status()` (peers, seen messages, inbox)
+- Native HTML/CSS peer table and expandable gossip stream (pandas-free)
+- Lazy-polling inbox drain — main Streamlit thread never blocks
 
-#### 2. Gossipsub channel architecture
-- Create dedicated channels for:
-  - dataset announcements
-  - audit result publication
-  - validator signatures
-  - community challenge events
-- Ensure messages are compact and signed to avoid spam and spoofing.
-- Allow rapid propagation of findings across the mesh network.
+### Phase 4 — Production Hardening & Documentation (Current)
+- Configuration surface for peers and HMAC secret
+- Operator deployment guide (this document)
+- ROADMAP formal closure of completed phases
+- Optional pure-Python IPFS CID resolver stub (future)
 
-#### 3. WebRTC direct evidence exchange
-- Support direct peer-to-peer connections between browser nodes.
-- Exchange signed PDF summaries, metadata packs, or verification bundles.
-- Use WebRTC for low-latency evidence transfer in local network or adjacent peer setups.
-- Keep the protocol optional and privacy-aware; raw sensitive files should remain local unless explicitly shared.
-
-#### 4. Decentralized trust model
-- Introduce multiple independent validator identities.
-- Allow network peers to confirm provenance and audit attestation.
-- Model trust as consensus over signed observations rather than a central authority.
-- Enable public validation without centralized control.
-
-### Expected Deliverables
-- Peer-to-peer validation protocol layer
-- Gossipsub-based result propagation
-- WebRTC-based evidence transport
-- Signed decentralized audit network
-
-### Acceptance Criteria
-- Independent nodes can announce and share verified budget findings.
-- Results propagate through the mesh without reliance on a single server.
-- Evidence can be exchanged directly between peers with traceable provenance.
-- The platform remains aligned with civic transparency and open-source verification principles.
+### Phase 5 — Community Validation Mesh (Planned)
+- Public bootstrap peer list
+- Attestation scoring and challenge protocol
+- Independent third-party confirmation of audits without trusting the originator
 
 ---
 
-## Technical Priority Order
+## Technical Priority Order (Updated)
 
-### Phase priority
-1. v1.1 — Data Enrichment & Local Reporting
-2. v1.2 — Community Submission Registry
-3. v2.0 — Decentralized Validation Layer
-
-### Rationale
-- v1.1 makes the current forensic pipeline production-usable and publication-ready.
-- v1.2 turns the system into a documented and reviewable evidence archive.
-- v2.0 extends the system into a resilient distributed validation network without compromising the local-first design.
-
----
-
-## Implementation Notes
-
-- Preserve the mathematical and forensic core as an invariant layer.
-- Expand around the analytics engine rather than rewriting it.
-- Favor plain, verifiable data formats: CSV, JSON, Markdown, SQLite, signed JSON payloads.
-- Keep private-sensitive data local wherever possible.
-- Design all network interactions as optional overlays to the core local workflow.
+1. ~~v1.1 — Data Enrichment & Local Reporting~~ → **Done**
+2. ~~v1.2 — Community Submission Registry~~ → **Done**
+3. ~~v2.0 Phase 2/3 — GossipSub + Mesh Tab~~ → **Done**
+4. v2.0 Phase 4 — Hardening & Docs → **In Progress**
+5. v2.0 Phase 5 — Community Mesh → Future
 
 ---
 
 ## Final State Target
 
-The end state is a transparent, reproducible, and community-governed budget intelligence platform capable of:
+The end state remains a transparent, reproducible, and community-governed budget intelligence platform capable of:
 - ingesting public budget data locally
 - identifying the financial signal automatically
 - generating forensic PDF evidence
 - registering provenance and review history
 - distributing validation results across a decentralized trust network
 
-This roadmap defines a technically disciplined path from a validated MVP into a robust civic watchdog system.
+This roadmap records a technically disciplined path from a validated MVP into a robust civic watchdog system.
+
+2. P2P Deployment Guide
+Markdown
+# P2P Node Deployment Guide
+## Open Fiscal Forensics Framework — Mesh Validation Network
+
+**Audience:** Independent operators, civic auditors, OSINT researchers  
+**Requirements:** Python 3.10+, Streamlit, the two Phase-2/3 modules (`p2p_network_mesh.py`, `app.py`)  
+**Dependencies:** None beyond the Python standard library for the mesh engine.
+
+---
+
+### 1. Launch the Dashboard
+
+```bash
+streamlit run app.py
+Open the browser at the address shown (normally http://localhost:8501 ).
+
+2. Activate the Local Node
+Switch to the third tab: 🌐 Mesh Validation Network.
+Set the desired Local listener port (default 6001).
+Choose a free port above 1024. Avoid privileged ports.
+Click ▶️ Start P2P Engine.
+The telemetry panel will show 🟢 ACTIVE and your Node ID.
+The node now listens for inbound TCP connections and runs background heartbeat / peer-pruning threads. The Streamlit UI remains fully responsive.
+
+3. Connect to Bootstrap Peers
+Under 🔗 Connect to remote peer:
+Enter the remote operator’s host (IP or hostname) and port.
+Click Connect.
+Successful connections appear in the Active Peers table together with last-seen timestamps. Dead peers are automatically pruned after 90 seconds of silence.
+For a minimal two-node test on the same machine:
+Node
+Port
+Action
+A
+6001
+Start engine
+B
+6002
+Start engine → Connect to 127.0.0.1:6001
+
+
+4. Automatic Evidence Propagation
+Whenever an operator completes a successful budget audit in 📊 Live Budget Pipeline while the local engine is active, the application:
+Persists the audit to the SQLite registry.
+Constructs a signed AUDIT_MANIFEST packet (municipality, year, Chi², entropy, risk level, file SHA-256).
+Broadcasts the packet via epidemic fanout to the current peer set.
+Receiving nodes validate the HMAC signature, perform schema checks, deduplicate via the bounded seen-set, and may issue an ATTESTATION (AGREE / CHALLENGE).
+
+5. Monitoring
+Live Telemetry shows Node ID, engine state, peer count and total seen messages.
+Incoming Gossip Stream lists the most recent packets. Use 🔄 Refresh inbox to pull newly arrived messages. Packets are also accumulated in a local session history (max 200 entries).
+
+6. Operational Notes
+The default HMAC secret is a bootstrap shared value suitable only for trusted initial meshes. Replace it before public exposure (future Phase-4 configuration surface).
+All network work runs in daemon threads. Stopping the Streamlit process cleanly shuts the node down.
+No central server is required. Bootstrap is performed by explicit peer connection or by sharing a short list of known listening addresses among operators.
+Full CSV files never leave the local machine unless an explicit evidence-request protocol (future) is used. Only cryptographic digests and aggregate metrics travel the mesh.
+
+7. Verification Checklist
+Engine shows 🟢 ACTIVE
+At least one peer appears in the Active Peers table
+A completed audit in Tab 1 produces a “📡 AUDIT_MANIFEST broadcast” notice
+The remote node’s Gossip Stream displays the corresponding packet
+Signature and schema validation reject any tampered packet
+
+Document version: Milestone v2.0 Phase 4 · #BajteBrothers
+text
+---
+
+### 3. Conventional Git Commit Message
+feat(mesh): complete Milestone v2.0 Phase 2/3 — GossipSub engine + Mesh Validation tab
+Introduce production-grade decentralized validation layer:
+p2p_network_mesh.py: stdlib-only GossipSub node with HMAC-SHA256 signatures, strict schema validation, BoundedSeenSet deduplication, epidemic fanout, heartbeat/peer pruning, and thread-safe inbox.
+app.py: third tab "🌐 Mesh Validation Network" with Start/Stop controls, dynamic listener port, live telemetry from node.status(), native HTML peer table, and automated AUDIT_MANIFEST broadcast after registry save.
+ROADMAP.md: mark v1.2 and v2.0 Phase 2/3 as completed and closed.
+All network work remains non-blocking; zero new runtime dependencies.
+Validated against compilation and schema test suite.
+Refs: #BajteBrothers Milestone v2.0
+
