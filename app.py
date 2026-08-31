@@ -431,12 +431,44 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
     left, right = st.columns(2)
     with left:
         st.subheader("Metric detail")
-        rows = [
-            {"Metric": "Benford chi-square", "Value": round(chi_score, 4), "Benchmark": "Lower is better"},
-            {"Metric": "Shannon entropy", "Value": round(entropy_score, 4), "Benchmark": "Higher indicates greater distribution variability"},
-            {"Metric": "Amount column index", "Value": amount_column, "Benchmark": "Detected automatically"},
-        ]
-        st.table(rows)
+
+        # Pure HTML/CSS metrics table (no st.table / pandas dependency)
+        html_table = f"""
+        <table style="
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            border: 1px solid #dfe2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        ">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Metric</th>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Value</th>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #dfe2e6;">Benchmark</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Benford chi-square</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2; font-family: monospace;">{chi_score:.4f}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Lower is better</td>
+                </tr>
+                <tr style="background-color: #fcfcfd;">
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Shannon entropy</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2; font-family: monospace;">{entropy_score:.4f}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eef0f2;">Higher indicates greater distribution variability</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Amount column index</td>
+                    <td style="padding: 10px; font-family: monospace;">#{amount_column}</td>
+                    <td style="padding: 10px;">Detected automatically</td>
+                </tr>
+            </tbody>
+        </table>
+        """
+        st.markdown(html_table, unsafe_allow_html=True)
 
     with right:
         st.subheader("Audit notes")
