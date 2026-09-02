@@ -1,4 +1,3 @@
-```python
 """Streamlit Milestone v2.0 dashboard for the Open Fiscal Forensics Framework.
 
 This release advances the dual-tab architecture into a three-tab system:
@@ -1109,4 +1108,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-```
