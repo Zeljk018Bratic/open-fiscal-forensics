@@ -1062,5 +1062,5 @@ def main() -> None:
         _render_mesh_tab()
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()
