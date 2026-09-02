@@ -1,28 +1,4 @@
-"""Streamlit Milestone v2.0 dashboard for the Open Fiscal Forensics Framework.
-
-This release advances the dual-tab architecture into a three-tab system:
-
-1. Live Budget Pipeline (📊): Real-time forensic analysis and report generation.
-2. Historical Audit Registry (📜): Persistent storage and review of past audits.
-3. Mesh Validation Network (🌐): Live P2P GossipSub telemetry and node control.
-
-Architecture:
-- DatabaseRegistry provides SQLite-backed audit persistence.
-- ForensicCore and AutoAdapter handle the mathematical analysis pipeline.
-- P2PNetworkMesh provides the secure, stdlib-only GossipSub transport layer.
-- All exports (PDF, JSON manifest) are automatically persisted to the registry
-  and, when the mesh engine is active, fanout-broadcast as AUDIT_MANIFEST.
-- Pandas-free, pure Python CSV parsing for compliance with restrictive
-  execution environments.
-
-Workflow:
-1. Upload a budget CSV and complete provenance metadata.
-2. Detect the amount column automatically via AutoAdapter.
-3. Run forensic analysis using the ForensicCore pipeline.
-4. Generate PDF report and JSON manifest (both persisted to registry).
-5. (Optional) Broadcast the signed AUDIT_MANIFEST into the validation mesh.
-6. Monitor incoming gossip, attestations and peer health in Tab 3.
-"""
+"""Streamlit Milestone v2.0 dashboard for the Open Fiscal Forensics Framework."""
 
 from __future__ import annotations
 
@@ -48,60 +24,37 @@ from auto_adapter import detect_amount_column_from_csv
 from database_registry import DatabaseRegistry
 from pdf_generator import ForensicPDFGenerator
 
-# ---------------------------------------------------------------------------
 # Soft import of the P2P mesh engine (Phase 2)
-# ---------------------------------------------------------------------------
 try:
     from p2p_network_mesh import P2PNetworkMesh
-
     MESH_AVAILABLE = True
-except ImportError:  # pragma: no cover
-    P2PNetworkMesh = None  # type: ignore
+except ImportError:
+    P2PNetworkMesh = None
     MESH_AVAILABLE = False
 
-try:  # pragma: no cover - compatibility layer for future project additions.
+try:
     from forensic_core import ForensicCore
-except ImportError:  # pragma: no cover - local fallback for MVP workflow.
+except ImportError:
     class ForensicCore:
         """Local compatibility shim for forensic evaluation."""
 
         @staticmethod
-        def analyze(
-            csv_path: str | os.PathLike[str], amount_column: int | None = None
-        ) -> Dict[str, Any]:
-            """Analyze a CSV file and return a small forensic summary payload."""
-            rows = _read_csv_rows(csv_path)
-            if not rows:
-                raise ValueError("CSV contains no rows.")
-            if amount_column is None:
-                amount_column = detect_amount_column_from_csv(csv_path)
-
-            values: List[float] = []
-            for row in rows[1:]:
-                if amount_column >= len(row):
-                    continue
-                value = row[amount_column]
-                numeric = _parse_numeric_token(value)
-                if numeric is not None:
-                    values.append(float(numeric))
-
+        def analyze(values: List[float], label: str = "Audit") -> Dict[str, Any]:
+            """Analyze a pre-parsed list of float values directly to fix zero scores."""
             if not values:
-                raise ValueError(
-                    "No usable monetary values were found in the selected CSV column."
-                )
+                raise ValueError("No numeric values provided for forensic analysis.")
 
             chi2_score = _calculate_chi_square(values)
             entropy_score = _calculate_shannon_entropy(values)
             risk_level, risk_label = _classify_risk(chi2_score, entropy_score)
 
             return {
-                "label": "Budget Integrity Review",
+                "label": label,
                 "risk_level": risk_level,
                 "risk_label": risk_label,
                 "metrics": {
                     "chi_square": round(chi2_score, 4),
                     "shannon_entropy": round(entropy_score, 4),
-                    "amount_column_index": int(amount_column),
                     "observation_count": len(values),
                 },
                 "tests": {
@@ -117,6 +70,7 @@ except ImportError:  # pragma: no cover - local fallback for MVP workflow.
                     },
                 },
             }
+
 
 
 # ---------------------------------------------------------------------------
