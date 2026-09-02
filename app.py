@@ -391,8 +391,8 @@ def _build_audit_result(
 
     # 4) Ensure UI metrics are always present
     metrics = result.setdefault("metrics", {})
-    metrics["chi_square"] = float(result.get("metrics", {}).get("chi_square", 0.0)) or float(result.get("metrics", {}).get("chi2_score", 0.0))
-    metrics["shannon_entropy"] = float(result.get("metrics", {}).get("shannon_entropy", 0.0)) or float(result.get("metrics", {}).get("entropy_score", 0.0))
+    metrics["chi_square"] = float(result.get("metrics", {}).get("chi_square", 0.0))
+    metrics["shannon_entropy"] = float(result.get("metrics", {}).get("shannon_entropy", 0.0))
     metrics.setdefault("amount_column_index", int(amount_column))
     metrics.setdefault("observation_count", len(values))
 
