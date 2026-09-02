@@ -53,6 +53,7 @@ from pdf_generator import ForensicPDFGenerator
 # ---------------------------------------------------------------------------
 try:
     from p2p_network_mesh import P2PNetworkMesh
+
     MESH_AVAILABLE = True
 except ImportError:  # pragma: no cover
     P2PNetworkMesh = None  # type: ignore
@@ -65,7 +66,9 @@ except ImportError:  # pragma: no cover - local fallback for MVP workflow.
         """Local compatibility shim for forensic evaluation."""
 
         @staticmethod
-        def analyze(csv_path: str | os.PathLike[str], amount_column: int | None = None) -> Dict[str, Any]:
+        def analyze(
+            csv_path: str | os.PathLike[str], amount_column: int | None = None
+        ) -> Dict[str, Any]:
             """Analyze a CSV file and return a small forensic summary payload."""
             rows = _read_csv_rows(csv_path)
             if not rows:
@@ -83,7 +86,9 @@ except ImportError:  # pragma: no cover - local fallback for MVP workflow.
                     values.append(float(numeric))
 
             if not values:
-                raise ValueError("No usable monetary values were found in the selected CSV column.")
+                raise ValueError(
+                    "No usable monetary values were found in the selected CSV column."
+                )
 
             chi2_score = _calculate_chi_square(values)
             entropy_score = _calculate_shannon_entropy(values)
@@ -118,6 +123,7 @@ except ImportError:  # pragma: no cover - local fallback for MVP workflow.
 # Pure-Python helpers (unchanged from v1.2)
 # ---------------------------------------------------------------------------
 
+
 def _read_csv_rows(csv_path: str | os.PathLike[str]) -> List[List[str]]:
     """Read a CSV file using the stdlib-only parser and delimiter sniffing."""
     path = Path(csv_path)
@@ -150,7 +156,13 @@ def _parse_numeric_token(value: Any) -> float | None:
     if re.fullmatch(r"[A-Za-z]+", text):
         return None
 
-    cleaned = text.replace("€", "").replace("$", "").replace("£", "").replace("¥", "").replace("₹", "")
+    cleaned = (
+        text.replace("€", "")
+        .replace("$", "")
+        .replace("£", "")
+        .replace("¥", "")
+        .replace("₹", "")
+    )
     cleaned = cleaned.replace(" ", "").replace("'", "")
     cleaned = cleaned.replace("\u00a0", "")
 
@@ -266,7 +278,9 @@ def _infer_header_name(csv_path: str | os.PathLike[str], amount_column: int) -> 
     return rows[0][amount_column]
 
 
-def _build_column_explanation(csv_path: str | os.PathLike[str], amount_column: int, values: List[float]) -> str:
+def _build_column_explanation(
+    csv_path: str | os.PathLike[str], amount_column: int, values: List[float]
+) -> str:
     """Create a human-readable explanation for the detected amount column."""
     total = max(len(values), 1)
     numeric_count = 0
@@ -288,12 +302,17 @@ def _build_column_explanation(csv_path: str | os.PathLike[str], amount_column: i
     return reason
 
 
-def _build_chart_image(metrics: Dict[str, Any], output_path: str | os.PathLike[str]) -> str:
+def _build_chart_image(
+    metrics: Dict[str, Any], output_path: str | os.PathLike[str]
+) -> str:
     """Generate a simple visual chart used by the PDF report and dashboard."""
     fig, ax = plt.subplots(figsize=(8, 4.4))
     values = [metrics.get("chi_square", 0.0), metrics.get("shannon_entropy", 0.0)]
     labels = ["Chi² score", "Entropy"]
-    colours = ["#d72638" if values[0] >= 5 else "#2f9e44", "#0d6efd" if values[1] >= 2.9 else "#f59f00"]
+    colours = [
+        "#d72638" if values[0] >= 5 else "#2f9e44",
+        "#0d6efd" if values[1] >= 2.9 else "#f59f00",
+    ]
 
     bars = ax.bar(labels, values, color=colours, width=0.6)
     ax.set_ylim(0, max(10.0, max(values) * 1.5 + 1.0))
@@ -303,7 +322,13 @@ def _build_chart_image(metrics: Dict[str, Any], output_path: str | os.PathLike[s
 
     for bar, value in zip(bars, values):
         height = float(value)
-        ax.text(bar.get_x() + bar.get_width() / 2, height + 0.1, f"{height:.2f}", ha="center", va="bottom")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            height + 0.1,
+            f"{height:.2f}",
+            ha="center",
+            va="bottom",
+        )
 
     plt.tight_layout()
     fig.savefig(output_path, dpi=180)
@@ -311,7 +336,12 @@ def _build_chart_image(metrics: Dict[str, Any], output_path: str | os.PathLike[s
     return str(output_path)
 
 
-def _ensure_public_pdf(pdf_generator: ForensicPDFGenerator, audit_result: Dict[str, Any], chart_path: str, output_path: str) -> str:
+def _ensure_public_pdf(
+    pdf_generator: ForensicPDFGenerator,
+    audit_result: Dict[str, Any],
+    chart_path: str,
+    output_path: str,
+) -> str:
     """Create the final public forensic report certificate and return the path."""
     return pdf_generator.generate_report(audit_result, chart_path, output_path)
 
@@ -328,7 +358,9 @@ def _build_provenance_header(metadata: Dict[str, str]) -> Dict[str, str]:
     }
 
 
-def _build_manifest(audit_result: Dict[str, Any], metadata: Dict[str, str], file_hash: str) -> Dict[str, Any]:
+def _build_manifest(
+    audit_result: Dict[str, Any], metadata: Dict[str, str], file_hash: str
+) -> Dict[str, Any]:
     """Generate the JSON export payload used as the public manifest."""
     metrics = audit_result.get("metrics", {})
     provenance = _build_provenance_header(metadata)
@@ -342,7 +374,10 @@ def _build_manifest(audit_result: Dict[str, Any], metadata: Dict[str, str], file
         "provenance": provenance,
         "amount_column": {
             "index": int(metrics.get("amount_column_index", 0)),
-            "explanation": audit_result.get("amount_column_explanation", "AutoAdapter selected the amount column."),
+            "explanation": audit_result.get(
+                "amount_column_explanation",
+                "AutoAdapter selected the amount column.",
+            ),
         },
         "risk": {
             "level": audit_result.get("risk_level", "UNKNOWN"),
@@ -358,12 +393,13 @@ def _build_manifest(audit_result: Dict[str, Any], metadata: Dict[str, str], file
     return manifest
 
 
-def _build_audit_result(csv_file: str | os.PathLike[str], metadata: Dict[str, str]) -> Dict[str, Any]:
+def _build_audit_result(
+    csv_file: str | os.PathLike[str], metadata: Dict[str, str]
+) -> Dict[str, Any]:
     """Run the automated budget pipeline and return the structured result object."""
     amount_column = detect_amount_column_from_csv(csv_file)
-    core = ForensicCore()
-    result = core.analyze(csv_file, amount_column=amount_column) if hasattr(core, "analyze") else ForensicCore.analyze(csv_file, amount_column)
 
+    # 1) Parse clean numeric values first
     values: List[float] = []
     for row in _read_csv_rows(csv_file)[1:]:
         if amount_column >= len(row):
@@ -372,19 +408,50 @@ def _build_audit_result(csv_file: str | os.PathLike[str], metadata: Dict[str, st
         if numeric_value is not None:
             values.append(float(numeric_value))
 
+    if not values:
+        raise ValueError(
+            f"No valid numeric monetary transactions found in column #{amount_column}"
+        )
+
+    label = metadata.get("municipality", "").strip() or "Audit"
+    core = ForensicCore()
+
+    # 2) Run ForensicCore with signature fallback compatibility
+    try:
+        result = core.analyze(values, label=label)
+    except TypeError as exc:
+        msg = str(exc).lower()
+        if "unexpected keyword argument" in msg or "positional argument" in msg:
+            result = core.analyze(csv_file, amount_column=amount_column)
+        else:
+            raise
+
+    # 3) Attach metadata
     result["dataset_name"] = Path(csv_file).name
     result["provenance"] = _build_provenance_header(metadata)
-    result["amount_column_explanation"] = _build_column_explanation(csv_file, amount_column, values)
+    result["amount_column_explanation"] = _build_column_explanation(
+        csv_file, amount_column, values
+    )
     result["source_link"] = metadata.get("source_link", "")
     result["country"] = metadata.get("country", "")
     result["municipality"] = metadata.get("municipality", "")
     result["year"] = metadata.get("year", "")
     result["uploaded_by"] = metadata.get("uploaded_by", "")
     result["file_hash"] = metadata.get("file_hash", "")
+
+    # 4) Ensure UI metrics are always present
+    metrics = result.setdefault("metrics", {})
+    metrics.setdefault("amount_column_index", int(amount_column))
+    metrics.setdefault("observation_count", len(values))
+
     return result
 
 
-def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, json_path: str | None = None) -> None:
+def _render_results(
+    audit_result: Dict[str, Any],
+    pdf_path: str | None = None,
+    json_path: str | None = None,
+) -> None:
     """Render the stat cards and summary panels in the dashboard."""
     risk_level = str(audit_result.get("risk_level", "LOW")).upper()
     chi_score = float(audit_result.get("metrics", {}).get("chi_square", 0.0))
@@ -430,7 +497,12 @@ def _render_results(audit_result: Dict[str, Any], pdf_path: str | None = None, j
     col3.metric("Shannon entropy", f"{entropy_score:.4f} bits")
 
     st.caption(f"Detected amount column: #{amount_column} · Records analyzed: {observations}")
-    st.info(audit_result.get("amount_column_explanation", "AutoAdapter isolated the monetary column with a statistically valid threshold."))
+    st.info(
+        audit_result.get(
+            "amount_column_explanation",
+            "AutoAdapter isolated the monetary column with a statistically valid threshold.",
+        )
+    )
 
     st.markdown(
         f"<div style='padding: 14px; border-radius: 10px; background: {risk_colors.get(risk_level, '#2f9e44')}; color: white; font-weight: 700;'>"
@@ -534,7 +606,13 @@ def _get_last_audit_metadata(db: DatabaseRegistry) -> Dict[str, str]:
             }
     except Exception:
         pass
-    return {"source_link": "", "country": "", "municipality": "", "year": "", "uploaded_by": ""}
+    return {
+        "source_link": "",
+        "country": "",
+        "municipality": "",
+        "year": "",
+        "uploaded_by": "",
+    }
 
 
 def _render_audit_registry(db: DatabaseRegistry) -> None:
@@ -553,17 +631,23 @@ def _render_audit_registry(db: DatabaseRegistry) -> None:
     st.write("---")
 
     if total_count == 0:
-        st.info("No audits have been registered yet. Upload and process a CSV to begin building the historical registry.")
+        st.info(
+            "No audits have been registered yet. Upload and process a CSV to begin building the historical registry."
+        )
         return
 
     st.subheader("Filter & Search")
     filter_col1, filter_col2 = st.columns(2)
 
     with filter_col1:
-        filter_risk = st.selectbox("Filter by risk level", ["All", "HIGH", "MEDIUM", "LOW"], key="filter_risk")
+        filter_risk = st.selectbox(
+            "Filter by risk level", ["All", "HIGH", "MEDIUM", "LOW"], key="filter_risk"
+        )
 
     with filter_col2:
-        limit_records = st.number_input("Limit records displayed", min_value=1, max_value=1000, value=50, step=10)
+        limit_records = st.number_input(
+            "Limit records displayed", min_value=1, max_value=1000, value=50, step=10
+        )
 
     if filter_risk == "All":
         audits = db.fetch_all_audits(limit=limit_records)
@@ -581,9 +665,6 @@ def _render_audit_registry(db: DatabaseRegistry) -> None:
         with st.expander(
             f"#{audit['id']} · {audit['dataset_name']} · {audit['risk_level']} · {audit['country'] or 'N/A'} · {audit['audit_year'] or 'N/A'}"
         ):
-            risk_colors = {"HIGH": "#d72638", "MEDIUM": "#f59f00", "LOW": "#2f9e44"}
-            risk_color = risk_colors.get(audit["risk_level"], "#999")
-
             col1, col2, col3 = st.columns(3)
             col1.metric("Risk level", audit["risk_level"], delta_color="off")
             col2.metric("Chi² score", f"{audit['chi_square']:.4f}")
@@ -629,6 +710,7 @@ def _render_audit_registry(db: DatabaseRegistry) -> None:
 # Phase 3 — Mesh Validation Network tab (Lazy-Polling)
 # ---------------------------------------------------------------------------
 
+
 def _ensure_mesh_node(port: int = 6001) -> Optional[Any]:
     """
     Lazily create or return the P2PNetworkMesh instance stored in session_state.
@@ -649,6 +731,7 @@ def _ensure_mesh_node(port: int = 6001) -> Optional[Any]:
 def secrets_token_hex_safe(nbytes: int = 4) -> str:
     """Tiny helper so we do not need to import secrets at module level for the fallback path."""
     import secrets
+
     return secrets.token_hex(nbytes)
 
 
@@ -753,12 +836,16 @@ def _render_mesh_tab() -> None:
         """
         st.markdown(peer_table, unsafe_allow_html=True)
     else:
-        st.caption("No active peers yet. Use **Connect to peer** below or wait for inbound connections.")
+        st.caption(
+            "No active peers yet. Use **Connect to peer** below or wait for inbound connections."
+        )
 
     # Manual peer connection
     with st.expander("🔗 Connect to remote peer"):
         peer_host = st.text_input("Peer host", value="127.0.0.1", key="peer_host_input")
-        peer_port = st.number_input("Peer port", min_value=1024, max_value=65535, value=6002, key="peer_port_input")
+        peer_port = st.number_input(
+            "Peer port", min_value=1024, max_value=65535, value=6002, key="peer_port_input"
+        )
         if st.button("Connect", key="connect_peer_btn"):
             if node.is_active:
                 ok = node.connect_to_peer(peer_host, int(peer_port))
@@ -797,7 +884,9 @@ def _render_mesh_tab() -> None:
 
     history = st.session_state.mesh_history
     if not history:
-        st.info("Inbox empty. When other validators broadcast AUDIT_MANIFEST or ATTESTATION packets they will appear here.")
+        st.info(
+            "Inbox empty. When other validators broadcast AUDIT_MANIFEST or ATTESTATION packets they will appear here."
+        )
     else:
         st.caption(f"Showing last {len(history)} packets (newest first)")
         for pkt in reversed(history[-50:]):  # newest first, limited display
@@ -806,7 +895,9 @@ def _render_mesh_tab() -> None:
             ts = pkt.get("timestamp_utc", "")[:19]
             msg_id = pkt.get("msg_id", "")[:18]
 
-            icon = {"AUDIT_MANIFEST": "📦", "ATTESTATION": "🗳️", "HEARTBEAT": "💓"}.get(mtype, "📨")
+            icon = {"AUDIT_MANIFEST": "📦", "ATTESTATION": "🗳️", "HEARTBEAT": "💓"}.get(
+                mtype, "📨"
+            )
             title = f"{icon} {mtype} · {sender} · {ts}"
 
             with st.expander(title):
@@ -834,12 +925,15 @@ def _render_mesh_tab() -> None:
                 else:
                     st.json(pkt)
 
-                st.caption(f"msg_id: {msg_id}… · ttl={pkt.get('ttl')} · version={pkt.get('version')}")
+                st.caption(
+                    f"msg_id: {msg_id}… · ttl={pkt.get('ttl')} · version={pkt.get('version')}"
+                )
 
 
 # ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Launch the Milestone v2.0 Streamlit dashboard with three-tab architecture."""
@@ -862,22 +956,30 @@ def main() -> None:
     last_audit_metadata = _get_last_audit_metadata(db)
 
     # Session-state defaults
-    st.session_state.setdefault("source_link", last_audit_metadata.get("source_link", ""))
+    st.session_state.setdefault(
+        "source_link", last_audit_metadata.get("source_link", "")
+    )
     st.session_state.setdefault("country", last_audit_metadata.get("country", ""))
-    st.session_state.setdefault("municipality", last_audit_metadata.get("municipality", ""))
+    st.session_state.setdefault(
+        "municipality", last_audit_metadata.get("municipality", "")
+    )
     st.session_state.setdefault("year", last_audit_metadata.get("year", ""))
-    st.session_state.setdefault("uploaded_by", last_audit_metadata.get("uploaded_by", ""))
+    st.session_state.setdefault(
+        "uploaded_by", last_audit_metadata.get("uploaded_by", "")
+    )
     st.session_state.setdefault("uploaded_file", None)
     st.session_state.setdefault("mesh_port", 6001)
     st.session_state.setdefault("mesh_node", None)
     st.session_state.setdefault("mesh_history", [])
 
     # Three main tabs
-    tab_live, tab_registry, tab_mesh = st.tabs([
-        "📊 Live Budget Pipeline",
-        "📜 Historical Audit Registry",
-        "🌐 Mesh Validation Network",
-    ])
+    tab_live, tab_registry, tab_mesh = st.tabs(
+        [
+            "📊 Live Budget Pipeline",
+            "📜 Historical Audit Registry",
+            "🌐 Mesh Validation Network",
+        ]
+    )
 
     # ------------------------------------------------------------------
     # Tab 1 — Live Budget Pipeline
@@ -891,15 +993,33 @@ def main() -> None:
                 type=["csv"],
                 help="Upload a municipal or state budget file in CSV format.",
             )
-            st.text_input("Source / link", key="source_link", help="Link to the budget source document or public portal")
-            st.text_input("Country / jurisdiction", key="country", help="Country or jurisdiction name")
-            st.text_input("Municipality / institution", key="municipality", help="Municipality or institution name")
+            st.text_input(
+                "Source / link",
+                key="source_link",
+                help="Link to the budget source document or public portal",
+            )
+            st.text_input(
+                "Country / jurisdiction",
+                key="country",
+                help="Country or jurisdiction name",
+            )
+            st.text_input(
+                "Municipality / institution",
+                key="municipality",
+                help="Municipality or institution name",
+            )
             st.text_input("Year", key="year", help="Budget year or fiscal period")
-            st.text_input("Uploaded by", key="uploaded_by", help="Name or identifier of uploader")
-            submit = st.form_submit_button("Run audit pipeline", use_container_width=True)
+            st.text_input(
+                "Uploaded by", key="uploaded_by", help="Name or identifier of uploader"
+            )
+            submit = st.form_submit_button(
+                "Run audit pipeline", use_container_width=True
+            )
 
         if not submit or uploaded_file is None:
-            st.info("Upload a CSV file and complete the provenance metadata to begin the automated forensic review.")
+            st.info(
+                "Upload a CSV file and complete the provenance metadata to begin the automated forensic review."
+            )
         else:
             metadata = {
                 "source_link": st.session_state.source_link,
@@ -925,7 +1045,9 @@ def main() -> None:
                 pdf_path = report_dir / "forensic_audit_report.pdf"
                 json_path = report_dir / "audit_manifest.json"
 
-                manifest = _build_manifest(audit_result, metadata, metadata["file_hash"])
+                manifest = _build_manifest(
+                    audit_result, metadata, metadata["file_hash"]
+                )
 
                 # Write manifest to JSON
                 with json_path.open("w", encoding="utf-8") as handle:
@@ -952,17 +1074,23 @@ def main() -> None:
                             municipality=metadata.get("municipality") or "Unknown",
                             year=metadata.get("year") or "",
                             chi_square=float(metrics.get("chi_square", 0.0)),
-                            shannon_entropy=float(metrics.get("shannon_entropy", 0.0)),
+                            shannon_entropy=float(
+                                metrics.get("shannon_entropy", 0.0)
+                            ),
                             risk_level=str(audit_result.get("risk_level", "UNKNOWN")),
                         )
                         sent = node.broadcast_gossip(gossip_pkt)
-                        st.info(f"📡 AUDIT_MANIFEST broadcast to mesh ({sent} peer(s) reached)")
+                        st.info(
+                            f"📡 AUDIT_MANIFEST broadcast to mesh ({sent} peer(s) reached)"
+                        )
                     except Exception as exc:
                         st.warning(f"Mesh broadcast skipped: {exc}")
 
                 # Generate PDF
                 pdf_generator = ForensicPDFGenerator()
-                final_pdf = _ensure_public_pdf(pdf_generator, audit_result, str(chart_path), str(pdf_path))
+                final_pdf = _ensure_public_pdf(
+                    pdf_generator, audit_result, str(chart_path), str(pdf_path)
+                )
 
                 st.success("Audit pipeline completed successfully.")
                 st.image(str(chart_path), use_container_width=True)
