@@ -389,14 +389,21 @@ def _build_audit_result(
     result["uploaded_by"] = metadata.get("uploaded_by", "")
     result["file_hash"] = metadata.get("file_hash", "")
 
-    # 4) Ensure UI metrics are always present
+    # 4) Ensure UI metrics are always present (Mapped exactly to your production tests)
     metrics = result.setdefault("metrics", {})
-    metrics["chi_square"] = float(result.get("metrics", {}).get("chi_square", 0.0))
-    metrics["shannon_entropy"] = float(result.get("metrics", {}).get("shannon_entropy", 0.0))
+    
+    # Izvlačimo tvoje stvarne rezultate iz rečnika tests
+    tests_dict = result.get("tests", {})
+    benford_score = tests_dict.get("benford", {}).get("score", 0.0)
+    shannon_score = tests_dict.get("shannon", {}).get("score", 0.0)
+    
+    metrics["chi_square"] = float(benford_score)
+    metrics["shannon_entropy"] = float(shannon_score)
     metrics.setdefault("amount_column_index", int(amount_column))
     metrics.setdefault("observation_count", len(values))
 
     return result
+
 
 
 def _render_results(
