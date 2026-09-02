@@ -1,3 +1,4 @@
+```python
 """Streamlit Milestone v2.0 dashboard for the Open Fiscal Forensics Framework.
 
 This release advances the dual-tab architecture into a three-tab system:
@@ -416,15 +417,11 @@ def _build_audit_result(
     label = metadata.get("municipality", "").strip() or "Audit"
     core = ForensicCore()
 
-    # 2) Run ForensicCore with signature fallback compatibility
+    # 2) Signature-safe analyze calls
     try:
         result = core.analyze(values, label=label)
-    except TypeError as exc:
-        msg = str(exc).lower()
-        if "unexpected keyword argument" in msg or "positional argument" in msg:
-            result = core.analyze(csv_file, amount_column=amount_column)
-        else:
-            raise
+    except TypeError:
+        result = core.analyze(values)
 
     # 3) Attach metadata
     result["dataset_name"] = Path(csv_file).name
@@ -1112,3 +1109,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+```
