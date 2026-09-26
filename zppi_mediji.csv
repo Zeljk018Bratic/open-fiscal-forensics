@@ -1,3 +1,6 @@
-datum,naziv,oib,iznos
-2026-09-01,Lokalni Medij 1,11111111111,5000
-2026-09-15,Lokalni Medij 2,22222222222,4500
+datum,vrsta_dokumenta,broj_dokumenta,partner_naziv,partner_oib,opis,iznos,program,aktivnost
+2026-02-10,Virman,2026-014,Lokalni portal InfoLabin,11111111111,Oglasavanje i pracenje rada,3200.00,Javnost,Mediji
+2026-03-05,Virman,2026-027,Radio Labin d.o.o.,22222222222,Radio oglasi i emisije,2800.00,Javnost,Mediji
+2026-06-08,Virman,2026-068,Lokalni portal InfoLabin,11111111111,Baneri i vijesti,2900.00,Javnost,Mediji
+2026-08-22,Virman,2026-095,Radio Labin d.o.o.,22222222222,Ljetna kampanja,3100.00,Javnost,Mediji
+
