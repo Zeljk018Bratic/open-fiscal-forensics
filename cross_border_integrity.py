@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any, Dict, Optional, Set, Union
 
@@ -13,110 +12,81 @@ class CrossBorderIntegrityMonitor:
     """
     Modular forensic monitor for cross-checking municipal budgets,
     ZPPI media responses and external risk OIB registries.
-    Hardened for real Croatian municipal CSV exports (semicolon + quoted headers).
+    Hardened for real Croatian municipal CSV exports
+    (semicolon-separated + double-quoted fields).
     """
 
     def __init__(self, risk_oibs: Optional[Set[str]] = None):
         self.risk_oibs: Set[str] = risk_oibs or set()
 
     # ------------------------------------------------------------------
-    # Bullet-proof CSV loader for Croatian / EU municipal files
+    # Bullet-proof loader for the exact Croatian municipal format
     # ------------------------------------------------------------------
     @staticmethod
     def _safe_read_csv(path: Union[str, Path]) -> pd.DataFrame:
         """
-        Robust reader that guarantees correct splitting on real Croatian
-        budget exports (semicolon-separated, possibly quoted headers).
+        Force semicolon parsing and aggressively strip enclosing double quotes
+        from both headers and data cells. Designed for the exact layout of
+        pravi_budzet.csv and similar EU/Croatian exports.
         """
         path = Path(path)
 
-        def _clean_columns(df: pd.DataFrame) -> pd.DataFrame:
-            # Remove surrounding quotes and excess whitespace from headers
-            df.columns = (
-                df.columns.astype(str)
+        # Primary strategy: semicolon + QUOTE_MINIMAL / QUOTE_ALL
+        try:
+            df = pd.read_csv(
+                path,
+                sep=";",
+                dtype=str,
+                engine="python",
+                quoting=1,              # QUOTE_ALL
+                on_bad_lines="warn",
+                encoding="utf-8-sig",
+            )
+        except Exception:
+            # Fallback: ignore quoting rules completely
+            df = pd.read_csv(
+                path,
+                sep=";",
+                dtype=str,
+                engine="python",
+                quoting=3,              # QUOTE_NONE
+                on_bad_lines="warn",
+                encoding="utf-8-sig",
+            )
+
+        # Clean column names – remove surrounding quotes and whitespace
+        df.columns = (
+            df.columns.astype(str)
+            .str.replace(r'^["\']+|["\']+$', "", regex=True)
+            .str.strip()
+        )
+
+        # Clean every cell – strip surrounding quotes
+        for col in df.columns:
+            df[col] = (
+                df[col]
+                .astype(str)
                 .str.replace(r'^["\']+|["\']+$', "", regex=True)
                 .str.strip()
             )
-            return df
 
-        # Strategy 1: explicit semicolon (most common for Croatian exports)
-        try:
-            df = pd.read_csv(
-                path,
-                dtype=str,
-                sep=";",
-                engine="python",
-                quoting=1,               # QUOTE_ALL
-                on_bad_lines="warn",
-                encoding="utf-8-sig",
-            )
-            df = _clean_columns(df)
-            if df.shape[1] > 1:
-                return df
-        except Exception:
-            pass
-
-        # Strategy 2: comma
-        try:
-            df = pd.read_csv(
-                path,
-                dtype=str,
-                sep=",",
-                engine="python",
-                quoting=1,
-                on_bad_lines="warn",
-                encoding="utf-8-sig",
-            )
-            df = _clean_columns(df)
-            if df.shape[1] > 1:
-                return df
-        except Exception:
-            pass
-
-        # Strategy 3: automatic sniff + forced semicolon fallback
-        try:
-            df = pd.read_csv(
-                path,
-                dtype=str,
-                sep=None,
-                engine="python",
-                on_bad_lines="warn",
-                encoding="utf-8-sig",
-            )
-            df = _clean_columns(df)
-            if df.shape[1] > 1:
-                return df
-        except Exception:
-            pass
-
-        # Last resort – force semicolon and ignore quoting problems
-        df = pd.read_csv(
-            path,
-            dtype=str,
-            sep=";",
-            engine="python",
-            quoting=3,               # QUOTE_NONE
-            on_bad_lines="warn",
-            encoding="utf-8-sig",
-        )
-        return _clean_columns(df)
+        return df
 
     # ------------------------------------------------------------------
-    # Flexible column finder (case-insensitive, partial match)
+    # Case-insensitive substring column locator
     # ------------------------------------------------------------------
     @staticmethod
     def _find_column(df: pd.DataFrame, *candidates: str) -> Optional[str]:
         """
-        Return the first column whose name contains any of the candidate
-        strings (case-insensitive). Handles real headers such as
-        'OIB', 'Iznos na poziciji', 'Datum', etc.
+        Return the first column whose cleaned name contains any of the
+        candidate strings (case-insensitive).
+        Handles real headers such as "OIB", "Iznos na poziciji", "Datum".
         """
-        cols_lower = {c: c.lower() for c in df.columns}
-        for cand in candidates:
-            cand_l = cand.lower()
-            for original, lower in cols_lower.items():
-                if cand_l in lower:
-                    return original
+        for col in df.columns:
+            col_lower = str(col).lower()
+            for cand in candidates:
+                if cand.lower() in col_lower:
+                    return col
         return None
 
     # ------------------------------------------------------------------
@@ -130,8 +100,11 @@ class CrossBorderIntegrityMonitor:
             oibs = {str(x).strip() for x in data}
         else:
             df = cls._safe_read_csv(path)
-            col = cls._find_column(df, "oib") or df.columns[0]
-            oibs = set(df[col].dropna().astype(str).str.strip())
+            col = cls._find_column(df, "oib") or (df.columns[0] if len(df.columns) else None)
+            if col is None:
+                oibs = set()
+            else:
+                oibs = set(df[col].dropna().astype(str).str.strip())
         return cls(risk_oibs=oibs)
 
     # ------------------------------------------------------------------
@@ -149,13 +122,13 @@ class CrossBorderIntegrityMonitor:
         budget = self._safe_read_csv(budget_csv)
         media = self._safe_read_csv(zppi_media_csv)
 
-        # Dynamic amount column detection for real Croatian headers
+        # Locate amount columns (real header = "Iznos na poziciji")
         amount_col_budget = (
-            self._find_column(budget, "Iznos na poziciji", "Iznos", "amount", "suma", "vrijednost")
+            self._find_column(budget, "Iznos na poziciji", "Iznos", "amount", "suma")
             or amount_col_budget
         )
         amount_col_media = (
-            self._find_column(media, "Iznos na poziciji", "Iznos", "amount", "suma", "vrijednost")
+            self._find_column(media, "Iznos na poziciji", "Iznos", "amount", "suma")
             or amount_col_media
         )
 
@@ -167,6 +140,20 @@ class CrossBorderIntegrityMonitor:
             raise ValueError(
                 f"Amount column not found in media file. Available: {list(media.columns)}"
             )
+
+        # Strip any residual quotes then convert
+        budget[amount_col_budget] = (
+            budget[amount_col_budget]
+            .astype(str)
+            .str.replace(r'["\']', "", regex=True)
+            .str.replace(",", ".", regex=False)   # just in case of European decimal
+        )
+        media[amount_col_media] = (
+            media[amount_col_media]
+            .astype(str)
+            .str.replace(r'["\']', "", regex=True)
+            .str.replace(",", ".", regex=False)
+        )
 
         budget[amount_col_budget] = pd.to_numeric(budget[amount_col_budget], errors="coerce")
         media[amount_col_media] = pd.to_numeric(media[amount_col_media], errors="coerce")
@@ -201,7 +188,7 @@ class CrossBorderIntegrityMonitor:
         }
 
     # ------------------------------------------------------------------
-    # OIB intersection (the part that was failing)
+    # OIB intersection
     # ------------------------------------------------------------------
     def flag_entity_risk_correlation(
         self,
@@ -210,8 +197,8 @@ class CrossBorderIntegrityMonitor:
     ) -> pd.DataFrame:
         df = self._safe_read_csv(procurement_csv)
 
-        # Find the real OIB column (handles "OIB", "partner_oib", etc.)
-        detected = self._find_column(df, "OIB", "oib", "partner_oib", "maticni_broj")
+        # Locate the real OIB column (header contains "OIB")
+        detected = self._find_column(df, "OIB", "oib", "partner_oib", "maticni")
         if detected is None:
             raise ValueError(
                 f"No OIB column found. Available columns: {list(df.columns)}"
@@ -219,7 +206,14 @@ class CrossBorderIntegrityMonitor:
         oib_col = detected
 
         df = df.copy()
-        df["_oib_clean"] = df[oib_col].astype(str).str.strip()
+        # Final clean of OIB values – strip quotes and whitespace
+        df["_oib_clean"] = (
+            df[oib_col]
+            .astype(str)
+            .str.replace(r'["\']', "", regex=True)
+            .str.strip()
+        )
+
         matched = df[df["_oib_clean"].isin(self.risk_oibs)].copy()
         matched = matched.drop(columns=["_oib_clean"])
         return matched.reset_index(drop=True)
