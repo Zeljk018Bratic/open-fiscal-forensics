@@ -1,6 +1,5 @@
-Naziv isplatitelja;Datum;Primatelj;OIB;Iznos na poziciji;Opis
-Grad Labin;2026-09-20;Sumnjiva Firma d.o.o.;12345678901;150000.00;IKT Oprema za HUB Veliko kupatilo
-Grad Labin;2026-09-21;Cista Firma d.o.o.;55555555555;20000.00;Konzultantske usluge i dokumentacija
-
+Naziv isplatitelja,Datum,Primatelj,OIB,Iznos na poziciji,Opis
+Grad Labin,2026-09-20,"Sumnjiva Firma d.o.o.",12345678901,150000.00,"IKT Oprema za HUB Veliko kupatilo"
+Grad Labin,2026-09-21,"Cista Firma d.o.o.",55555555555,20000.00,"Konzultantske usluge i dokumentacija"
 
 
