@@ -930,13 +930,14 @@ def main() -> None:
     st.session_state.setdefault("mesh_port", 6001)
     st.session_state.setdefault("mesh_node", None)
     st.session_state.setdefault("mesh_history", [])
-
-    # Three main tabs
-    tab_live, tab_registry, tab_mesh = st.tabs(
+   
+    # Three main tabs + Unakrsni Monitor
+    tab_live, tab_registry, tab_mesh, tab_integrity = st.tabs(
         [
             "📊 Live Budget Pipeline",
             "📜 Historical Audit Registry",
             "🌐 Mesh Validation Network",
+            "🧬 Unakrsni Monitor Nabave",
         ]
     )
 
