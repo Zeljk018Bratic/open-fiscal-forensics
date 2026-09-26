@@ -1,4 +1,5 @@
-datum,vrsta_dokumenta,broj_dokumenta,partner_naziv,oib,opis,iznos,program,aktivnost
-2026-09-20,Ugovor,2026-HUB-01,Sumnjiva Firma d.o.o.,12345678901,IKT Oprema za HUB Veliko kupatilo,150000.00,Razvoj,HUB
-2026-09-21,Ugovor,2026-HUB-02,Cista Firma d.o.o.,55555555555,Konzultantske usluge i dokumentacija,20000.00,Razvoj,HUB
+Naziv isplatitelja;"Datum";"Primatelj";"OIB";"Iznos na poziciji";"Opis"
+Grad Labin;"2026-09-20";"Sumnjiva Firma d.o.o.";"12345678901";150000.00;"IKT Oprema za HUB Veliko kupatilo"
+Grad Labin;"2026-09-21";"Cista Firma d.o.o.";"55555555555";20000.00;"Konzultantske usluge i dokumentacija"
+
 
