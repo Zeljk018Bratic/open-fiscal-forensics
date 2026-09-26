@@ -1063,11 +1063,76 @@ def main() -> None:
         st.subheader("Historical Audit Registry")
         _render_audit_registry(db)
 
-    # ------------------------------------------------------------------
+      # ------------------------------------------------------------------
     # Tab 3 — Mesh Validation Network
     # ------------------------------------------------------------------
     with tab_mesh:
         _render_mesh_tab()
+
+    # ------------------------------------------------------------------
+    # Tab 4 — Unakrsni Monitor Nabave
+    # ------------------------------------------------------------------
+    with tab_integrity:
+        st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
+        st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
+
+        try:
+            from cross_border_integrity import CrossBorderIntegrityMonitor
+            
+            # Učitavanje baze rizičnih OIB-a iz korijena tvog repozitorija
+            risk_path = Path("my_risk_oibs.json")
+            if risk_path.exists():
+                monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
+                st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
+            else:
+                st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristite ručni uvoz.")
+                monitor = CrossBorderIntegrityMonitor()
+
+            st.write("---")
+
+            # Sučelje podijeljeno u dva stupca
+            col_left, col_right = st.columns(2)
+            
+            with col_left:
+                st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
+                budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
+                media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
+                
+                if budget_file and media_file:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
+                         tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
+                        tmp_b.write(budget_file.getvalue())
+                        tmp_m.write(media_file.getvalue())
+                        
+                        try:
+                            stats = monitor.evaluate_media_outflow_density(tmp_b.name, tmp_m.name)
+                            st.metric("Gustoća isplata medijima", f"{stats['media_density_pct']}%")
+                            st.write(f"Ukupni proračunski odljev: **{stats['total_budget_outflow']:,} €**")
+                            st.write(f"Ukupno isplaćeno medijima: **{stats['total_media_outflow']:,} €**")
+                        except Exception as e:
+                            st.error(f"Greška pri analizi gustoće: {e}")
+
+            with col_right:
+                st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
+                proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
+                oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
+                
+                if proc_file:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
+                        tmp_p.write(proc_file.getvalue())
+                        
+                        try:
+                            flagged_matches = monitor.flag_entity_risk_correlation(tmp_p.name, oib_col=oib_column_name)
+                            if not flagged_matches.empty:
+                                st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
+                                st.dataframe(flagged_matches)
+                            else:
+                                st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
+                    except Exception as e:
+                        st.error(f"Greška pri provjeri nabave: {e}")
+                            
+        except ImportError:
+            st.error("Kritična greška: Modul `cross_border_integrity.py` nije ispravno postavljen u korijenu aplikacije.")
 
 
 if __name__ == "__main__":
