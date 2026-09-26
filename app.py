@@ -1063,15 +1063,11 @@ def main() -> None:
         st.subheader("Historical Audit Registry")
         _render_audit_registry(db)
 
-       # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Tab 3 — Mesh Validation Network
     # ------------------------------------------------------------------
     with tab_mesh:
         _render_mesh_tab()
-
-
-if __name__ == "__main__":
-    main()
 
     # ------------------------------------------------------------------
     # Tab 4 — Unakrsni Monitor Nabave
