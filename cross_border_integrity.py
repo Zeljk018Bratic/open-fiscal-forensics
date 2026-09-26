@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, Optional, Set, Union
 
@@ -12,75 +13,124 @@ class CrossBorderIntegrityMonitor:
     """
     Modular forensic monitor for cross-checking municipal budgets,
     ZPPI media responses and external risk OIB registries.
+    Hardened for real Croatian municipal CSV exports (semicolon + quoted headers).
     """
 
     def __init__(self, risk_oibs: Optional[Set[str]] = None):
         self.risk_oibs: Set[str] = risk_oibs or set()
 
     # ------------------------------------------------------------------
-    # Robust CSV loader (handles both , and ; + embedded commas)
+    # Bullet-proof CSV loader for Croatian / EU municipal files
     # ------------------------------------------------------------------
     @staticmethod
     def _safe_read_csv(path: Union[str, Path]) -> pd.DataFrame:
         """
-        Bullet-proof CSV reader for Croatian / EU municipal exports.
-        Tries comma, then semicolon, then falls back to the Python engine
-        with automatic separator detection. Never raises on field-count
-        mismatches.
+        Robust reader that guarantees correct splitting on real Croatian
+        budget exports (semicolon-separated, possibly quoted headers).
         """
         path = Path(path)
 
-        # 1) Fast path – standard comma
-        try:
-            return pd.read_csv(
-                path,
-                dtype=str,
-                sep=",",
-                engine="c",
-                quoting=1,          # QUOTE_ALL
-                on_bad_lines="warn",
-                encoding="utf-8-sig",
+        def _clean_columns(df: pd.DataFrame) -> pd.DataFrame:
+            # Remove surrounding quotes and excess whitespace from headers
+            df.columns = (
+                df.columns.astype(str)
+                .str.replace(r'^["\']+|["\']+$', "", regex=True)
+                .str.strip()
             )
-        except Exception:
-            pass
+            return df
 
-        # 2) Common EU / Croatian export – semicolon
+        # Strategy 1: explicit semicolon (most common for Croatian exports)
         try:
-            return pd.read_csv(
+            df = pd.read_csv(
                 path,
                 dtype=str,
                 sep=";",
-                engine="c",
+                engine="python",
+                quoting=1,               # QUOTE_ALL
+                on_bad_lines="warn",
+                encoding="utf-8-sig",
+            )
+            df = _clean_columns(df)
+            if df.shape[1] > 1:
+                return df
+        except Exception:
+            pass
+
+        # Strategy 2: comma
+        try:
+            df = pd.read_csv(
+                path,
+                dtype=str,
+                sep=",",
+                engine="python",
                 quoting=1,
                 on_bad_lines="warn",
                 encoding="utf-8-sig",
             )
+            df = _clean_columns(df)
+            if df.shape[1] > 1:
+                return df
         except Exception:
             pass
 
-        # 3) Last-resort – Python engine, automatic separator detection
-        return pd.read_csv(
+        # Strategy 3: automatic sniff + forced semicolon fallback
+        try:
+            df = pd.read_csv(
+                path,
+                dtype=str,
+                sep=None,
+                engine="python",
+                on_bad_lines="warn",
+                encoding="utf-8-sig",
+            )
+            df = _clean_columns(df)
+            if df.shape[1] > 1:
+                return df
+        except Exception:
+            pass
+
+        # Last resort – force semicolon and ignore quoting problems
+        df = pd.read_csv(
             path,
             dtype=str,
-            sep=None,               # let the engine sniff
+            sep=";",
             engine="python",
+            quoting=3,               # QUOTE_NONE
             on_bad_lines="warn",
             encoding="utf-8-sig",
         )
+        return _clean_columns(df)
+
+    # ------------------------------------------------------------------
+    # Flexible column finder (case-insensitive, partial match)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _find_column(df: pd.DataFrame, *candidates: str) -> Optional[str]:
+        """
+        Return the first column whose name contains any of the candidate
+        strings (case-insensitive). Handles real headers such as
+        'OIB', 'Iznos na poziciji', 'Datum', etc.
+        """
+        cols_lower = {c: c.lower() for c in df.columns}
+        for cand in candidates:
+            cand_l = cand.lower()
+            for original, lower in cols_lower.items():
+                if cand_l in lower:
+                    return original
+        return None
 
     # ------------------------------------------------------------------
     # Factory
     # ------------------------------------------------------------------
     @classmethod
     def from_risk_file(cls, path: Union[str, Path]) -> "CrossBorderIntegrityMonitor":
-        """Load risk OIBs from an external JSON list or CSV."""
         path = Path(path)
         if path.suffix.lower() == ".json":
             data = json.loads(path.read_text(encoding="utf-8"))
             oibs = {str(x).strip() for x in data}
         else:
             df = cls._safe_read_csv(path)
-            col = "oib" if "oib" in df.columns else df.columns[0]
+            col = cls._find_column(df, "oib") or df.columns[0]
             oibs = set(df[col].dropna().astype(str).str.strip())
         return cls(risk_oibs=oibs)
 
@@ -96,44 +146,45 @@ class CrossBorderIntegrityMonitor:
         date_col_media: str = "datum",
         amount_col_media: str = "iznos",
     ) -> Dict[str, Any]:
-        """
-        Calculate the percentage share of media payments inside the total
-        budget outflow. Returns a pure numeric summary.
-        """
         budget = self._safe_read_csv(budget_csv)
         media = self._safe_read_csv(zppi_media_csv)
 
-        # Flexible amount column detection (common aliases)
-        for alias in (amount_col_budget, "iznos", "amount", "vrijednost", "suma"):
-            if alias in budget.columns:
-                amount_col_budget = alias
-                break
-        for alias in (amount_col_media, "iznos", "amount", "vrijednost", "suma"):
-            if alias in media.columns:
-                amount_col_media = alias
-                break
+        # Dynamic amount column detection for real Croatian headers
+        amount_col_budget = (
+            self._find_column(budget, "Iznos na poziciji", "Iznos", "amount", "suma", "vrijednost")
+            or amount_col_budget
+        )
+        amount_col_media = (
+            self._find_column(media, "Iznos na poziciji", "Iznos", "amount", "suma", "vrijednost")
+            or amount_col_media
+        )
 
-        budget[amount_col_budget] = pd.to_numeric(
-            budget[amount_col_budget], errors="coerce"
-        )
-        media[amount_col_media] = pd.to_numeric(
-            media[amount_col_media], errors="coerce"
-        )
+        if amount_col_budget not in budget.columns:
+            raise ValueError(
+                f"Amount column not found in budget file. Available: {list(budget.columns)}"
+            )
+        if amount_col_media not in media.columns:
+            raise ValueError(
+                f"Amount column not found in media file. Available: {list(media.columns)}"
+            )
+
+        budget[amount_col_budget] = pd.to_numeric(budget[amount_col_budget], errors="coerce")
+        media[amount_col_media] = pd.to_numeric(media[amount_col_media], errors="coerce")
 
         total_budget = float(budget[amount_col_budget].sum(skipna=True))
         total_media = float(media[amount_col_media].sum(skipna=True))
         density = (total_media / total_budget * 100.0) if total_budget else 0.0
 
+        # Optional monthly breakdown
+        date_col_budget = self._find_column(budget, "Datum", "datum", "date") or date_col_budget
+        date_col_media = self._find_column(media, "Datum", "datum", "date") or date_col_media
+
         monthly = None
         if date_col_budget in budget.columns and date_col_media in media.columns:
             budget = budget.copy()
             media = media.copy()
-            budget["_m"] = pd.to_datetime(
-                budget[date_col_budget], errors="coerce"
-            ).dt.to_period("M")
-            media["_m"] = pd.to_datetime(
-                media[date_col_media], errors="coerce"
-            ).dt.to_period("M")
+            budget["_m"] = pd.to_datetime(budget[date_col_budget], errors="coerce").dt.to_period("M")
+            media["_m"] = pd.to_datetime(media[date_col_media], errors="coerce").dt.to_period("M")
             b_m = budget.groupby("_m", dropna=True)[amount_col_budget].sum()
             m_m = media.groupby("_m", dropna=True)[amount_col_media].sum()
             monthly = (
@@ -150,29 +201,22 @@ class CrossBorderIntegrityMonitor:
         }
 
     # ------------------------------------------------------------------
-    # OIB intersection
+    # OIB intersection (the part that was failing)
     # ------------------------------------------------------------------
     def flag_entity_risk_correlation(
         self,
         procurement_csv: Union[str, Path],
         oib_col: str = "oib",
     ) -> pd.DataFrame:
-        """
-        Return only those procurement rows whose OIB appears in the
-        externally supplied risk set. Pure set intersection.
-        """
         df = self._safe_read_csv(procurement_csv)
 
-        # Flexible OIB column detection
-        candidates = [oib_col, "oib", "OIB", "partner_oib", "maticni_broj"]
-        for col in candidates:
-            if col in df.columns:
-                oib_col = col
-                break
-        else:
+        # Find the real OIB column (handles "OIB", "partner_oib", etc.)
+        detected = self._find_column(df, "OIB", "oib", "partner_oib", "maticni_broj")
+        if detected is None:
             raise ValueError(
                 f"No OIB column found. Available columns: {list(df.columns)}"
             )
+        oib_col = detected
 
         df = df.copy()
         df["_oib_clean"] = df[oib_col].astype(str).str.strip()
@@ -181,7 +225,7 @@ class CrossBorderIntegrityMonitor:
         return matched.reset_index(drop=True)
 
     # ------------------------------------------------------------------
-    # Optional audit checklist (unchanged public API)
+    # Optional audit checklist
     # ------------------------------------------------------------------
     def audit_status_summary(
         self,
