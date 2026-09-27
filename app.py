@@ -1079,7 +1079,6 @@ def main() -> None:
     try:
         from cross_border_integrity import CrossBorderIntegrityMonitor
 
-        # Učitavanje baze rizičnih OIB-a
         risk_path = Path("my_risk_oibs.json")
         if risk_path.exists():
             monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
@@ -1090,9 +1089,6 @@ def main() -> None:
 
         st.write("---")
 
-        # ------------------------------------------------------------------
-        # Gornji dio – dva stupca
-        # ------------------------------------------------------------------
         col_left, col_right = st.columns(2)
 
         with col_left:
@@ -1136,16 +1132,11 @@ def main() -> None:
                     st.error(f"Greška pri provjeri nabave: {e}")
 
         # ------------------------------------------------------------------
-        # Donji dio – Offline simulacija + cenzura + reconciler
+        # Offline simulacija + cenzura
         # ------------------------------------------------------------------
         st.write("---")
         st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
         st.caption("Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025.")
-
-        if "last_refresh" not in st.session_state:
-            st.session_state.last_refresh = time.time()
-
-        st.caption(f"🔄 Zadnje ažuriranje: {datetime.now().strftime('%H:%M:%S')}")
 
         official_totals = {
             "Total Outflows": 25_923_989.48,
@@ -1163,10 +1154,8 @@ def main() -> None:
             with open(mock_json_path, "r", encoding="utf-8") as f:
                 payload = json.load(f)
 
-            # Ispravno čitanje sheme (meta + data)
             records = payload.get("data", []) if isinstance(payload, dict) else payload
 
-            # Simulacija cenzure – skidamo 15.000 € s prvog zapisa na kontu 3237
             if cenzura_aktivna and records:
                 for r in records:
                     if str(r.get("konto")) == "3237":
@@ -1177,15 +1166,12 @@ def main() -> None:
 
             df_mock = pd.DataFrame(records)
 
-            # Pokušaj koristiti pravi reconciler, inače fallback
             try:
                 from transparency_reconciler import TransparencyDataReconciler
                 reconciler = TransparencyDataReconciler()
                 report = reconciler.calculate_audit_delta(
-                    df_mock,
-                    official_totals,
-                    amount_column="amount",
-                    konto_column="konto"
+                    df_mock, official_totals,
+                    amount_column="amount", konto_column="konto"
                 )
             except ImportError:
                 api_total = float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
@@ -1193,63 +1179,28 @@ def main() -> None:
                     "status": "VARIANCE_DETECTED" if cenzura_aktivna else "OK",
                     "record_count": len(df_mock),
                     "absolute_total_delta": abs(api_total - official_totals["Total Outflows"]),
-                    "deltas": {
-                        "Total Outflows": {
-                            "api_sum": round(api_total, 2),
-                            "official": official_totals["Total Outflows"],
-                            "delta": round(abs(api_total - official_totals["Total Outflows"]), 2),
-                        }
-                    },
-                    "message": "Fallback izračun (transparency_reconciler nije pronađen)."
+                    "message": "Fallback izračun"
                 }
 
-            st.metric("Broj povučenih zapisa iz baze", report.get("record_count", 0))
+            st.metric("Broj povučenih zapisa", report.get("record_count", 0))
 
             if report.get("status") == "VARIANCE_DETECTED" or cenzura_aktivna:
-                st.error("⚠ VARIANCE DETECTED: Otkriveno odstupanje između API zapisa i službenog izvještaja!")
-                st.write("Sustav je automatski izračunao DELTU koja nedostaje nakon simulirane cenzure.")
+                st.error("⚠ VARIANCE DETECTED: Otkriveno odstupanje!")
                 st.markdown(
                     "<div style='padding:10px; background-color:#d72638; color:white; border-radius:5px; font-weight:bold;'>"
-                    "CRVENI ALARM: Podaci na poslužitelju su filtrirani ili modificirani nakon revizije!"
+                    "CRVENI ALARM: Podaci su filtrirani ili modificirani!"
                     "</div>",
                     unsafe_allow_html=True
                 )
             else:
-                st.success("✓ STATUS: OK. Mock zapisi se poklapaju s očekivanim omotom unutar tolerancije.")
-                st.caption(report.get("message", ""))
+                st.success("✓ STATUS: OK")
 
             st.dataframe(df_mock, use_container_width=True, hide_index=True)
-
         else:
-            st.warning("Za pokretanje simulacije stavi datoteku `mock_api_ledger.json` u mapu projekta.")
-
-        # ------------------------------------------------------------------
-        # Opcionalni live API dio (ako korisnik unese ključ)
-        # ------------------------------------------------------------------
-        st.write("---")
-        st.subheader("🔑 Live API provjera (opcionalno)")
-        user_api_key = st.text_input(
-            "Unesi službeni API ključ (labin.transparentor.org)",
-            type="password",
-            key="reconcile_api_key"
-        )
-
-        if user_api_key:
-            try:
-                from transparency_reconciler import TransparencyDataReconciler
-                reconciler = TransparencyDataReconciler(base_url="https://transparentor.org")
-                st.info("Live API poziv još nije implementiran u ovoj verziji – koristi se offline mock.")
-            except ImportError:
-                st.error("Modul `transparency_reconciler.py` nije pronađen.")
-            except Exception as e:
-                st.error(f"Greška: {e}")
+            st.warning("Stavi `mock_api_ledger.json` u root projekta za offline simulaciju.")
 
     except ImportError:
-        st.error("Kritična greška: Modul `cross_border_integrity.py` nije ispravno postavljen u korijenu aplikacije.")
+        st.error("Kritična greška: Modul `cross_border_integrity.py` nije pronađen.")
 
-# ------------------------------------------------------------------
-# Main entry
-# ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
-    
