@@ -249,7 +249,7 @@ def render_integrity_report(reconciler: TransparencyDataReconciler, api_key: str
         )
     else:
         st.success("Reconciliation within acceptable tolerance.")
-# ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
 # Supplied multi-year schema.
 # Replace USER_SUPPLIED placeholders with independently verified source
 # records before treating the dataset as an evidentiary record.
@@ -377,8 +377,8 @@ SOURCE_REFERENCE = {
         "independent_verification": False,
     },
     "financial_dataset": {
-        "municipality": "Grad Labin",
-        "period":,
+                "municipality": "Grad Labin",
+        "period": "2025",
         "currency": "EUR",
         "source_status": "USER_SUPPLIED",
     },
@@ -438,7 +438,7 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
         "block_hash": latest_block.block_hash,
         "ledger_verified": verify_chain(blocks),
         "absolute_delta_eur": format(abs(audit_delta.delta), "f"),
-        "historical_years":,
+        "historical_years":,[2023, 2024, 2025, 2026]
     }
 
 if __name__ == "__main__":
@@ -446,3 +446,4 @@ if __name__ == "__main__":
         Path("offf_output"),
     )
     print(json.dumps(result, indent=2, sort_keys=True))
+
