@@ -1070,10 +1070,12 @@ def main() -> None:
     with tab_mesh:
         _render_mesh_tab()
 
-           # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Tab 4 — Unakrsni Monitor Nabave
     # ------------------------------------------------------------------
-                     # ------------------------------------------------------------------
+    with tab_integrity:
+        try:
+            # ------------------------------------------------------------------
             # TRI PODIZBORNIKA – Službena Provjera Integriteta
             # ------------------------------------------------------------------
             st.write("---")
@@ -1128,7 +1130,11 @@ def main() -> None:
                     st.dataframe(df_rows, use_container_width=True, hide_index=True)
 
                     # Vizualizacija varijance
-                    st.bar_chart(df_rows.set_index("Konto")[["API / Mock sum (€)", "Službeni iznos (€)"]])
+                    st.bar_chart(
+                        df_rows.set_index("Konto")[
+                            ["API / Mock sum (€)", "Službeni iznos (€)"]
+                        ]
+                    )
                 else:
                     st.info("Nema učitanih podataka za analizu varijance.")
 
@@ -1162,7 +1168,9 @@ def main() -> None:
 
                     if cenzura_aktivna:
                         for idx, row in df_alarm.iterrows():
-                            konto_val = str(row.get("konto", "")).replace("Konto ", "").strip()
+                            konto_val = (
+                                str(row.get("konto", "")).replace("Konto ", "").strip()
+                            )
                             if konto_val in ("3233", "3237"):
                                 original = float(row.get("amount", 0))
                                 df_alarm.at[idx, "amount"] = max(0.0, original - 15_000.00)
