@@ -1073,113 +1073,67 @@ def main() -> None:
            # ------------------------------------------------------------------
     # Tab 4 — Unakrsni Monitor Nabave
     # ------------------------------------------------------------------
-    with tab_integrity:
-        st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
-        st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
-
-        try:
-            from cross_border_integrity import CrossBorderIntegrityMonitor
-
-            risk_path = Path("my_risk_oibs.json")
-            if risk_path.exists():
-                monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
-                st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
-            else:
-                st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristi se prazan monitor.")
-                monitor = CrossBorderIntegrityMonitor()
-
-            st.write("---")
-
-            # ------------------------------------------------------------------
-            # Gornji dio – dva stupca (ostaje isto)
-            # ------------------------------------------------------------------
-            col_left, col_right = st.columns(2)
-
-            with col_left:
-                st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
-                budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
-                media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
-
-                if budget_file and media_file:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
-                         tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
-                        tmp_b.write(budget_file.getvalue())
-                        tmp_m.write(media_file.getvalue())
-                        tmp_b_path, tmp_m_path = tmp_b.name, tmp_m.name
-
-                    try:
-                        stats = monitor.evaluate_media_outflow_density(tmp_b_path, tmp_m_path)
-                        st.metric("Gustoća isplata medijima", f"{stats.get('media_density_pct', 0)}%")
-                        st.write(f"Ukupni proračunski odljev: **{stats.get('total_budget_outflow', 0):,.2f} €**")
-                        st.write(f"Ukupno isplaćeno medijima: **{stats.get('total_media_outflow', 0):,.2f} €**")
-                    except Exception as e:
-                        st.error(f"Greška pri analizi gustoće: {e}")
-
-            with col_right:
-                st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
-                proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
-                oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
-
-                if proc_file:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
-                        tmp_p.write(proc_file.getvalue())
-                        tmp_p_path = tmp_p.name
-
-                    try:
-                        flagged_matches = monitor.flag_entity_risk_correlation(tmp_p_path, oib_col=oib_column_name)
-                        if not flagged_matches.empty:
-                            st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
-                            st.dataframe(flagged_matches, use_container_width=True)
-                        else:
-                            st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
-                    except Exception as e:
-                        st.error(f"Greška pri provjeri nabave: {e}")
-
-            # ------------------------------------------------------------------
-            # TRI PODIZBORNIKA
+               # ------------------------------------------------------------------
+            # TRI PODIZBORNIKA – Službena Provjera Integriteta
             # ------------------------------------------------------------------
             st.write("---")
             st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
 
+            official_totals = {
+                "Total Outflows": 25_923_989.48,
+                "Konto 3237": 705_827.65,
+                "Konto 3238": 156_248.09,
+            }
+
+            mock_json_path = Path("mock_api_ledger.json")
+
             # 1. Analiza varijance po kontima
             with st.expander("↳ Analiza varijance po kontima", expanded=False):
-                official_konto = {
-                    "Konto 3233": 79_161.16,
-                    "Konto 3237": 705_827.65,
-                    "Konto 3238": 156_248.09,
-                }
-                mock_json_path = Path("mock_api_ledger.json")
                 if mock_json_path.exists():
                     with open(mock_json_path, "r", encoding="utf-8") as f:
                         payload = json.load(f)
                     records = payload.get("data", []) if isinstance(payload, dict) else payload
                     df_var = pd.DataFrame(records)
 
-                    # Normalizacija konta (ukloni "Konto " prefiks ako postoji)
                     if "konto" in df_var.columns:
-                        df_var["konto_clean"] = df_var["konto"].astype(str).str.replace("Konto ", "", regex=False).str.strip()
+                        df_var["konto_clean"] = (
+                            df_var["konto"]
+                            .astype(str)
+                            .str.replace("Konto ", "", regex=False)
+                            .str.strip()
+                        )
                     else:
                         df_var["konto_clean"] = ""
 
                     rows = []
-                    for konto_name, official_val in official_konto.items():
+                    for konto_name, official_val in {
+                        "Konto 3237": 705_827.65,
+                        "Konto 3238": 156_248.09,
+                    }.items():
                         code = konto_name.replace("Konto ", "").strip()
                         mask = df_var["konto_clean"] == code
-                        api_sum = float(df_var.loc[mask, "amount"].sum()) if "amount" in df_var.columns else 0.0
+                        api_sum = (
+                            float(df_var.loc[mask, "amount"].sum())
+                            if "amount" in df_var.columns
+                            else 0.0
+                        )
                         delta = abs(api_sum - official_val)
-                        rows.append({
-                            "Konto": konto_name,
-                            "API / Mock sum (€)": round(api_sum, 2),
-                            "Službeni iznos (€)": official_val,
-                            "Δ (€)": round(delta, 2),
-                        })
+                        pct = (delta / official_val * 100) if official_val else 0.0
+                        rows.append(
+                            {
+                                "Konto": konto_name,
+                                "API / Mock sum (€)": round(api_sum, 2),
+                                "Službeni iznos (€)": official_val,
+                                "Δ (€)": round(delta, 2),
+                                "Variance %": round(pct, 2),
+                            }
+                        )
                     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
                 else:
                     st.warning("Stavi `mock_api_ledger.json` u root projekta.")
 
             # 2. Blockchain provjera integriteta
             with st.expander("↳ Blockchain provjera integriteta", expanded=False):
-                mock_json_path = Path("mock_api_ledger.json")
                 if mock_json_path.exists():
                     with open(mock_json_path, "r", encoding="utf-8") as f:
                         payload = json.load(f)
@@ -1189,83 +1143,98 @@ def main() -> None:
                     csv_bytes = df_hash.to_csv(index=False).encode("utf-8")
                     ledger_hash = hashlib.sha256(csv_bytes).hexdigest()
 
-                    st.success("✓ Ledger Integrity Verified via Kriptografski Otisak")
+                    st.success("✓ Ledger Integrity Secured via Cryptographic Hash")
                     st.code(ledger_hash, language="text")
-                    st.caption("SHA-256 otisak trenutnog ledgera. Ako se i jedan cent promijeni, hash se potpuno mijenja.")
+                    st.caption(
+                        "SHA-256 otisak trenutnog ledgera. Ako se i jedan cent promijeni, hash se potpuno mijenja."
+                    )
                 else:
                     st.warning("Stavi `mock_api_ledger.json` u root projekta.")
 
             # 3. Podesi logiku crvenog alarma
             with st.expander("↳ Podesi logiku crvenog alarma", expanded=True):
-                st.caption("Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025.")
-
-                official_totals = {
-                    "Total Outflows": 25_923_989.48,
-                    "Konto 3237": 705_827.65,
-                    "Konto 3238": 156_248.09,
-                }
+                st.caption(
+                    "Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025."
+                )
 
                 cenzura_aktivna = st.checkbox(
                     "🚨 Simuliraj cenzuru podataka (Sakrij 15.000 € s konta 3233)",
-                    key="cenzura_medija_flag"
+                    key="cenzura_medija_flag",
                 )
 
-                mock_json_path = Path("mock_api_ledger.json")
                 if mock_json_path.exists():
                     with open(mock_json_path, "r", encoding="utf-8") as f:
                         payload = json.load(f)
                     records = payload.get("data", []) if isinstance(payload, dict) else payload
 
-                    # Simulacija cenzure na kontu 3233 (ili 3237 kao fallback)
                     if cenzura_aktivna and records:
                         for r in records:
                             konto_val = str(r.get("konto", "")).replace("Konto ", "").strip()
                             if konto_val in ("3233", "3237"):
                                 original = float(r.get("amount", 0))
                                 r["amount"] = max(0.0, original - 15_000.00)
-                                r["description"] = r.get("description", r.get("opis", "")) + " [SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI]"
+                                desc = r.get("description") or r.get("opis") or ""
+                                r["description"] = desc + " [SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI]"
                                 break
 
                     df_mock = pd.DataFrame(records)
 
                     try:
                         from transparency_reconciler import TransparencyDataReconciler
+
                         reconciler = TransparencyDataReconciler()
                         report = reconciler.calculate_audit_delta(
-                            df_mock, official_totals,
-                            amount_column="amount", konto_column="konto"
+                            df_mock,
+                            official_totals,
+                            amount_column="amount",
+                            konto_column="konto",
                         )
                     except ImportError:
-                        api_total = float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
+                        api_total = (
+                            float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
+                        )
                         report = {
                             "status": "OK",
                             "record_count": len(df_mock),
-                            "message": "Fallback izračun"
+                            "message": "Fallback izračun",
                         }
 
                     st.metric("Broj povučenih zapisa", report.get("record_count", 0))
 
-                    # Alarm se pali ISKLJUČIVO na checkbox
                     if cenzura_aktivna:
-                        st.error("⚠ VARIANCE DETECTED: Otkriveno namjerno filtriranje i odstupanje u API zapisima!")
-                        st.write("Sustav je automatski izračunao DELTU: **15,000.00 €** koja je cenzurirana!")
+                        st.error(
+                            "⚠ VARIANCE DETECTED: Otkriveno namjerno filtriranje i odstupanje u API zapisima!"
+                        )
+                        st.write(
+                            "Sustav je automatski izračunao DELTU: **15,000.00 €** koja je cenzurirana!"
+                        )
                         st.markdown(
-                            "<div style='padding:10px; background-color:#d72638; color:white; border-radius:5px; font-weight:bold;'>"
+                            "<div style='padding:10px; background-color:#d72638; color:white; "
+                            "border-radius:5px; font-weight:bold;'>"
                             "CRVENI ALARM: Podaci na poslužitelju su filtrirani ili modificirani nakon revizije!"
                             "</div>",
-                            unsafe_allow_html=True
+                            unsafe_allow_html=True,
                         )
                     else:
-                        st.success("✓ STATUS: OK. Svi javni API zapisi se poklapaju s godišnjim izvještajem (Delta: 0.00 €).")
-                        st.caption("Extracted public records mathematically reconstruct the audited envelope within tolerance.")
+                        st.success(
+                            "✓ STATUS: OK. Svi javni API zapisi se poklapaju s godišnjim izvještajem (Delta: 0.00 €)."
+                        )
+                        st.caption(
+                            "Extracted public records mathematically reconstruct the audited envelope within tolerance."
+                        )
 
                     st.dataframe(df_mock, use_container_width=True, hide_index=True)
                 else:
-                    st.warning("Stavi `mock_api_ledger.json` u root projekta za offline simulaciju.")
+                    st.warning(
+                        "Stavi `mock_api_ledger.json` u root projekta za offline simulaciju."
+                    )
 
         except ImportError:
-            st.error("Kritična greška: Modul `cross_border_integrity.py` nije pronađen.")
-            # ------------------------------------------------------------------
+            st.error(
+                "Kritična greška: Modul `cross_border_integrity.py` nije pronađen."
+            )
+
+# ------------------------------------------------------------------
 # Main entry
 # ------------------------------------------------------------------
 if __name__ == "__main__":
