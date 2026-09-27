@@ -438,7 +438,7 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
         "block_hash": latest_block.block_hash,
         "ledger_verified": verify_chain(blocks),
         "absolute_delta_eur": format(abs(audit_delta.delta), "f"),
-        "historical_years":,[2023, 2024, 2025, 2026]
+        "historical_years":[2023, 2024, 2025, 2026]
     }
 
 if __name__ == "__main__":
