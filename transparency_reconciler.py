@@ -249,3 +249,201 @@ def render_integrity_report(reconciler: TransparencyDataReconciler, api_key: str
         )
     else:
         st.success("Reconciliation within acceptable tolerance.")
+        # ---------------------------------------------------------------------------
+# Supplied multi-year schema.
+# Replace USER_SUPPLIED placeholders with independently verified source
+# records before treating the dataset as an evidentiary record.
+# ---------------------------------------------------------------------------
+
+HISTORICAL_LEDGER = (
+    YearLedger(
+        year=2023,
+        total_realized_outflows=money("0"),
+        konto_32=money("0"),
+        konto_323=money("0"),
+        konto_3233_media=money("0"),
+        konto_3237_intellectual_consulting=money("0"),
+        konto_3238_software_it=money("0"),
+        mayor_office_media=money("0"),
+    ),
+    YearLedger(
+        year=2024,
+        total_realized_outflows=money("0"),
+        konto_32=money("0"),
+        konto_323=money("0"),
+        konto_3233_media=money("0"),
+        konto_3237_intellectual_consulting=money("0"),
+        konto_3238_software_it=money("0"),
+        mayor_office_media=money("0"),
+    ),
+    YearLedger(
+        year=2025,
+        total_realized_outflows=money("25923989.48"),
+        konto_32=money("6899673.65"),
+        konto_323=money("4176288.28"),
+        konto_3233_media=money("63102.72"),
+        konto_3237_intellectual_consulting=money("705827.65"),
+        konto_3238_software_it=money("156248.09"),
+        mayor_office_media=money("30869.58"),
+    ),
+    YearLedger(
+        year=2026,
+        total_realized_outflows=money("0"),
+        konto_32=money("0"),
+        konto_323=money("0"),
+        konto_3233_media=money("0"),
+        konto_3237_intellectual_consulting=money("0"),
+        konto_3238_software_it=money("0"),
+        mayor_office_media=money("0"),
+    ),
+)
+
+ECOLOGICAL_INDICATORS = (
+    EcologicalIndicator(
+        indicator_id="TOC_SPIKE_01",
+        description="User-supplied count of reported chlorine-associated TOC threshold exceedance observations.",
+        observed_value=money("148"),
+        reference_value=money("0"),
+        unit="incidents",
+    ),
+    EcologicalIndicator(
+        indicator_id="TOC_THRESHOLD_01",
+        description="User-supplied reported TOC concentration threshold.",
+        observed_value=money("20"),
+        reference_value=money("20"),
+        unit="mg/m3",
+    ),
+    EcologicalIndicator(
+        indicator_id="INDUSTRIAL_WASTE_01",
+        description="User-supplied reported quantity of cross-border industrial chemical waste.",
+        observed_value=money("19013"),
+        reference_value=None,
+        unit="tons",
+    ),
+    EcologicalIndicator(
+        indicator_id="DECLARED_CUSTOMS_VALUE_01",
+        description="User-supplied reported customs declaration value associated with the waste quantity.",
+        observed_value=money("124"),
+        reference_value=None,
+        unit="EUR",
+    ),
+    EcologicalIndicator(
+        indicator_id="SEAWATER_01",
+        description="User-supplied reported annual raw seawater volume.",
+        observed_value=money("1562400"),
+        reference_value=None,
+        unit="m3/year",
+    ),
+    EcologicalIndicator(
+        indicator_id="NAOH_01",
+        description="User-supplied reported annual sodium hydroxide quantity.",
+        observed_value=money("1567"),
+        reference_value=None,
+        unit="tons/year",
+    ),
+    EcologicalIndicator(
+        indicator_id="STACK_SURGE_01",
+        description="User-supplied reported real-time toxic-emission surge associated with the 36 m precalciner stack.",
+        observed_value=money("15"),
+        reference_value=money("1"),
+        unit="x baseline",
+    ),
+)
+
+MATCH_RULES = (
+    MatchRule(
+        rule_id="GOSPIC_SILO_CONTRACT",
+        target_label="€8.77M Gospić silo extraction contract",
+        target_oibs=(),
+    ),
+    MatchRule(
+        rule_id="PAZIN_INDUSTRIAL_DUMP",
+        target_label="Slaven Tintor / Pazin industrial dump",
+        target_oibs=(),
+    ),
+)
+
+SOURCE_REFERENCE = {
+    "transparency_provider": {
+        "search_engine": "https://transparentor.org",
+        "data_export_endpoint": "https://transparentor.org/api-dokumentacija",
+        "api_key_access_point": "https://transparentor.org/zatrazi-api-kljuc",
+        "active_footprint": "© 2026. CityX Apps d.o.o.",
+        "network_access": False,
+    },
+    "ecological_dossier": {
+        "url": "https://github.io",
+        "source_status": "USER_SUPPLIED",
+        "independent_verification": False,
+    },
+    "financial_dataset": {
+        "municipality": "Grad Labin",
+        "period":,
+        "currency": "EUR",
+        "source_status": "USER_SUPPLIED",
+    },
+}
+
+def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
+    """Execute the complete offline reconciliation workflow."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    historical = build_historical_template(HISTORICAL_LEDGER)
+
+    audit_delta = calculate_audit_delta(
+        konto="3233",
+        expected="78102.72",
+        observed="63102.72",
+    )
+
+    reconciliation_payload = {
+        "audit_delta": audit_delta.to_json_dict(),
+        "historical": historical,
+        "ecological_indicators": [
+            indicator.to_json_dict()
+            for indicator in ECOLOGICAL_INDICATORS
+        ],
+        "source_mapping": SOURCE_REFERENCE,
+    }
+
+    block_path = output_dir / "offf_sha256_ledger.json"
+
+    blocks = append_hash_ledger(
+        block_path,
+        payloads=(reconciliation_payload,),
+    )
+
+    latest_block = blocks[-1]
+
+    markdown = generate_scribehow_markdown(
+        audit_delta=audit_delta,
+        ecological_indicators=ECOLOGICAL_INDICATORS,
+        block=latest_block,
+    )
+
+    (output_dir / "offf_audit_log.md").write_text(
+        markdown,
+        encoding="utf-8",
+    )
+
+    export_json(
+        output_dir / "historical_template.json",
+        historical,
+    )
+
+    return {
+        "status": "INGESTION_COMPLETE",
+        "engine": ENGINE_NAME,
+        "version": ENGINE_VERSION,
+        "block_hash": latest_block.block_hash,
+        "ledger_verified": verify_chain(blocks),
+        "absolute_delta_eur": format(abs(audit_delta.delta), "f"),
+        "historical_years":,
+    }
+
+if __name__ == "__main__":
+    result = run_offline_ingestion(
+        Path("offf_output"),
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+
