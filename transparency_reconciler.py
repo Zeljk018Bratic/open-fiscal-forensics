@@ -249,7 +249,7 @@ def render_integrity_report(reconciler: TransparencyDataReconciler, api_key: str
         )
     else:
         st.success("Reconciliation within acceptable tolerance.")
-        # ---------------------------------------------------------------------------
+      # ---------------------------------------------------------------------------
 # Supplied multi-year schema.
 # Replace USER_SUPPLIED placeholders with independently verified source
 # records before treating the dataset as an evidentiary record.
@@ -446,4 +446,3 @@ if __name__ == "__main__":
         Path("offf_output"),
     )
     print(json.dumps(result, indent=2, sort_keys=True))
-
