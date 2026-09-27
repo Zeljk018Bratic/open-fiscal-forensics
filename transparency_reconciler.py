@@ -1,3 +1,4 @@
+```python
 #!/usr/bin/env python3
 """
 TransparencyDataReconciler
@@ -8,44 +9,43 @@ Strictly respects documented rate limits and authentication.
 
 from __future__ import annotations
 
-import logging
-import time
 import json
+import logging
+import os
+import time
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from web3 import Web3
 
-# Mathematische Forensic-Engine importieren
 from forensic_core import ForensicCore
 
 logger = logging.getLogger(__name__)
 
-# --- GLOBAL ENGINE CONFIGURATION ---
 ENGINE_NAME = "TransparencyDataReconcilerEngine"
 ENGINE_VERSION = "1.0.0-MVP"
 
 
-# --- CORE UTILITY FUNCTIONS & DATA STRUCTURES ---
 def money(val: str) -> float:
-    """Konvertiert String-Währungsbeträge sicher in Fließkommazahlen."""
     try:
         return float(val)
     except (ValueError, TypeError):
         return 0.0
 
+
 def build_historical_template(ledger_tuple: tuple) -> dict:
-    """Konvertiert historische Ledger-Datenklassen in ein serialisierbares Dictionary."""
     return {"entries": [asdict(entry) for entry in ledger_tuple]}
 
+
 def export_json(path: Path, data: Any) -> None:
-    """Speichert Daten sauber strukturiert als JSON-Datei ab."""
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, sort_keys=True)
+
 
 @dataclass
 class YearLedger:
@@ -58,6 +58,7 @@ class YearLedger:
     konto_3238_software_it: float
     mayor_office_media: float
 
+
 @dataclass
 class EcologicalIndicator:
     indicator_id: str
@@ -69,11 +70,13 @@ class EcologicalIndicator:
     def to_json_dict(self) -> dict:
         return asdict(self)
 
+
 @dataclass
 class MatchRule:
     rule_id: str
     target_label: str
     target_oibs: tuple
+
 
 @dataclass
 class AuditDelta:
@@ -85,6 +88,7 @@ class AuditDelta:
     def to_json_dict(self) -> dict:
         return asdict(self)
 
+
 def calculate_audit_delta(konto: str, expected: str, observed: str) -> AuditDelta:
     exp_val = money(expected)
     obs_val = money(observed)
@@ -92,29 +96,30 @@ def calculate_audit_delta(konto: str, expected: str, observed: str) -> AuditDelt
         konto=konto,
         expected=exp_val,
         observed=obs_val,
-        delta=obs_val - exp_val
+        delta=obs_val - exp_val,
     )
+
 
 @dataclass
 class LedgerBlock:
     block_hash: str
     payload: dict
 
+
 def append_hash_ledger(block_path: Path, payloads: tuple) -> list[LedgerBlock]:
-    """Simuliert das Verketten eines kryptografischen Blocks für das Audit-Ledger."""
     blocks = []
     mock_hash = "sha256_8f93b82a110c9d83e2013847f01deecbcbc928131"
-    for p in payloads:
-        blocks.append(LedgerBlock(block_hash=mock_hash, payload=p))
-    export_json(block_path, [asdict(b) for b in blocks])
+    for payload in payloads:
+        blocks.append(LedgerBlock(block_hash=mock_hash, payload=payload))
+    export_json(block_path, [asdict(block) for block in blocks])
     return blocks
 
+
 def verify_chain(blocks: list) -> bool:
-    """Validiert die Datenintegrität der Block-Kette."""
     return True
 
+
 def generate_scribehow_markdown(audit_delta: AuditDelta, ecological_indicators: tuple, block: LedgerBlock) -> str:
-    """Erzeugt ein zusammenfassendes Audit-Logbuch im Markdown-Format."""
     return f"""# Forensic Audit Log
 - **Status:** Ingestion Complete
 - **Konto geprüft:** {audit_delta.konto}
@@ -125,7 +130,6 @@ def generate_scribehow_markdown(audit_delta: AuditDelta, ecological_indicators: 
 """
 
 
-# --- THE MAIN PRODUCTION RECONCILER CLASS ---
 class TransparencyDataReconciler:
     """
     Production-ready reconciler for municipal transparency APIs.
@@ -139,9 +143,18 @@ class TransparencyDataReconciler:
         max_retries: int = 5,
         backoff_factor: float = 1.5,
         timeout: int = 30,
+        rpc_url: str = "http://127.0.0.1:8545",
+        private_key: Optional[str] = None,
+        blockchain_recipient: str = "0x0000000000000000000000000000000000000000",
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.backoff_factor = backoff_factor
+        self.max_retries = max_retries
+        self.rpc_url = rpc_url
+        self.private_key = private_key or os.getenv("BLOCKCHAIN_PRIVATE_KEY")
+        self.blockchain_recipient = blockchain_recipient
+        self.w3 = None
 
         retry_strategy = Retry(
             total=max_retries,
@@ -161,10 +174,6 @@ class TransparencyDataReconciler:
         endpoint_url: str,
         selection_query: Dict[str, Any],
     ) -> pd.DataFrame:
-        """
-        Authenticated POST request to a documented open-data endpoint.
-        Handles HTTP 429 (rate limiting) via exponential backoff.
-        """
         if not api_key or not isinstance(api_key, str):
             raise ValueError("A valid API key string is required.")
 
@@ -176,8 +185,8 @@ class TransparencyDataReconciler:
         }
 
         url = endpoint_url if endpoint_url.startswith("http") else f"{self.base_url}/{endpoint_url.lstrip('/')}"
-
         attempt = 0
+
         while True:
             attempt += 1
             try:
@@ -212,9 +221,10 @@ class TransparencyDataReconciler:
 
             except requests.exceptions.RequestException as exc:
                 logger.error("Request failed on attempt %s: %s", attempt, exc)
-                if attempt >= 5:
+                if attempt >= self.max_retries:
                     raise
-                time.sleep(backoff_factor * attempt)
+                time.sleep(self.backoff_factor * attempt)
+
     def calculate_audit_delta(
         self,
         extracted_df: pd.DataFrame,
@@ -222,10 +232,6 @@ class TransparencyDataReconciler:
         amount_column: str = "amount",
         konto_column: Optional[str] = "konto",
     ) -> Dict[str, Any]:
-        """
-        Compute absolute statistical variance (delta) between the sum
-        of records exposed via the API and official published aggregate benchmarks.
-        """
         if extracted_df.empty:
             return {
                 "status": "NO_DATA",
@@ -280,42 +286,77 @@ class TransparencyDataReconciler:
 
         return results
 
+    def dispatch_to_blockchain_ledger(self, audit_result: dict, contract_address: str) -> dict:
+        if self.w3 is None:
+            self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
 
-# --- INTEGRATION POINT FOR STREAMLIT ---
-def render_integrity_report(reconciler: TransparencyDataReconciler, api_key: str) -> None:
-    """Defensive reporting utility intended for Streamlit."""
-    import streamlit as st
+        if not self.w3.is_connected():
+            raise ConnectionError(f"Blockchain RPC unavailable: {self.rpc_url}")
 
-    st.subheader("Public Ledger Integrity Report")
-    official_totals = {
-        "Total Outflows": 25923989.48,
-        "Konto 3237": 705827.65,
-        "Konto 3238": 156248.09,
-    }
-    selection_query = {"year": 2025, "type": "outflow", "limit": 10000}
+        if not self.private_key:
+            raise ValueError("BLOCKCHAIN_PRIVATE_KEY is not configured.")
 
-    with st.spinner("Fetching authorized ledger..."):
+        account = self.w3.eth.account.from_key(self.private_key)
+        recipient = self.blockchain_recipient
+
         try:
-            df = reconciler.fetch_authorized_ledger(
-                api_key=api_key,
-                endpoint_url="/api/v1/ledger",
-                selection_query=selection_query,
-            )
-        except Exception as exc:
-            st.error(f"Unable to retrieve ledger: {exc}")
-            return
+            recipient = self.w3.to_checksum_address(recipient)
+            contract_address = self.w3.to_checksum_address(contract_address)
+        except Exception:
+            pass
 
-    report = reconciler.calculate_audit_delta(df, official_totals)
-    st.metric("Records retrieved", report["record_count"])
-    st.write("**Status:**", report["status"])
-    st.write(report.get("message", ""))
+        contract_abi = [
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "_recipient", "type": "address"},
+                    {"internalType": "uint256", "name": "_amount", "type": "uint256"},
+                    {"internalType": "string", "name": "_tenderId", "type": "string"},
+                ],
+                "name": "proposeTransaction",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function",
+            }
+        ]
 
-    if report["deltas"]:
-        delta_df = pd.DataFrame.from_dict(report["deltas"], orient="index")
-        st.dataframe(delta_df, use_container_width=True)
+        contract = self.w3.eth.contract(address=contract_address, abi=contract_abi)
+        status = str(audit_result.get("status", "")).upper()
+        absolute_total_delta = float(audit_result.get("absolute_total_delta", 0.0) or 0.0)
+        amount = max(int(abs(absolute_total_delta)), 1)
+
+        flagged = status == "VARIANCE_DETECTED"
+        tender_id = "" if flagged else f"OFFF-{int(time.time())}"
+
+        tx = contract.functions.proposeTransaction(
+            recipient,
+            amount,
+            tender_id,
+        ).build_transaction(
+            {
+                "from": account.address,
+                "nonce": self.w3.eth.get_transaction_count(account.address),
+                "gas": 300000,
+                "maxFeePerGas": self.w3.to_wei("20", "gwei"),
+                "maxPriorityFeePerGas": self.w3.to_wei("2", "gwei"),
+            }
+        )
+
+        signed_tx = account.sign_transaction(tx)
+        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
+
+        return {
+            "tx_hash": tx_hash.hex(),
+            "contract_address": contract_address,
+            "status": status,
+            "flagged": flagged,
+            "recipient": recipient,
+            "amount": amount,
+            "tender_id": tender_id,
+            "receipt_status": receipt.status,
+        }
 
 
-# --- DATASET CONFIGURATIONS ---
 HISTORICAL_LEDGER = (
     YearLedger(
         year=2023,
@@ -446,9 +487,7 @@ SOURCE_REFERENCE = {
 }
 
 
-# --- MAIN INGESTION PIPELINE ---
 def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
-    """Execute the complete offline reconciliation workflow."""
     output_dir.mkdir(parents=True, exist_ok=True)
 
     historical = build_historical_template(HISTORICAL_LEDGER)
@@ -462,10 +501,7 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
     reconciliation_payload = {
         "audit_delta": audit_delta.to_json_dict(),
         "historical": historical,
-        "ecological_indicators": [
-            indicator.to_json_dict()
-            for indicator in ECOLOGICAL_INDICATORS
-        ],
+        "ecological_indicators": [indicator.to_json_dict() for indicator in ECOLOGICAL_INDICATORS],
         "source_mapping": SOURCE_REFERENCE,
     }
 
@@ -482,16 +518,49 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
     (output_dir / "offf_audit_log.md").write_text(markdown, encoding="utf-8")
     export_json(output_dir / "historical_template.json", historical)
 
-    return {
+    audit_result = {
+        "status": "VARIANCE_DETECTED" if abs(audit_delta.delta) > 0 else "OK",
+        "absolute_total_delta": abs(audit_delta.delta),
+        "deltas": {
+            "Konto 3233": {
+                "expected": audit_delta.expected,
+                "observed": audit_delta.observed,
+                "delta": audit_delta.delta,
+            }
+        },
+    }
+
+    blockchain_result = None
+    reconciler = TransparencyDataReconciler(
+        rpc_url="http://127.0.0.1:8545",
+        private_key=os.getenv("BLOCKCHAIN_PRIVATE_KEY", "0x47e171415537e5c93c3b01a1470532925a3b844bc454e4438f44e23013847f01"),
+        blockchain_recipient="0x0000000000000000000000000000000000000000",
+    )
+
+    try:
+        blockchain_result = reconciler.dispatch_to_blockchain_ledger(
+            audit_result=audit_result,
+            contract_address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        )
+    except ConnectionError as exc:
+        print(f"[BLOCKCHAIN LEDGER] Local RPC not running. Skipping on-chain publication: {exc}")
+        blockchain_result = {"status": "SKIPPED", "reason": str(exc)}
+
+    result = {
         "status": "INGESTION_COMPLETE",
         "engine": ENGINE_NAME,
         "version": ENGINE_VERSION,
         "block_hash": latest_block.block_hash,
         "ledger_verified": verify_chain(blocks),
         "absolute_delta_eur": format(abs(audit_delta.delta), "f"),
- "historical_years": [2023, 2024, 2025, 2026]
+        "historical_years": [2023, 2024, 2025, 2026],
+        "blockchain": blockchain_result,
     }
+
+    return result
+
 
 if __name__ == "__main__":
     result = run_offline_ingestion(Path("offf_output"))
     print(json.dumps(result, indent=2, sort_keys=True))
+```
