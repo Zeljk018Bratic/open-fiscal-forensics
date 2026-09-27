@@ -1069,138 +1069,140 @@ def main() -> None:
     with tab_mesh:
         _render_mesh_tab()
 
- # ------------------------------------------------------------------
-# Tab 4 — Unakrsni Monitor Nabave
-# ------------------------------------------------------------------
-with tab_integrity:
-    st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
-    st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
+       # ------------------------------------------------------------------
+    # Tab 4 — Unakrsni Monitor Nabave
+    # ------------------------------------------------------------------
+    with tab_integrity:
+        st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
+        st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
 
-    try:
-        from cross_border_integrity import CrossBorderIntegrityMonitor
+        try:
+            from cross_border_integrity import CrossBorderIntegrityMonitor
 
-        risk_path = Path("my_risk_oibs.json")
-        if risk_path.exists():
-            monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
-            st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
-        else:
-            st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristi se prazan monitor.")
-            monitor = CrossBorderIntegrityMonitor()
-
-        st.write("---")
-
-        col_left, col_right = st.columns(2)
-
-        with col_left:
-            st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
-            budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
-            media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
-
-            if budget_file and media_file:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
-                     tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
-                    tmp_b.write(budget_file.getvalue())
-                    tmp_m.write(media_file.getvalue())
-                    tmp_b_path, tmp_m_path = tmp_b.name, tmp_m.name
-
-                try:
-                    stats = monitor.evaluate_media_outflow_density(tmp_b_path, tmp_m_path)
-                    st.metric("Gustoća isplata medijima", f"{stats.get('media_density_pct', 0)}%")
-                    st.write(f"Ukupni proračunski odljev: **{stats.get('total_budget_outflow', 0):,.2f} €**")
-                    st.write(f"Ukupno isplaćeno medijima: **{stats.get('total_media_outflow', 0):,.2f} €**")
-                except Exception as e:
-                    st.error(f"Greška pri analizi gustoće: {e}")
-
-        with col_right:
-            st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
-            proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
-            oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
-
-            if proc_file:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
-                    tmp_p.write(proc_file.getvalue())
-                    tmp_p_path = tmp_p.name
-
-                try:
-                    flagged_matches = monitor.flag_entity_risk_correlation(tmp_p_path, oib_col=oib_column_name)
-                    if not flagged_matches.empty:
-                        st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
-                        st.dataframe(flagged_matches, use_container_width=True)
-                    else:
-                        st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
-                except Exception as e:
-                    st.error(f"Greška pri provjeri nabave: {e}")
-
-        # ------------------------------------------------------------------
-        # Offline simulacija + cenzura
-        # ------------------------------------------------------------------
-        st.write("---")
-        st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
-        st.caption("Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025.")
-
-        official_totals = {
-            "Total Outflows": 25_923_989.48,
-            "Konto 3237": 705_827.65,
-            "Konto 3238": 156_248.09,
-        }
-
-        cenzura_aktivna = st.checkbox(
-            "🚨 Simuliraj cenzuru podataka (Sakrij 15.000 € s konta 3237)",
-            key="cenzura_medija_flag"
-        )
-
-        mock_json_path = Path("mock_api_ledger.json")
-        if mock_json_path.exists():
-            with open(mock_json_path, "r", encoding="utf-8") as f:
-                payload = json.load(f)
-
-            records = payload.get("data", []) if isinstance(payload, dict) else payload
-
-            if cenzura_aktivna and records:
-                for r in records:
-                    if str(r.get("konto")) == "3237":
-                        original = float(r.get("amount", 0))
-                        r["amount"] = max(0.0, original - 15_000.00)
-                        r["description"] = "[SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI IZ JAVNOG PRIKAZA]"
-                        break
-
-            df_mock = pd.DataFrame(records)
-
-            try:
-                from transparency_reconciler import TransparencyDataReconciler
-                reconciler = TransparencyDataReconciler()
-                report = reconciler.calculate_audit_delta(
-                    df_mock, official_totals,
-                    amount_column="amount", konto_column="konto"
-                )
-            except ImportError:
-                api_total = float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
-                report = {
-                    "status": "VARIANCE_DETECTED" if cenzura_aktivna else "OK",
-                    "record_count": len(df_mock),
-                    "absolute_total_delta": abs(api_total - official_totals["Total Outflows"]),
-                    "message": "Fallback izračun"
-                }
-
-            st.metric("Broj povučenih zapisa", report.get("record_count", 0))
-
-            if report.get("status") == "VARIANCE_DETECTED" or cenzura_aktivna:
-                st.error("⚠ VARIANCE DETECTED: Otkriveno odstupanje!")
-                st.markdown(
-                    "<div style='padding:10px; background-color:#d72638; color:white; border-radius:5px; font-weight:bold;'>"
-                    "CRVENI ALARM: Podaci su filtrirani ili modificirani!"
-                    "</div>",
-                    unsafe_allow_html=True
-                )
+            risk_path = Path("my_risk_oibs.json")
+            if risk_path.exists():
+                monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
+                st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
             else:
-                st.success("✓ STATUS: OK")
+                st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristi se prazan monitor.")
+                monitor = CrossBorderIntegrityMonitor()
 
-            st.dataframe(df_mock, use_container_width=True, hide_index=True)
-        else:
-            st.warning("Stavi `mock_api_ledger.json` u root projekta za offline simulaciju.")
+            st.write("---")
 
-    except ImportError:
-        st.error("Kritična greška: Modul `cross_border_integrity.py` nije pronađen.")
+            col_left, col_right = st.columns(2)
 
+            with col_left:
+                st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
+                budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
+                media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
+
+                if budget_file and media_file:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
+                         tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
+                        tmp_b.write(budget_file.getvalue())
+                        tmp_m.write(media_file.getvalue())
+                        tmp_b_path, tmp_m_path = tmp_b.name, tmp_m.name
+
+                    try:
+                        stats = monitor.evaluate_media_outflow_density(tmp_b_path, tmp_m_path)
+                        st.metric("Gustoća isplata medijima", f"{stats.get('media_density_pct', 0)}%")
+                        st.write(f"Ukupni proračunski odljev: **{stats.get('total_budget_outflow', 0):,.2f} €**")
+                        st.write(f"Ukupno isplaćeno medijima: **{stats.get('total_media_outflow', 0):,.2f} €**")
+                    except Exception as e:
+                        st.error(f"Greška pri analizi gustoće: {e}")
+
+            with col_right:
+                st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
+                proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
+                oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
+
+                if proc_file:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
+                        tmp_p.write(proc_file.getvalue())
+                        tmp_p_path = tmp_p.name
+
+                    try:
+                        flagged_matches = monitor.flag_entity_risk_correlation(tmp_p_path, oib_col=oib_column_name)
+                        if not flagged_matches.empty:
+                            st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
+                            st.dataframe(flagged_matches, use_container_width=True)
+                        else:
+                            st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
+                    except Exception as e:
+                        st.error(f"Greška pri provjeri nabave: {e}")
+
+            # ------------------------------------------------------------------
+            # Offline simulacija + cenzura
+            # ------------------------------------------------------------------
+            st.write("---")
+            st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
+            st.caption("Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025.")
+
+            official_totals = {
+                "Total Outflows": 25_923_989.48,
+                "Konto 3237": 705_827.65,
+                "Konto 3238": 156_248.09,
+            }
+
+            cenzura_aktivna = st.checkbox(
+                "🚨 Simuliraj cenzuru podataka (Sakrij 15.000 € s konta 3237)",
+                key="cenzura_medija_flag"
+            )
+
+            mock_json_path = Path("mock_api_ledger.json")
+            if mock_json_path.exists():
+                with open(mock_json_path, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+
+                records = payload.get("data", []) if isinstance(payload, dict) else payload
+
+                if cenzura_aktivna and records:
+                    for r in records:
+                        if str(r.get("konto")) == "3237":
+                            original = float(r.get("amount", 0))
+                            r["amount"] = max(0.0, original - 15_000.00)
+                            r["description"] = "[SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI IZ JAVNOG PRIKAZA]"
+                            break
+
+                df_mock = pd.DataFrame(records)
+
+                try:
+                    from transparency_reconciler import TransparencyDataReconciler
+                    reconciler = TransparencyDataReconciler()
+                    report = reconciler.calculate_audit_delta(
+                        df_mock, official_totals,
+                        amount_column="amount", konto_column="konto"
+                    )
+                except ImportError:
+                    api_total = float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
+                    report = {
+                        "status": "VARIANCE_DETECTED" if cenzura_aktivna else "OK",
+                        "record_count": len(df_mock),
+                        "absolute_total_delta": abs(api_total - official_totals["Total Outflows"]),
+                        "message": "Fallback izračun"
+                    }
+
+                st.metric("Broj povučenih zapisa", report.get("record_count", 0))
+
+                if report.get("status") == "VARIANCE_DETECTED" or cenzura_aktivna:
+                    st.error("⚠ VARIANCE DETECTED: Otkriveno odstupanje!")
+                    st.markdown(
+                        "<div style='padding:10px; background-color:#d72638; color:white; border-radius:5px; font-weight:bold;'>"
+                        "CRVENI ALARM: Podaci su filtrirani ili modificirani!"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.success("✓ STATUS: OK")
+
+                st.dataframe(df_mock, use_container_width=True, hide_index=True)
+            else:
+                st.warning("Stavi `mock_api_ledger.json` u root projekta za offline simulaciju.")
+
+        except ImportError:
+            st.error("Kritična greška: Modul `cross_border_integrity.py` nije pronađen.")
+            # ------------------------------------------------------------------
+# Main entry
+# ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
