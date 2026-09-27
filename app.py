@@ -1073,11 +1073,11 @@ def main() -> None:
            # ------------------------------------------------------------------
     # Tab 4 — Unakrsni Monitor Nabave
     # ------------------------------------------------------------------
-               # ------------------------------------------------------------------
+                     # ------------------------------------------------------------------
             # TRI PODIZBORNIKA – Službena Provjera Integriteta
             # ------------------------------------------------------------------
             st.write("---")
-            st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
+            st.subheader("🌐 Službena Provjera Integriteta")
 
             official_totals = {
                 "Total Outflows": 25_923_989.48,
@@ -1085,15 +1085,10 @@ def main() -> None:
                 "Konto 3238": 156_248.09,
             }
 
-            mock_json_path = Path("mock_api_ledger.json")
-
-            # 1. Analiza varijance po kontima
+            # 1. Analiza varijance po kontima + vizualizacija
             with st.expander("↳ Analiza varijance po kontima", expanded=False):
-                if mock_json_path.exists():
-                    with open(mock_json_path, "r", encoding="utf-8") as f:
-                        payload = json.load(f)
-                    records = payload.get("data", []) if isinstance(payload, dict) else payload
-                    df_var = pd.DataFrame(records)
+                if "df_mock" in locals() and not df_mock.empty:
+                    df_var = df_mock.copy()
 
                     if "konto" in df_var.columns:
                         df_var["konto_clean"] = (
@@ -1128,19 +1123,19 @@ def main() -> None:
                                 "Variance %": round(pct, 2),
                             }
                         )
-                    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+                    df_rows = pd.DataFrame(rows)
+                    st.dataframe(df_rows, use_container_width=True, hide_index=True)
+
+                    # Vizualizacija varijance
+                    st.bar_chart(df_rows.set_index("Konto")[["API / Mock sum (€)", "Službeni iznos (€)"]])
                 else:
-                    st.warning("Stavi `mock_api_ledger.json` u root projekta.")
+                    st.info("Nema učitanih podataka za analizu varijance.")
 
             # 2. Blockchain provjera integriteta
             with st.expander("↳ Blockchain provjera integriteta", expanded=False):
-                if mock_json_path.exists():
-                    with open(mock_json_path, "r", encoding="utf-8") as f:
-                        payload = json.load(f)
-                    records = payload.get("data", []) if isinstance(payload, dict) else payload
-                    df_hash = pd.DataFrame(records)
-
-                    csv_bytes = df_hash.to_csv(index=False).encode("utf-8")
+                if "df_mock" in locals() and not df_mock.empty:
+                    csv_bytes = df_mock.to_csv(index=False).encode("utf-8")
                     ledger_hash = hashlib.sha256(csv_bytes).hexdigest()
 
                     st.success("✓ Ledger Integrity Secured via Cryptographic Hash")
@@ -1149,12 +1144,12 @@ def main() -> None:
                         "SHA-256 otisak trenutnog ledgera. Ako se i jedan cent promijeni, hash se potpuno mijenja."
                     )
                 else:
-                    st.warning("Stavi `mock_api_ledger.json` u root projekta.")
+                    st.info("Nema učitanih podataka za hash.")
 
             # 3. Podesi logiku crvenog alarma
             with st.expander("↳ Podesi logiku crvenog alarma", expanded=True):
                 st.caption(
-                    "Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025."
+                    "Usporedba učitanih zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025."
                 )
 
                 cenzura_aktivna = st.checkbox(
@@ -1162,44 +1157,18 @@ def main() -> None:
                     key="cenzura_medija_flag",
                 )
 
-                if mock_json_path.exists():
-                    with open(mock_json_path, "r", encoding="utf-8") as f:
-                        payload = json.load(f)
-                    records = payload.get("data", []) if isinstance(payload, dict) else payload
+                if "df_mock" in locals() and not df_mock.empty:
+                    df_alarm = df_mock.copy()
 
-                    if cenzura_aktivna and records:
-                        for r in records:
-                            konto_val = str(r.get("konto", "")).replace("Konto ", "").strip()
+                    if cenzura_aktivna:
+                        for idx, row in df_alarm.iterrows():
+                            konto_val = str(row.get("konto", "")).replace("Konto ", "").strip()
                             if konto_val in ("3233", "3237"):
-                                original = float(r.get("amount", 0))
-                                r["amount"] = max(0.0, original - 15_000.00)
-                                desc = r.get("description") or r.get("opis") or ""
-                                r["description"] = desc + " [SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI]"
+                                original = float(row.get("amount", 0))
+                                df_alarm.at[idx, "amount"] = max(0.0, original - 15_000.00)
                                 break
 
-                    df_mock = pd.DataFrame(records)
-
-                    try:
-                        from transparency_reconciler import TransparencyDataReconciler
-
-                        reconciler = TransparencyDataReconciler()
-                        report = reconciler.calculate_audit_delta(
-                            df_mock,
-                            official_totals,
-                            amount_column="amount",
-                            konto_column="konto",
-                        )
-                    except ImportError:
-                        api_total = (
-                            float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
-                        )
-                        report = {
-                            "status": "OK",
-                            "record_count": len(df_mock),
-                            "message": "Fallback izračun",
-                        }
-
-                    st.metric("Broj povučenih zapisa", report.get("record_count", 0))
+                    st.metric("Broj povučenih zapisa", len(df_alarm))
 
                     if cenzura_aktivna:
                         st.error(
@@ -1223,11 +1192,14 @@ def main() -> None:
                             "Extracted public records mathematically reconstruct the audited envelope within tolerance."
                         )
 
-                    st.dataframe(df_mock, use_container_width=True, hide_index=True)
+                    st.dataframe(df_alarm, use_container_width=True, hide_index=True)
+
+                    # Grafikon trendova rashoda
+                    if "amount" in df_alarm.columns:
+                        st.subheader("Trend rashoda")
+                        st.line_chart(df_alarm["amount"])
                 else:
-                    st.warning(
-                        "Stavi `mock_api_ledger.json` u root projekta za offline simulaciju."
-                    )
+                    st.info("Nema učitanih podataka za alarm i trend.")
 
         except ImportError:
             st.error(
