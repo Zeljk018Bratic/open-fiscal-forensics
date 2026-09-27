@@ -1069,10 +1069,10 @@ def main() -> None:
     with tab_mesh:
         _render_mesh_tab()
 
-    # ------------------------------------------------------------------
-    # Tab 4 — Unakrsni Monitor Nabave
-    # ------------------------------------------------------------------
-    with tab_integrity:
+ # ------------------------------------------------------------------
+# Tab 4 — Unakrsni Monitor Nabave
+# ------------------------------------------------------------------
+with tab_integrity:
     st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
     st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
 
