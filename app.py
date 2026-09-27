@@ -1127,9 +1127,33 @@ def main() -> None:
                                 st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
                                 st.dataframe(flagged_matches)
                             else:
-                                st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
-                    except Exception as e:
-                        st.error(f"Greška pri provjeri nabave: {e}")
+                                .success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
+                        except Exception as e:
+                            st.error(f"Greška pri provjeri nabave: {e}")
+
+            # ------------------------------------------------------------------
+            # INTEGRACIJA RECONCILERA (Donji dio Tab 4)
+            # ------------------------------------------------------------------
+            st.write("---")
+            st.subheader("🌐 Službena Provjera Integriteta API-ja")
+            st.caption("Usporedba live javnih API zapisa s izglasanim godišnjim izvještajem Grada Labina.")
+
+            user_api_key = st.text_input("Unesi službeni API ključ (Zatražen s labin.transparentor.org)", type="password", key="reconcile_api_key")
+
+            if user_api_key:
+                try:
+                    from transparency_reconciler import TransparencyDataReconciler, render_integrity_report
+                    
+                    # Inicijalizacija reconcilera s ispravnom adresom platforme
+                    reconciler = TransparencyDataReconciler(base_url="https://transparentor.org")
+                    
+                    # Pokretanje automatskog matematičkog izvješća na ekranu
+                    render_integrity_report(reconciler, api_key=user_api_key)
+                    
+                except ImportError:
+                    st.error("Kritična greška: Modul `transparency_reconciler.py` nije pronađen u mapi projekta.")
+                except Exception as e:
+                    st.error(f"Greška tijekom izvođenja revizorskog usklađivanja: {e}")
                             
         except ImportError:
             st.error("Kritična greška: Modul `cross_border_integrity.py` nije ispravno postavljen u korijenu aplikacije.")
