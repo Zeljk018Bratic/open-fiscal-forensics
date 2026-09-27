@@ -1073,91 +1073,183 @@ def main() -> None:
     # Tab 4 — Unakrsni Monitor Nabave
     # ------------------------------------------------------------------
     with tab_integrity:
-        st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
-        st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
+    st.subheader("🧬 Unakrsni Monitor Entiteta & Javne Nabave")
+    st.caption("Forenzička unakrsna provjera proračunskih stavki, isplata medijima i registra rizičnih OIB-a.")
 
-        try:
-            from cross_border_integrity import CrossBorderIntegrityMonitor
-            
-            # Učitavanje baze rizičnih OIB-a iz korijena tvog repozitorija
-            risk_path = Path("my_risk_oibs.json")
-            if risk_path.exists():
-                monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
-                st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
-            else:
-                st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristite ručni uvoz.")
-                monitor = CrossBorderIntegrityMonitor()
+    try:
+        from cross_border_integrity import CrossBorderIntegrityMonitor
 
-            st.write("---")
+        # Učitavanje baze rizičnih OIB-a
+        risk_path = Path("my_risk_oibs.json")
+        if risk_path.exists():
+            monitor = CrossBorderIntegrityMonitor.from_risk_file(risk_path)
+            st.success(f"✓ Uspješno učitana lokalna baza rizika: `{len(monitor.risk_oibs)}` OIB-a konfigurirano.")
+        else:
+            st.warning("⚠️ Datoteka `my_risk_oibs.json` nije pronađena u korijenu. Koristi se prazan monitor.")
+            monitor = CrossBorderIntegrityMonitor()
 
-            # Sučelje podijeljeno u dva stupca
-            col_left, col_right = st.columns(2)
-            
-            with col_left:
-                st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
-                budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
-                media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
-                
-                if budget_file and media_file:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
-                         tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
-                        tmp_b.write(budget_file.getvalue())
-                        tmp_m.write(media_file.getvalue())
-                        
-                        try:
-                            stats = monitor.evaluate_media_outflow_density(tmp_b.name, tmp_m.name)
-                            st.metric("Gustoća isplata medijima", f"{stats['media_density_pct']}%")
-                            st.write(f"Ukupni proračunski odljev: **{stats['total_budget_outflow']:,} €**")
-                            st.write(f"Ukupno isplaćeno medijima: **{stats['total_media_outflow']:,} €**")
-                        except Exception as e:
-                            st.error(f"Greška pri analizi gustoće: {e}")
+        st.write("---")
 
-            with col_right:
-                st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
-                proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
-                oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
-                
-                if proc_file:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
-                        tmp_p.write(proc_file.getvalue())
-                        
-                        try:
-                            flagged_matches = monitor.flag_entity_risk_correlation(tmp_p.name, oib_col=oib_column_name)
-                            if not flagged_matches.empty:
-                                st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
-                                st.dataframe(flagged_matches)
-                            else:
-                                .success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
-                        except Exception as e:
-                            st.error(f"Greška pri provjeri nabave: {e}")
+        # ------------------------------------------------------------------
+        # Gornji dio – dva stupca
+        # ------------------------------------------------------------------
+        col_left, col_right = st.columns(2)
 
-            # ------------------------------------------------------------------
-            # INTEGRACIJA RECONCILERA (Donji dio Tab 4)
-            # ------------------------------------------------------------------
-            st.write("---")
-            st.subheader("🌐 Službena Provjera Integriteta API-ja")
-            st.caption("Usporedba live javnih API zapisa s izglasanim godišnjim izvještajem Grada Labina.")
+        with col_left:
+            st.markdown("#### 1. Provjera Gustoće Isplata Medijima")
+            budget_file = st.file_uploader("Učitaj Proračunski Ledger (CSV)", type=["csv"], key="integ_budget")
+            media_file = st.file_uploader("Učitaj ZPPI Odgovor o Medijima (CSV)", type=["csv"], key="integ_media")
 
-            user_api_key = st.text_input("Unesi službeni API ključ (Zatražen s labin.transparentor.org)", type="password", key="reconcile_api_key")
+            if budget_file and media_file:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_b, \
+                     tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_m:
+                    tmp_b.write(budget_file.getvalue())
+                    tmp_m.write(media_file.getvalue())
+                    tmp_b_path, tmp_m_path = tmp_b.name, tmp_m.name
 
-            if user_api_key:
                 try:
-                    from transparency_reconciler import TransparencyDataReconciler, render_integrity_report
-                    
-                    # Inicijalizacija reconcilera s ispravnom adresom platforme
-                    reconciler = TransparencyDataReconciler(base_url="https://transparentor.org")
-                    
-                    # Pokretanje automatskog matematičkog izvješća na ekranu
-                    render_integrity_report(reconciler, api_key=user_api_key)
-                    
-                except ImportError:
-                    st.error("Kritična greška: Modul `transparency_reconciler.py` nije pronađen u mapi projekta.")
+                    stats = monitor.evaluate_media_outflow_density(tmp_b_path, tmp_m_path)
+                    st.metric("Gustoća isplata medijima", f"{stats.get('media_density_pct', 0)}%")
+                    st.write(f"Ukupni proračunski odljev: **{stats.get('total_budget_outflow', 0):,.2f} €**")
+                    st.write(f"Ukupno isplaćeno medijima: **{stats.get('total_media_outflow', 0):,.2f} €**")
                 except Exception as e:
-                    st.error(f"Greška tijekom izvođenja revizorskog usklađivanja: {e}")
-                            
-        except ImportError:
-            st.error("Kritična greška: Modul `cross_border_integrity.py` nije ispravno postavljen u korijenu aplikacije.")
+                    st.error(f"Greška pri analizi gustoće: {e}")
 
+        with col_right:
+            st.markdown("#### 2. Detekcija Poklapanja u Javnoj Nabavi")
+            proc_file = st.file_uploader("Učitaj CSV Datoteku Nabave / Biddere", type=["csv"], key="integ_proc")
+            oib_column_name = st.text_input("Naziv stupca s OIB-om u javnoj nabavi", value="oib")
 
+            if proc_file:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_p:
+                    tmp_p.write(proc_file.getvalue())
+                    tmp_p_path = tmp_p.name
+
+                try:
+                    flagged_matches = monitor.flag_entity_risk_correlation(tmp_p_path, oib_col=oib_column_name)
+                    if not flagged_matches.empty:
+                        st.error(f"⚠️ DETEKTIRANO POKLAPANJE: Pronađeno {len(flagged_matches)} zapisa s liste rizičnih entiteta!")
+                        st.dataframe(flagged_matches, use_container_width=True)
+                    else:
+                        st.success("✓ Analiza završena: Nema izravnih poklapanja s listom rizičnih OIB-a.")
+                except Exception as e:
+                    st.error(f"Greška pri provjeri nabave: {e}")
+
+        # ------------------------------------------------------------------
+        # Donji dio – Offline simulacija + cenzura + reconciler
+        # ------------------------------------------------------------------
+        st.write("---")
+        st.subheader("🌐 Službena Provjera Integriteta (Offline Simulacija)")
+        st.caption("Usporedba mock API zapisa s izglasanim godišnjim izvještajem Grada Labina za 2025.")
+
+        if "last_refresh" not in st.session_state:
+            st.session_state.last_refresh = time.time()
+
+        st.caption(f"🔄 Zadnje ažuriranje: {datetime.now().strftime('%H:%M:%S')}")
+
+        official_totals = {
+            "Total Outflows": 25_923_989.48,
+            "Konto 3237": 705_827.65,
+            "Konto 3238": 156_248.09,
+        }
+
+        cenzura_aktivna = st.checkbox(
+            "🚨 Simuliraj cenzuru podataka (Sakrij 15.000 € s konta 3237)",
+            key="cenzura_medija_flag"
+        )
+
+        mock_json_path = Path("mock_api_ledger.json")
+        if mock_json_path.exists():
+            with open(mock_json_path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+
+            # Ispravno čitanje sheme (meta + data)
+            records = payload.get("data", []) if isinstance(payload, dict) else payload
+
+            # Simulacija cenzure – skidamo 15.000 € s prvog zapisa na kontu 3237
+            if cenzura_aktivna and records:
+                for r in records:
+                    if str(r.get("konto")) == "3237":
+                        original = float(r.get("amount", 0))
+                        r["amount"] = max(0.0, original - 15_000.00)
+                        r["description"] = "[SISTEMSKA POGREŠKA / DOKUMENTI SAKRIVENI IZ JAVNOG PRIKAZA]"
+                        break
+
+            df_mock = pd.DataFrame(records)
+
+            # Pokušaj koristiti pravi reconciler, inače fallback
+            try:
+                from transparency_reconciler import TransparencyDataReconciler
+                reconciler = TransparencyDataReconciler()
+                report = reconciler.calculate_audit_delta(
+                    df_mock,
+                    official_totals,
+                    amount_column="amount",
+                    konto_column="konto"
+                )
+            except ImportError:
+                api_total = float(df_mock["amount"].sum()) if not df_mock.empty else 0.0
+                report = {
+                    "status": "VARIANCE_DETECTED" if cenzura_aktivna else "OK",
+                    "record_count": len(df_mock),
+                    "absolute_total_delta": abs(api_total - official_totals["Total Outflows"]),
+                    "deltas": {
+                        "Total Outflows": {
+                            "api_sum": round(api_total, 2),
+                            "official": official_totals["Total Outflows"],
+                            "delta": round(abs(api_total - official_totals["Total Outflows"]), 2),
+                        }
+                    },
+                    "message": "Fallback izračun (transparency_reconciler nije pronađen)."
+                }
+
+            st.metric("Broj povučenih zapisa iz baze", report.get("record_count", 0))
+
+            if report.get("status") == "VARIANCE_DETECTED" or cenzura_aktivna:
+                st.error("⚠ VARIANCE DETECTED: Otkriveno odstupanje između API zapisa i službenog izvještaja!")
+                st.write("Sustav je automatski izračunao DELTU koja nedostaje nakon simulirane cenzure.")
+                st.markdown(
+                    "<div style='padding:10px; background-color:#d72638; color:white; border-radius:5px; font-weight:bold;'>"
+                    "CRVENI ALARM: Podaci na poslužitelju su filtrirani ili modificirani nakon revizije!"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.success("✓ STATUS: OK. Mock zapisi se poklapaju s očekivanim omotom unutar tolerancije.")
+                st.caption(report.get("message", ""))
+
+            st.dataframe(df_mock, use_container_width=True, hide_index=True)
+
+        else:
+            st.warning("Za pokretanje simulacije stavi datoteku `mock_api_ledger.json` u mapu projekta.")
+
+        # ------------------------------------------------------------------
+        # Opcionalni live API dio (ako korisnik unese ključ)
+        # ------------------------------------------------------------------
+        st.write("---")
+        st.subheader("🔑 Live API provjera (opcionalno)")
+        user_api_key = st.text_input(
+            "Unesi službeni API ključ (labin.transparentor.org)",
+            type="password",
+            key="reconcile_api_key"
+        )
+
+        if user_api_key:
+            try:
+                from transparency_reconciler import TransparencyDataReconciler
+                reconciler = TransparencyDataReconciler(base_url="https://transparentor.org")
+                st.info("Live API poziv još nije implementiran u ovoj verziji – koristi se offline mock.")
+            except ImportError:
+                st.error("Modul `transparency_reconciler.py` nije pronađen.")
+            except Exception as e:
+                st.error(f"Greška: {e}")
+
+    except ImportError:
+        st.error("Kritična greška: Modul `cross_border_integrity.py` nije ispravno postavljen u korijenu aplikacije.")
+
+# ------------------------------------------------------------------
+# Main entry
+# ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
+    
