@@ -227,17 +227,19 @@ class ForensicPDFGenerator:
         if len(display_source) > 78:
             display_source = display_source[:75] + "…"
 
+        # Sve ćelije omatamo u Paragraph objekte radi automatskog prelamanja dugih URL-ova
         prov_data = [
-            ["Field", "Value"],
-            ["Municipality / Institution", str(municipality)],
-            ["Country / Jurisdiction", str(country)],
-            ["Fiscal Period", str(year)],
-            ["Observation Count", str(observation_count)],
-            ["Uploaded By", str(uploaded_by)],
-            ["Source Link", display_source],
+            [Paragraph("<b>Field</b>", self.body_style), Paragraph("<b>Value</b>", self.body_style)],
+            [Paragraph("Municipality / Institution", self.body_style), Paragraph(str(municipality), self.body_style)],
+            [Paragraph("Country / Jurisdiction", self.body_style), Paragraph(str(country), self.body_style)],
+            [Paragraph("Fiscal Period", self.body_style), Paragraph(str(year), self.body_style)],
+            [Paragraph("Observation Count", self.body_style), Paragraph(str(observation_count), self.body_style)],
+            [Paragraph("Uploaded By", self.body_style), Paragraph(str(uploaded_by), self.body_style)],
+            [Paragraph("Source Link", self.body_style), Paragraph(str(source_link), self.body_style)],
         ]
 
-        prov_table = Table(prov_data, colWidths=[160, 380])
+        # Fiksiramo colWidths na standardnih 140 pt i 400 pt (ukupno 540 pt)
+        prov_table = Table(prov_data, colWidths=[140, 400])  
         prov_table.setStyle(
             TableStyle(
                 [
@@ -245,18 +247,18 @@ class ForensicPDFGenerator:
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                     ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
                     ("FONTSIZE", (0, 0), (-1, 0), 9),
-                    ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-                    ("FONTSIZE", (0, 1), (-1, -1), 8),
                     ("BACKGROUND", (0, 1), (0, -1), colors.HexColor("#f5f5f5")),
                     ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cccccc")),
-                    ("TOPPADDING", (0, 0), (-1, -1), 5),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                     ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ]
             )
         )
         story.append(prov_table)
+
 
         # --------------------------------------------------------------
         # 3. MATHEMATICAL MATRIX SUMMARY
