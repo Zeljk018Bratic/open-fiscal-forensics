@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import time
+import hashlib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -104,18 +105,51 @@ def calculate_audit_delta(konto: str, expected: str, observed: str) -> AuditDelt
 class LedgerBlock:
     block_hash: str
     payload: dict
-
-
 def append_hash_ledger(block_path: Path, payloads: tuple) -> list[LedgerBlock]:
     blocks = []
-    mock_hash = "sha256_8f93b82a110c9d83e2013847f01deecbcbc928131"
+    previous_hash = "0" * 64  # Genesis sidro
+    
+    if block_path.exists():
+        try:
+            with open(block_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+                if existing_data:
+                    previous_hash = existing_data[-1]["block_hash"]
+        except Exception:
+            pass
+
     for payload in payloads:
-        blocks.append(LedgerBlock(block_hash=mock_hash, payload=payload))
+        payload_string = json.dumps(payload, sort_keys=True)
+        data_to_hash = f"{payload_string}{previous_hash}".encode("utf-8")
+        current_hash = hashlib.sha256(data_to_hash).hexdigest()
+        
+        blocks.append(LedgerBlock(block_hash=current_hash, payload=payload))
+        previous_hash = current_hash
+        
     export_json(block_path, [asdict(block) for block in blocks])
     return blocks
 
-
 def verify_chain(blocks: list) -> bool:
+    if not blocks:
+        return True
+        
+    previous_hash = "0" * 64
+    for block in blocks:
+        if isinstance(block, dict):
+            b_hash = block.get("block_hash")
+            b_payload = block.get("payload")
+        else:
+            b_hash = block.block_hash
+            b_payload = block.payload
+            
+        payload_string = json.dumps(b_payload, sort_keys=True)
+        data_to_hash = f"{payload_string}{previous_hash}".encode("utf-8")
+        calculated_hash = hashlib.sha256(data_to_hash).hexdigest()
+        
+        if b_hash != calculated_hash:
+            logger.error(f"Kriptografski proboj! Ocekivan: {calculated_hash}, Zapisan: {b_hash}")
+            return False
+        previous_hash = b_hash
     return True
 
 
@@ -533,7 +567,7 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
     blockchain_result = None
     reconciler = TransparencyDataReconciler(
         rpc_url="http://127.0.0.1:8545",
-        private_key=os.getenv("BLOCKCHAIN_PRIVATE_KEY", "0x47e171415537e5c93c3b01a1470532925a3b844bc454e4438f44e23013847f01"),
+     private_key=os.getenv("BLOCKCHAIN_PRIVATE_KEY"),
         blockchain_recipient="0x0000000000000000000000000000000000000000",
     )
 
