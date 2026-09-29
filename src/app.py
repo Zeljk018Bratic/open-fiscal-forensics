@@ -7,6 +7,12 @@ import hashlib
 import json
 import math
 import os
+import sys
+from pathlib import Path
+# Automatski dodaj korijenski i src direktorij u Python putanju kako bi uvozi radili bez greške
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
+sys.path.append(str(BASE_DIR / "src"))
 import re
 import tempfile
 import time
