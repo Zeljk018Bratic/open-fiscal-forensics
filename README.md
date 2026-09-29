@@ -223,18 +223,21 @@ We encourage independent developers, financial auditors, and freedom advocates t
 **Join the movement. No more hidden loopholes.**
 ## 🔬 Open-Source Forensic Analytics Core
 
-This repository now includes a fully functional Python data-integrity core and a decentralized Solidity ledger to evaluate datasets programmatically.
+This repository now includes a functional Python data-integrity core and a decentralized Solidity ledger to evaluate datasets programmatically.
 
-### 📊 Statistical Fraud Detection (`forensic_core.py`)
-To prevent data manipulation and artificial narrative injection, the python core utilizes a dual-layer mathematical verification process:
-1. **Benford's Law (First-Digit Anomalies):** Performs a Chi-Square goodness-of-fit test on the distribution of leading digits in financial data.
-2. **Shannon Entropy (Digit Randomness):** Measures the information density and uniformity of all numerical characters to detect artificially generated rounded numbers or linear patterns.
+### 📊 Statistical Anomaly Screening (forensic_core.py)
+To identify structural data discrepancies and mathematical deviations, the Python core utilizes a dual-layer statistical screening process:
 
-### ⛓️ Multi-Signature Voting Validation (`ConsensusLedger.sol`)
-To eliminate the Single Point of Failure (SPOF) found in centralized administrative roles, the governance model has transitioned into a decentralized validation network. 
-* Financial entries and public procurement IDs must clear a multi-sig approval process managed by independent network peers before block execution.
+* **Benford's Law (First-Digit Anomalies):** Performs a Chi-Square goodness-of-fit test on the distribution of leading digits in financial data. Significant deviations from the logarithmic baseline serve as statistical indicators of anomalous distributions, rather than definitive proof of ledger fabrication.
+* **Shannon Entropy (Digit Randomness):** Measures the information density and uniformity of numerical characters to flag artificially generated patterns or unusual structural uniformity. These flags serve as a triaging mechanism to guide deeper human accounting review.
 
-We welcome peer-reviews, data journalists, and OSINT developers to audit, extend, and benchmark these core mathematical modules against public budget data.
+### ⛓️ Multi-Signature Voting Validation (ConsensusLedger.sol)
+To eliminate the Single Point of Failure (SPOF) found in centralized administrative roles, the governance model utilizes a decentralized validation architecture.
+
+Financial entries and public procurement IDs can clear a multi-sig verification process managed by network peers before ledger synchronization. These blockchain consensus checks verify protocol compliance and metadata alignment, ensuring data state consistency while human auditors perform substantive truth-verification.
+
+We welcome peer-reviews, data journalists, and OSINT developers to audit, extend, and benchmark these core mathematical screening modules against public budget data.
+
 
 
 ---
