@@ -38,45 +38,64 @@ class DataNormalizer:
         return clean, rejected
 
 class BenfordTest:
-    EXPECTED = [0, 0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
-    CRITICAL_VALUE = 15.507
-
-    @classmethod
-    def run(cls, values: list[float]) -> dict:
-        counts = [0] * 10
-        for v in values:
-            d = cls._first_digit(v)
-            if d:
-                counts[d] += 1
-        total = sum(counts[1:])
-        if total == 0:
-            return {"score": 0, "passed": True, "distribution": {}}
-        chi2 = sum(
-            ((counts[i] / total - cls.EXPECTED[i]) ** 2) / cls.EXPECTED[i]
-            for i in range(1, 10)
-        )
-        distribution = {
-            str(i): {
-                "observed_pct": round(counts[i] / total * 100, 2),
-                "expected_pct": round(cls.EXPECTED[i] * 100, 2),
-                "delta_pct": round((counts[i] / total - cls.EXPECTED[i]) * 100, 2)
-            }
-            for i in range(1, 10)
-        }
-        return {
-            "score": round(chi2, 4),
-            "critical_value": cls.CRITICAL_VALUE,
-            "passed": chi2 <= cls.CRITICAL_VALUE,
-            "distribution": distribution
-        }
-
     @staticmethod
-    def _first_digit(v: float) -> Union[int, None]:
-        try:
-            s = f"{abs(v):.10f}".replace('.', '').lstrip('0')
-            return int(s[0]) if s else None
-        except (ValueError, IndexError):
-            return None
+    def run(data_series: list[float]) -> dict:
+        """
+        Provodi deterministicki Benfordov test prve znamenke (Chi-Square Goodness-of-Fit).
+        Ispravno skalira proporcije s ukupnim brojem uzoraka (N) radi usklađivanja s kritičnom vrijednošću 15.507.
+        """
+        import math
+        
+        # Izolacija prve znamenke za strogo pozitivne vrijednosti iznad nule
+        valid_digits = []
+        for x in data_series:
+            if x > 0:
+                try:
+                    # Uklanjanje nula i decimalnih točaka da dobijemo prvu pravu znamenku
+                    s = str(abs(x)).lstrip('0').replace('.', '')
+                    if s:
+                        valid_digits.append(int(s[0]))
+                except (ValueError, IndexError):
+                    continue
+                    
+        N = len(valid_digits)
+        critical_threshold = 15.507
+        
+        # Minimalni statistički prag za stabilnost testa
+        if N < 50:
+            return {
+                "passed": True,  # Prolazimo automatski ako nema dovoljno podataka da ne rušimo sustav
+                "sample_size": N,
+                "chi_square_score": 0.0,
+                "critical_threshold": critical_threshold,
+                "risk_level": "UNKNOWN"
+            }
+            
+        # Očekivane Benfordove distribucije za znamenke od 1 do 9
+        expected_distribution = {d: math.log10(1 + 1/d) for d in range(1, 10)}
+        
+        # Brojanje stvarnih pojavljivanja svake znamenke (frekvencije)
+        observed_counts = {d: valid_digits.count(d) for d in range(1, 10)}
+        
+        # Standardna Chi-Square formula: Σ ((O_i - E_i)^2 / E_i)
+        chi_square_score = 0.0
+        for d in range(1, 10):
+            observed_f = observed_counts[d]  # Stvarna frekvencija
+            expected_f = expected_distribution[d] * N  # Očekivana frekvencija na uzorku N
+            
+            if expected_f > 0:
+                chi_square_score += ((observed_f - expected_f) ** 2) / expected_f
+                
+        # Usporedba s kritičnim pragom 15.507 za 8 stupnjeva slobode
+        failed_test = chi_square_score > critical_threshold
+        
+        return {
+            "passed": not failed_test,
+            "sample_size": N,
+            "chi_square_score": round(chi_square_score, 4),
+            "critical_threshold": critical_threshold,
+            "risk_level": "LOW_RISK" if not failed_test else "HIGH_RISK"
+        }
 
 class ShannonEntropyTest:
     NATURAL_MIN = 3.0
