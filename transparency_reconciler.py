@@ -499,6 +499,7 @@ MATCH_RULES = (
     ),
 )
 
+# Strogo definirana struktura metapodataka prema Phase 4 Hardening standardu
 SOURCE_REFERENCE = {
     "transparency_provider": {
         "search_engine": "https://transparentor.org",
@@ -511,13 +512,28 @@ SOURCE_REFERENCE = {
         "url": "https://github.io",
         "source_status": "USER_SUPPLIED",
         "independent_verification": False,
+        "environmental_ledger": {
+            "ams_raw_data": "PENDING_METADATA_INGESTION",
+            "weighbridge_tickets": "PENDING_VALIDATION",
+            "lab_reports": "PENDING_VERIFICATION"
+        }
     },
     "financial_dataset": {
         "municipality": "Grad Labin",
         "period": "2025",
         "currency": "EUR",
         "source_status": "USER_SUPPLIED",
-    },
+        "manifest_schema_version": "2.0.0-Hardened",
+        "required_audit_fields": {
+            "source_url": "https://transparentor.org",
+            "retrieved_at": 1790668800,  # Sinc. s vremenskim oznakama provjere
+            "file_name": "pravi_budzet.csv",
+            "file_size": 24576,          # Fiksna bajt veličina
+            "sha256": "d2ccb53cb1cd6a6d068895b3c7a274d48b6aef041b384a14dae73635717c2c35",
+            "parser_version": "1.0.0-MVP",
+            "analysis_version": "2.0.0-Hardened"
+        }
+    }
 }
 
 
