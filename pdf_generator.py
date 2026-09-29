@@ -57,8 +57,7 @@ class ForensicPDFGenerator:
             spaceBefore=14,
             spaceAfter=6,
         )
-
-        # Body text
+        # Body text / Cell text style with explicit CJK word wrap enabled
         self.body_style = ParagraphStyle(
             "DocBody",
             parent=self.styles["Normal"],
@@ -66,7 +65,9 @@ class ForensicPDFGenerator:
             fontSize=9,
             leading=12,
             textColor=colors.HexColor("#222222"),
+            wordWrap='CJK',  # Prisilno prelamanje dugih linkova i zapisa unutar zadanih stupaca tablice
         )
+
 
         # Small mono-style for hashes
         self.mono_style = ParagraphStyle(
@@ -259,7 +260,6 @@ class ForensicPDFGenerator:
         )
         story.append(prov_table)
 
-
         # --------------------------------------------------------------
         # 3. MATHEMATICAL MATRIX SUMMARY
         # --------------------------------------------------------------
@@ -277,58 +277,47 @@ class ForensicPDFGenerator:
             "passed": False,
         }
 
+        # Jede einzelne Zelle wird in ein Paragraph-Objekt gewrapped, um wordWrap='CJK' zu erzwingen
         math_data = [
-            ["Diagnostic Layer", "Calculated Result", "Reference Rule", "Verdict"],
             [
-                "Benford / Digit Distribution",
-                f"{b_test.get('score', 0):.4f}",
-                str(b_test.get("critical_value", 10.0)),
-                "PASSED ✓" if b_test.get("passed") else "FAILED ✗",
+                Paragraph("<b>Diagnostic Layer</b>", self.body_style), 
+                Paragraph("<b>Calculated Result</b>", self.body_style), 
+                Paragraph("<b>Reference Rule</b>", self.body_style), 
+                Paragraph("<b>Verdict</b>", self.body_style)
             ],
             [
-                "Shannon Entropy",
-                f"{s_test.get('score', 0):.4f} bits",
-                f">= {s_test.get('natural_minimum', 2.7)} bits",
-                "PASSED ✓" if s_test.get("passed") else "FAILED ✗",
+                Paragraph("Benford / Digit Distribution", self.body_style),
+                Paragraph(f"{b_test.get('score', 0):.4f}", self.body_style),
+                Paragraph(str(b_test.get("critical_value", 10.0)), self.body_style),
+                Paragraph("<font color='#00aa44'><b>PASSED ✓</b></font>" if b_test.get("passed") else "<font color='#ff0055'><b>FAILED ✗</b></font>", self.body_style),
+            ],
+            [
+                Paragraph("Shannon Entropy", self.body_style),
+                Paragraph(f"{s_test.get('score', 0):.4f} bits", self.body_style),
+                Paragraph(f"&gt;= {s_test.get('natural_minimum', 2.7)} bits", self.body_style),
+                Paragraph("<font color='#00aa44'><b>PASSED ✓</b></font>" if s_test.get("passed") else "<font color='#ff0055'><b>FAILED ✗</b></font>", self.body_style),
             ],
         ]
 
+        # Breite der Spalten exakt auf das Letter-Format (540 pt Gesamtbreite) fixiert
         math_table = Table(math_data, colWidths=[170, 120, 120, 130])
         math_table.setStyle(
             TableStyle(
                 [
                     ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#111111")),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, 0), 9),
-                    ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-                    ("FONTSIZE", (0, 1), (-1, -1), 9),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#dddddd")),
                     ("TOPPADDING", (0, 0), (-1, -1), 6),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                     ("LEFTPADDING", (0, 0), (-1, -1), 8),
-                    (
-                        "TEXTCOLOR",
-                        (3, 1),
-                        (3, 1),
-                        colors.HexColor("#00aa44")
-                        if b_test.get("passed")
-                        else colors.HexColor("#ff0055"),
-                    ),
-                    (
-                        "TEXTCOLOR",
-                        (3, 2),
-                        (3, 2),
-                        colors.HexColor("#00aa44")
-                        if s_test.get("passed")
-                        else colors.HexColor("#ff0055"),
-                    ),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
                     ("ALIGN", (1, 0), (-1, -1), "CENTER"),
                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ]
             )
         )
         story.append(math_table)
+
 
         # --------------------------------------------------------------
         # 4. VISUAL EVIDENCE
