@@ -54,7 +54,17 @@ PEER_TIMEOUT_SEC = 90               # 3 missed heartbeats → prune
 SEEN_SET_MAX = 4_096                # bounded sliding window
 DEFAULT_FANOUT = 3
 DEFAULT_TTL = 3
-HMAC_SECRET_ENV_FALLBACK = b"bajte-brothers-mesh-bootstrap-v2-shared-secret"
+import sys
+
+# Povlačenje tajne isključivo iz okruženja sustava
+_env_secret = os.getenv("OFFF_HMAC_SECRET")
+if _env_secret:
+    HMAC_SECRET_ENV_FALLBACK = _env_secret.encode("utf-8")
+else:
+    # Ako tajna nije postavljena, prekidamo izvršavanje u main bloku ili inicijalizaciji, 
+    # ali ovdje definiramo None kako bismo prisilili pad pri pokretanju produkcije
+    HMAC_SECRET_ENV_FALLBACK = None
+
 
 
 # ---------------------------------------------------------------------------
@@ -242,7 +252,17 @@ class P2PNetworkMesh:
         self.host = host
         self.port = port
         self.node_id = node_id or f"Node_{secrets.token_hex(4)}"
-        self.hmac_secret = hmac_secret or HMAC_SECRET_ENV_FALLBACK
+               # Stroga AppSec provjera: ako nema uvezene tajne niti tajne iz okruženja, gasimo node
+        resolved_secret = hmac_secret or HMAC_SECRET_ENV_FALLBACK
+        if not resolved_secret:
+            print("\n" + "🚨" * 20)
+            print("[CRITICAL SECURITY ALARM] OFFF_HMAC_SECRET nije konfiguriran u okruženju!")
+            print("[CRITICAL] P2P node se ne može pokrenuti bez valjane privatne HMAC tajne.")
+            print("🚨" * 20 + "\n")
+            sys.exit(1)  # Trenutačni prekid izvršavanja radi zaštite integriteta mreže
+
+        self.hmac_secret = resolved_secret
+
         self.fanout = max(1, fanout)
 
         self.is_active = False
