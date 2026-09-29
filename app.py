@@ -317,12 +317,24 @@ def _build_manifest(
     audit_result: Dict[str, Any], metadata: Dict[str, str], file_hash: str
 ) -> Dict[str, Any]:
     """Generate the JSON export payload used as the public manifest."""
+    import time
     metrics = audit_result.get("metrics", {})
     provenance = _build_provenance_header(metadata)
     provenance["file_hash"] = file_hash
+    
+    # Injekcija punog skupa polja u tvoj postojeći provenance objekt
+    provenance["source_url"] = metadata.get("source_url", "https://transparentor.org")
+    provenance["retrieved_at"] = int(metadata.get("retrieved_at", int(time.time())))
+    provenance["file_name"] = metadata.get("file_name", "pravi_budzet.csv")
+    provenance["file_size"] = int(metadata.get("file_size", 0))
+    provenance["sha256"] = file_hash
+    provenance["parser_version"] = "1.0.0-MVP"
+    provenance["analysis_version"] = "2.0.0-Hardened"
+    provenance["jurisdiction"] = metadata.get("jurisdiction", provenance.get("municipality", "Unknown"))
+    provenance["year"] = metadata.get("year", provenance.get("year", "Unknown"))
 
     manifest = {
-        "schema_version": "1.0.0-mvp",
+        "schema_version": "2.0.0-Hardened",
         "dataset_name": audit_result.get("dataset_name", "unknown_dataset"),
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "file_sha256": file_hash,
