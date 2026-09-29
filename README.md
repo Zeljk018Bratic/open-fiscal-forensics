@@ -12,10 +12,6 @@ The framework balances analytical automation by implementing a dual-layer mathem
 2. **Information Density Measurement:** Computes numerical randomness using Shannon Entropy matrices to detect synthetic linear record generation.
 
 
-## 📊 Core Analytical Methodology
-The framework bypasses subjective verification models by implementing a dual-layer mathematical verification pipeline:
-1. **Logarithmic Frequency Deviation:** Evaluates first-digit compliance via a Chi-Square ($X^2$) goodness-of-fit test.
-2. **Information Density Measurement:** Computes numerical randomness using Shannon Entropy matrices to detect synthetic linear record generation.
 
 # 🌍 Sound of Freedom / #BajteBrothers Framework
 
