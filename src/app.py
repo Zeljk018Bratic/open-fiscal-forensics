@@ -20,11 +20,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-import matplotlib
 import pandas as pd
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import streamlit as st
 
 from auto_adapter import detect_amount_column_from_csv
