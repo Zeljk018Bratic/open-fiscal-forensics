@@ -51,6 +51,36 @@ class TestOFFFCoreEngine(unittest.TestCase):
         simulation_active = True
         status = "SIMULATION" if simulation_active else "PRODUCTION"
         self.assertEqual(status, "SIMULATION")
+    def test_one_cent_change_generates_different_file_hash(self):
+        """Osigurava da promjena od 1 centa generira potpuno različit SHA-256 otisak."""
+        payload_1 = {"konto": "3233", "amount": 63102.72}
+        payload_2 = {"konto": "3233", "amount": 63102.73}
+        
+        str_1 = json.dumps(payload_1, sort_keys=True).encode("utf-8")
+        str_2 = json.dumps(payload_2, sort_keys=True).encode("utf-8")
+        
+        hash_1 = hashlib.sha256(str_1).hexdigest()
+        hash_2 = hashlib.sha256(str_2).hexdigest()
+        
+        self.assertNotEqual(hash_1, hash_2)
+
+    def test_hash_chain_record_deletion_breaks_verification(self):
+        """Provjerava da brisanje ili modifikacija zapisa u nizu potpuno ruši verifikaciju."""
+        payloads = [{"id": 1, "val": 100}, {"id": 2, "val": 200}, {"id": 3, "val": 300}]
+        blocks = []
+        prev_hash = "0" * 64
+        
+        for p in payloads:
+            p_str = json.dumps(p, sort_keys=True)
+            curr_hash = hashlib.sha256(f"{p_str}{prev_hash}".encode("utf-8")).hexdigest()
+            blocks.append(LedgerBlock(block_hash=curr_hash, payload=p))
+            prev_hash = curr_hash
+            
+        self.assertTrue(verify_chain(blocks))
+        
+        # Simulacija brisanja srednjeg zapisa (indeks 1)
+        broken_chain = [blocks[0], blocks[2]]
+        self.assertFalse(verify_chain(broken_chain))
 
 if __name__ == "__main__":
     unittest.main()
