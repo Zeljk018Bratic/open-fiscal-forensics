@@ -4,8 +4,13 @@ The Open Fiscal Forensics Framework is a local-first, open-source civic intellig
 
 By analyzing structured government financial data against immutable statistical constants (Benford's Law and Shannon Entropy), the framework isolates metadata discrepancies and algorithmic patterns that serve as statistical indicators of potential irregularities, such as manual ledger adjustments or artificial number rounding. These mathematical indicators act as a screening and triaging mechanism to identify high-risk anomalies, serving as a flag for targeted human expert review and formal forensic accounting audits rather than constituting definitive proof of systemic fabrication on their own.
 
+## 📊 Core Analytical Methodology
 
-By analyzing structured government financial data against immutable statistical constants (Benford's Law and Shannon Entropy), the framework isolates metadata discrepancies and algorithmic patterns indicative of manual ledger fabrication or artificial number rounding.
+The framework balances analytical automation by implementing a dual-layer mathematical screening pipeline:
+
+1. **Logarithmic Frequency Deviation:** Evaluates first-digit compliance via a Chi-Square ($X^2$) goodness-of-fit test.
+2. **Information Density Measurement:** Computes numerical randomness using Shannon Entropy matrices to detect synthetic linear record generation.
+
 
 ## 📊 Core Analytical Methodology
 The framework bypasses subjective verification models by implementing a dual-layer mathematical verification pipeline:
