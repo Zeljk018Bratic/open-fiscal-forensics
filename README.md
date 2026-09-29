@@ -256,7 +256,8 @@ The analytical pipeline was successfully benchmarked and validated using authent
 * **Forensic Analytics Output (`forensic_audit_report.pdf`):**
   * **Benford's Law Chi² Score:** `0.0134` (Critical Threshold: `15.507`) -> **PASSED ✓**
   * **Shannon Entropy Value:** `3.2868 bits` (Natural Minimum: `>= 3.0`) -> **PASSED ✓**
-  * **Risk Assessment:** `LOW RISK` — The leading and interior digit distributions perfectly trace logarithmic natural patterns, verifying data integrity and the total absence of manual number fabrication.
+ * **Risk Assessment:** `LOW RISK` — The leading and interior digit distributions trace logarithmic natural patterns, indicating statistical alignment with Benford's Law and expected information density metrics. This serves as a key integrity screening indicator that flags data formatting consistency, though it remains a statistical evaluation and does not substitute for substantive institutional audits or human truth-verification.
+
 
 ### ⚙️ How to Deploy & Test Locally
 
