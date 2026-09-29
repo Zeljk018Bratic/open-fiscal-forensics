@@ -324,7 +324,7 @@ standardize dashboard wording to formal audit-grade English
 synchronize provenance metadata between UI and manifest export
 display full SHA-256 hash for uploaded dataset traceability
 refine risk explanations and integrity messaging
-preserve lightweight local-first workflow with no pandas dependency
+optimized local-first workflow with structured dataframe processing
 finalize export metadata structure and public audit report polish
 
 *Kopaj duboko*. 🤖🍏🍉🍒💪🏁🏆🎉🚀
