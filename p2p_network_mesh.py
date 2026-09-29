@@ -27,14 +27,17 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import os
 import secrets
 import socket
+import sys
 import threading
 import time
 from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
+
 
 # Optional forensic core — soft import so the mesh can still run standalone
 try:
