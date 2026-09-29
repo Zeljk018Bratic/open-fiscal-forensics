@@ -57,7 +57,6 @@ PEER_TIMEOUT_SEC = 90               # 3 missed heartbeats → prune
 SEEN_SET_MAX = 4_096                # bounded sliding window
 DEFAULT_FANOUT = 3
 DEFAULT_TTL = 3
-import sys
 
 # Povlačenje tajne isključivo iz okruženja sustava
 _env_secret = os.getenv("OFFF_HMAC_SECRET")
