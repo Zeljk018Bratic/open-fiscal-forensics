@@ -1,44 +1,26 @@
+📄 1. README.md (novi, čisti)
+markdown
 # Open Fiscal Forensics Framework (OFFF)
 
-The Open Fiscal Forensics Framework is a local-first, open-source civic intelligence platform designed for deterministic public-budget auditing, automated anomaly detection, and data-driven risk screening.
+Local-first, open-source platforma za determinističku reviziju javnog proračuna, automatsku detekciju anomalija i screening rizika temeljen na podacima.
 
-By analyzing structured government financial data against immutable statistical constants (Benford's Law and Shannon Entropy), the framework isolates metadata discrepancies and algorithmic patterns that serve as statistical indicators of potential irregularities, such as manual ledger adjustments or artificial number rounding. These mathematical indicators act as a screening and triaging mechanism to identify high-risk anomalies, serving as a flag for targeted human expert review and formal forensic accounting audits rather than constituting definitive proof of systemic fabrication on their own.
+Analizom strukturiranih državnih financijskih podataka protiv nepromjenjivih statističkih konstanti (Benfordov zakon i Shannonova entropija), framework izdvaja metapodatkovne razlike i algoritamske obrasce koji služe kao statistički indikatori potencijalnih nepravilnosti, poput ručnih prilagodbi u knjigama ili umjetnog zaokruživanja brojeva. Ovi matematički indikatori djeluju kao mehanizam za trijažu i označavanje visokorizičnih anomalija, služeći kao signal za ciljanu ljudsku ekspertizu i formalne forenzičke revizije, a ne kao konačni dokaz sistemske namještaljke.
 
-## 📊 Core Analytical Methodology
+## 📊 Osnovna analitička metodologija
 
-The framework balances analytical automation by implementing a dual-layer mathematical screening pipeline:
+Framework balansira analitičku automatizaciju kroz dvoslojni matematički screening pipeline:
 
-1. **Logarithmic Frequency Deviation:** Evaluates first-digit compliance via a Chi-Square ($X^2$) goodness-of-fit test.
-2. **Information Density Measurement:** Computes numerical randomness using Shannon Entropy matrices to detect synthetic linear record generation.
+1. **Logaritamsko odstupanje frekvencije:** Procjenjuje sukladnost prve znamenke putem Chi-Square ($X^2$) testa dobrobiti prilagodbe.
+2. **Mjerenje gustoće informacija:** Izračunava numeričku slučajnost koristeći Shannon Entropy matrice za detekciju sintetičkog linearnog generiranja zapisa.
 
+## 🔧 Tehnički nacrt: Pravilo #3 (Blockchain proračun)
 
+Tehnička jezgra ovog repozitorija pruža alternativnu arhitekturu za državne financijske operacije. Prebacivanjem fiskalnog upravljanja na javni ledger kontroliran automatiziranim pametnim ugovorima, sustav u potpunosti uklanja administrativnu ljudsku pogrešku i korupciju.
 
-# 🌍 Sound of Freedom / #BajteBrothers Framework
-
-![BajteBrothers Logo](bajtebrothers-logo.png)
-
-An open-source decentralized framework dedicated to financial transparency, exposing systemic corruption, and restoring public oversight through blockchain architecture. Inspired by global anti-trafficking and anti-corruption movements, this project bridges modern technology with traditional truth-seeking.
-
----
-
-## 🏛️ Core Mission & Vision
-
-The **#BajteBrothers** movement recognizes a dual-arm mechanism used by modern corporate and banking structures to transfer wealth away from the working class:
-1. **The Merit-Order Robbery:** Manipulation of essential infrastructure (e.g., energy/electricity markets costing citizens an estimated €1,485 Billion).
-2. **The 361 Chain:** Systemic networks involving geopolitical war profiteering, institutional misconduct, and compromised regulatory pipelines.
-
-By integrating the conceptual vision of **"Sound of Freedom"** and utilizing archetypal symbols of justice—such as **Saint George** and **Archangel Michael** standing against systemic tyranny, combined with the pro-enlightenment ideals of **Nikola Tesla**—this framework builds tools for a free, transparent society.
-
----
-
-## 🔧 Technical Blueprint: Rule #3 (Blockchain Budget)
-
-The technical core of this repository provides alternative architecture for state-level financial operations. By shifting fiscal management to a public ledger controlled by automated smart contracts, the system completely removes administrative human error and corruption.
-
-### 🛡️ Smart Contract Governance Model
+### 🛡️ Model upravljanja pametnim ugovorima
 
 ```text
-       [ Public Income ] -> ( Taxes, Fees, Public Revenues )
+       [ Javni prihod ] -> ( Porezi, naknade, javni prihodi )
                                   │
                                   ▼
                      ┌─────────────────────────┐
@@ -47,24 +29,24 @@ The technical core of this repository provides alternative architecture for stat
                                   │
          ┌────────────────────────┴────────────────────────┐
          ▼                                                 ▼
-[ Audit Check: Open Tender? ]                     [ Market Pricing Check ]
+[ Provjera revizije: Otvoreni natječaj? ]        [ Provjera tržišne cijene ]
          │                                                 │
-         ├─► YES: Execute Transfer                         ├─► MATCH: Safe Transaction
+         ├─► DA: Izvrši transfer                           ├─► PODUDARANJE: Sigurna transakcija
          │                                                 │
-         └─► NO:  BLOCK TRANSACTION                        └─► MISMATCH: FLAG ANOMALY
-```
+         └─► NE: BLOKIRAJ TRANSAKCIJU                      └─► NEPODUDARANJE: OZNAČI ANOMALIJU
+📋 Ključne mehanike protokola:
+Transparentnost javnog ledgera: Svaki put državnog prihoda, naplate poreza i administrativne naknade vezan je uz univerzalno provjerljive javne adrese.
 
-### 📋 Key Protocol Mechanics:
-* **Public Ledger Transparency:** Every single state revenue path, tax collection, and administrative fee is tied to universally verifiable public addresses.
-* **Conditional Disbursal:** Funds are programmatically locked. If a transaction lacks precise specification or fails to clear a public tender verification, the contract executing the transfer throws an error and aborts.
-* **Automated Anomaly Detection:** If a procurement price significantly deviates from verified open-market rates, the transaction is automatically flagged and halted on-chain.
-* **Deficit Elimination:** Real-time visibility of the spending-to-income ratio puts an end to untraceable balance-sheet loop-holes.
+Uvjetno isplaćivanje: Sredstva su programski zaključana. Ako transakcija nema preciznu specifikaciju ili ne prođe provjeru javnog natječaja, ugovor koji izvršava transfer baca grešku i prekida se.
 
-### 💻 Reference Implementation: TransparencyBudget.sol
+Automatska detekcija anomalija: Ako cijena nabave značajno odstupa od provjerenih tržišnih cijena, transakcija se automatski označava i zaustavlja na lancu.
 
-Below is the conceptual smart contract implementation validating **Rule #3**:
+Eliminacija deficita: Vidljivost omjera potrošnje i prihoda u stvarnom vremenu zaustavlja nevidljive rupe u bilanci.
 
-```solidity
+💻 Referentna implementacija: TransparencyBudget.sol
+Ispod je konceptualna implementacija pametnog ugovora koja validira Pravilo #3:
+
+solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -141,154 +123,136 @@ contract TransparencyBudget {
 
     receive() external payable {}
 }
-```
+🔬 Forenzički lanac 361
+Ovaj repozitorij održava dokumentacijske tragove koji prate povijesne veze unutar globalnih elitnih mreža:
 
----
+Korporativne transformacije: Kronološko mapiranje od povijesnih entiteta (npr. Tutogen) do strukturnih spajanja (RTI, 2008).
 
-## 🔬 The 361 Forensic Chain
+Revizije pozadinskih kanala: Analiza korporativnih ljuski i financijskih mehanizama (npr. Maxim Group "361 backdoor" upozorenja).
 
-This repository maintains documentation trails tracking historical linkages within global elite networks:
-* **Corporate Transformations:** Chronological mapping from historical entities (e.g., Tutogen) to structural mergers (RTI, 2008).
-* **Backdoor Audits:** Analysis of corporate shells and financial mechanisms (e.g., Maxim Group "361 backdoor" alerts).
-* **Network Links:** Documented communications linking high-profile asset networks (e.g., Epstein network vectors / Steven Victor internal trails).
-* **Procurement Audits:** Tracking institutional war-profiteering through the European Transparency Register and military spending subsidies.
+Mrežne veze: Dokumentirane komunikacije koje povezuju mreže visokoprofilirane imovine (npr. Epstein mrežni vektori / Steven Victor interni tragovi).
 
----
+Revizije nabave: Praćenje institucionalnog ratnog profiterstva kroz Europski registar transparentnosti i subvencije za vojne rashode.
 
-## 🔗 Repository File Index & Live Documentation
+🔗 Indeks datoteka repozitorija i živa dokumentacija
+Istražite komponente ovog frameworka izravno:
 
-Explore the components of this framework directly:
-* 📜 **[index.html](index.html)** ([Live Page](https://github.io)) – Main multilingual architecture and interface hub.
-* ⚡ **[index-manifest.html](index-manifest.html)** ([Live Page](https://github.io)) – Freedom Manifest: The 4 Universal Rules and Merit-Order breakdown (€1.485T Audit).
-* 🧪 **[sound_of_freedom_awareness.html](sound_of_freedom_awareness.html)** ([Live Page](https://github.io)) – Global tracking portal for missing children and international awareness.
-* ⛓️ **[361-lanac.html](361-lanac.html)** ([Live Page](https://github.io)) – Detailed forensic evidence chain (Tutogen, RTI, Maxim Group, Epstein network data).
-* 🗺️ **[blockchain-361-vodic.html](blockchain-361-vodic.html)** ([Live Page](https://github.io)) – Structural technical guide for the decentralized budget architecture.
+📜 index.html (Live Page) – Glavno višejezično arhitektonsko i sučeljno čvorište.
 
----
----
+⚡ index-manifest.html (Live Page) – Freedom Manifest: 4 univerzalna pravila i Merit-Order analiza (€1.485T revizija).
 
-## 🛡️ Anonymous Whistleblower Protocol (Anti-Censorship Node)
+🧪 sound_of_freedom_awareness.html (Live Page) – Globalni portal za praćenje nestale djece i međunarodnu svijest.
 
-## 🛡️ Anonymous Whistleblower Protocol (De-centralized Live Node)
+⛓️ 361-lanac.html (Live Page) – Detaljni forenzički lanac dokaza (Tutogen, RTI, Maxim Group, Epstein mrežni podaci).
 
-## 🛡️ Anonymous Whistleblower Protocol (De-centralized Anti-Censorship Node)
+🗺️ blockchain-361-vodic.html (Live Page) – Strukturni tehnički vodič za decentraliziranu proračunsku arhitekturu.
 
-To protect investigators and industry insiders reporting illicit networks, systemic corruption, or energy market manipulation, the framework includes a fully functional, zero-knowledge client-side encryption and decentralized dispatch engine integrated directly into `361-lanac.html`.
+🛡️ Anonimni protokol za zviždače (Anti-Censorship Node)
+Za zaštitu istražitelja i insajdera koji prijavljuju nedozvoljene mreže, sistemsku korupciju ili manipulaciju tržištem energije, framework uključuje potpuno funkcionalan, zero-knowledge klijentski enkripcijski i decentralizirani dispečerski engine integriran izravno u 361-lanac.html.
 
-```text
- [ Whistleblower / Citizen ] 
+text
+ [ Zviždač / Građanin ] 
             │
             ▼
 ┌───────────────────────────────────────┐
-│ Browser Encrypts the File Locally     │ -> Using #BajteBrothers Public PGP Key
+│ Browser lokalno šifrira datoteku      │ -> Koristeći #BajteBrothers javni PGP ključ
 └───────────────────────────────────────┘
             │
             ▼
 ┌───────────────────────────────────────┐
-│ Uploads Encrypted Payload to IPFS     │ -> Decentralized, censorship-resistant storage
+│ Upload šifriranog payloada na IPFS    │ -> Decentralizirano, otporno na cenzuru
 └───────────────────────────────────────┘
             │
             ▼
- [ Generation of IPFS Hash (CID) ]      -> Immutable hash anchored into the Blockchain budget ledger
-```
+ [ Generiranje IPFS Hasha (CID) ]       -> Nepromjenjivi hash usidren u Blockchain ledger proračuna
+⚙️ Produkcijska infrastruktura
+Zero-Knowledge arhitektura: Datoteke se sigurno šifriraju putem OpenPGP unutar informatičkog browser sandbox okruženja koristeći OpenPGP.js (v5.11.1). Nikakvi nešifrirani podaci ili cleartext infrastruktura nikada nisu izloženi mrežnoj jezgri.
 
-### ⚙️ Production Infrastructure
+Live Web3 routing: Potpuno integriran s decentraliziranim Crust Network IPFS API (https://crustwebsites.net) za permissionless, nepromjenjive i cenzuri otporne uploadove, čineći strukturne uklanjanja ili birokratsko potiskivanje nemogućim.
 
-* **Zero-Knowledge Architecture:** Files are securely encrypted via **OpenPGP** inside the informant's browser sandboxed runtime environment using `OpenPGP.js` (v5.11.1). No unencrypted data or cleartext infrastructure is ever exposed to the network core.
-* **Live Web3 Routing:** Fully integrated with the decentralized **Crust Network IPFS API** (`https://crustwebsites.net`) for permissionless, immutable, and censorship-resistant uploads, making structural takedowns or bureaucratic suppression impossible.
-* **Global Access & Validation:** Broadcasted payloads generate an unchangeable Content Identifier (CID). This permanent cryptographic timestamp anchor can be registered within our Solidity budget ledger ecosystem and instantly retrieved through any public IPFS node worldwide (e.g., `ipfs.io` or `gateway.ipfs.io`).
+Globalni pristup i validacija: Emitirani payloadi generiraju nepromjenjivi Content Identifier (CID). Ova trajna kriptografska vremenska oznaka može se registrirati unutar našeg Solidity proračunskog ledger ekosustava i trenutno dohvatiti kroz bilo koji javni IPFS čvor diljem svijeta (npr. ipfs.io ili gateway.ipfs.io).
 
-### 📦 Network Data Format
+📦 Format mrežnih podataka
+Kada se dokument pošalje, engine automatizira sljedeću sigurnu arhitekturu payloada:
 
-When a document is submitted, the engine automates the following secure payload architecture:
-
-```text
-[ Raw Document ] ──► ( Local Browser Sandbox ) ──► [ OpenPGP Encrypted Blob ]
+text
+[ Sirovi dokument ] ──► ( Lokalni browser sandbox ) ──► [ OpenPGP šifrirani blob ]
                                                            │
                                                            ▼
-[ Public IPFS Network ] ◄── ( Live HTTPS POST ) ◄── [ Multi-part Form Data (.pgp) ]
+[ Javna IPFS mreža ] ◄── ( Live HTTPS POST ) ◄── [ Multi-part form data (.pgp) ]
            │
            ▼
-[ Permanent IPFS CID Hash Generated ]
-```
+[ Generiran trajni IPFS CID hash ]
+👥 Kako sudjelovati
+Potičemo neovisne developere, financijske revizore i zagovornike slobode da pregledaju naše decentralizirane nacrte:
 
----
+Revizija podataka: Pregledajte naše izvorne dokumentacijske tragove u index datotekama.
 
-## 👥 How to Participate
+Deploy & Test: Pregledajte pravila implementacije TransparencyBudget.
 
-We encourage independent developers, financial auditors, and freedom advocates to review our decentralized blueprints:
-1. **Audit the Data:** Inspect our source documentation trails in the index files.
-2. **Deploy & Test:** Review the `TransparencyBudget` implementation rules.
-3. **Spread Awareness:** Engage with the official community discussions via our [YouTube Community Post](http://youtube.com).
+Širenje svijesti: Uključite se u službene rasprave zajednice putem našeg YouTube Community Post.
 
-**Join the movement. No more hidden loopholes.**
-## 🔬 Open-Source Forensic Analytics Core
+Pridružite se pokretu. Nema više skrivenih rupa.
 
-This repository now includes a functional Python data-integrity core and a decentralized Solidity ledger to evaluate datasets programmatically.
+🔬 Open-Source Forenzička analitička jezgra
+Ovaj repozitorij sada uključuje funkcionalnu Python jezgru za integritet podataka i decentralizirani Solidity ledger za programsku evaluaciju skupova podataka.
 
-### 📊 Statistical Anomaly Screening (forensic_core.py)
-To identify structural data discrepancies and mathematical deviations, the Python core utilizes a dual-layer statistical screening process:
+📊 Statistički screening anomalija (forensic_core.py)
+Za identifikaciju strukturnih odstupanja podataka i matematičkih devijacija, Python jezgra koristi dvoslojni statistički screening proces:
 
-* **Benford's Law (First-Digit Anomalies):** Performs a Chi-Square goodness-of-fit test on the distribution of leading digits in financial data. Significant deviations from the logarithmic baseline serve as statistical indicators of anomalous distributions, rather than definitive proof of ledger fabrication.
-* **Shannon Entropy (Digit Randomness):** Measures the information density and uniformity of numerical characters to flag artificially generated patterns or unusual structural uniformity. These flags serve as a triaging mechanism to guide deeper human accounting review.
+Benfordov zakon (Anomalije prve znamenke): Izvodi Chi-Square test dobrobiti prilagodbe na distribuciji vodećih znamenki u financijskim podacima. Značajna odstupanja od logaritamske osnovne linije služe kao statistički indikatori anomalnih distribucija, a ne kao konačni dokaz krivotvorenja ledgera.
 
-### ⛓️ Multi-Signature Voting Validation (ConsensusLedger.sol)
-To eliminate the Single Point of Failure (SPOF) found in centralized administrative roles, the governance model utilizes a decentralized validation architecture.
+Shannonova entropija (Slučajnost znamenki): Mjeri gustoću informacija i uniformnost numeričkih znakova kako bi označila umjetno generirane obrasce ili neobičnu strukturnu uniformnost. Ove oznake služe kao mehanizam trijaže za usmjeravanje dubljeg ljudskog računovodstvenog pregleda.
 
-Financial entries and public procurement IDs can clear a multi-sig verification process managed by network peers before ledger synchronization. These blockchain consensus checks verify protocol compliance and metadata alignment, ensuring data state consistency while human auditors perform substantive truth-verification.
+⛓️ Multi-Signature glasovanje validacija (ConsensusLedger.sol)
+Za eliminaciju Single Point of Failure (SPOF) koji se nalazi u centraliziranim administrativnim ulogama, model upravljanja koristi decentraliziranu validacijsku arhitekturu.
 
-We welcome peer-reviews, data journalists, and OSINT developers to audit, extend, and benchmark these core mathematical screening modules against public budget data.
+Financijski unosi i ID-ovi javne nabave mogu proći multi-sig verifikacijski proces kojim upravljaju mrežni peerovi prije sinkronizacije ledgera. Ove blockchain konsenzus provjere verificiraju usklađenost protokola i poravnanje metapodataka, osiguravajući konzistentnost stanja podataka dok ljudski revizori obavljaju suštinsku provjeru istine.
 
+Pozivamo peer-reviewere, podatkovne novinare i OSINT developere da revidiraju, prošire i benchmarkiraju ove osnovne matematičke screening module na javnim proračunskim podacima.
 
+🚀 Live interaktivni dashboard i validacija u stvarnom svijetu (MVP Launch)
+Framework je evoluirao od lokalne command-line skripte do potpuno funkcionalnog, desktop-first web aplikacijskog sučelja izgrađenog s Streamlit (app.py). Spaja jaz između sirovih ledger baza podataka i javne čitljivosti.
 
----
+🛡️ Privacy-First izvršavanje (privacy_banner.js)
+Kako bi se osigurala apsolutna usklađenost s globalnim digitalnim pravima, sučelje implementira strogi Privacy-by-Design konsenzus banner. Svaki automatizirani speech-to-text live-audit radi 100% lokalno unutar korisnikovog browser sandbox okruženja. Nikakvi audio streamovi se ne snimaju, cachiraju ili prenose na vanjske server matrice.
 
-## 🚀 Live Interactive Dashboard & Real-World Validation (MVP Launch)
+📊 Empirijska studija slučaja: Grad Labin 2025 Ledger Audit
+Analitički pipeline uspješno je benchmarkiran i validiran korištenjem autentičnih federalnih rashodovnih sredstava iz službenog open-data registra Grada Labina (Hrvatska) za 2025. godinu.
 
-The framework has evolved from a local command-line script into a fully functional, desktop-first web application interface built with **Streamlit** (`app.py`). It bridges the gap between raw ledger databases and public readability.
+Automatizirana obrada (auto_adapter.py): Engine je dinamički skenirao stranu spreadsheet matricu, izolirao financijski stupac na indeksu 1 i preusmjerio vrijednosti transakcija izravno u core analizator bez ljudske intervencije.
 
-### 🛡️ Privacy-First Execution (`privacy_banner.js`)
-To ensure absolute compliance with global digital rights, the interface implements a strict *Privacy-by-Design* consensus banner. Any automated speech-to-text live-audit operates **100% locally within the user's browser sandbox environment**. No audio streams are recorded, cached, or transmitted to external server matrices.
+Forenzički analitički izlaz (forensic_audit_report.pdf):
 
-### 📊 Empirical Case Study: Grad Labin 2025 Ledger Audit
-The analytical pipeline was successfully benchmarked and validated using authentic federal expenditure assets from the official open-data registry of **Grad Labin (Croatia) for the year 2025**.
+Benford's Law Chi² rezultat: 0.0134 (Kritični prag: 15.507) -> PROŠAO ✓
 
-* **Automated Processing (`auto_adapter.py`):** The engine dynamically scanned the foreign spreadsheet matrix, isolated the financial column at Index 1, and piped the transaction values directly into the core analyzer without human intervention.
-* **Forensic Analytics Output (`forensic_audit_report.pdf`):**
-  * **Benford's Law Chi² Score:** `0.0134` (Critical Threshold: `15.507`) -> **PASSED ✓**
-  * **Shannon Entropy Value:** `3.2868 bits` (Natural Minimum: `>= 3.0`) -> **PASSED ✓**
- * **Risk Assessment:** `LOW RISK` — The leading and interior digit distributions trace logarithmic natural patterns, indicating statistical alignment with Benford's Law and expected information density metrics. This serves as a key integrity screening indicator that flags data formatting consistency, though it remains a statistical evaluation and does not substitute for substantive institutional audits or human truth-verification.
+Shannon Entropy vrijednost: 3.2868 bita (Prirodni minimum: >= 3.0) -> PROŠAO ✓
 
+Procjena rizika: NISKI RIZIK — Distribucije vodećih i unutarnjih znamenki prate logaritamske prirodne obrasce, što ukazuje na statističko poravnanje s Benfordovim zakonom i očekivanim metrikama gustoće informacija. Ovo služi kao ključni indikator integriteta screeninga koji označava konzistentnost formatiranja podataka, iako ostaje statistička evaluacija i ne zamjenjuje suštinske institucionalne revizije ili ljudsku provjeru istine.
 
-### ⚙️ How to Deploy & Test Locally
+⚙️ Kako deployati i testirati lokalno
+Za pokretanje interaktivnog dashboard sandbox okruženja na vašoj radnoj stanici, klonirajte repozitorij, navigirajte do izvornog direktorija i deployajte aplikacijski sloj:
 
-To execute the interactive dashboard sandbox environment on your workstation, clone the repository, navigate to the source directory, and deploy the application layer:
-
-```powershell
-# 1. Install the verified, safe-mode execution libraries
+powershell
+# 1. Instalirajte verificirane, safe-mode izvršne biblioteke
 pip install streamlit matplotlib reportlab
 
-# 2. Launch the interactive Citizen Platform Central Control
+# 2. Pokrenite interaktivni Citizen Platform Central Control
 streamlit run app.py
-```
+🗺️ Evolucija projekta i strateški roadmap
+Za istraživanje dugoročne decentralizirane vizije, permissionless peer mreža i nadolazećih里程碑 historizacije baze podataka, pregledajte naš službeni core arhitektonski nacrt:
 
----
+🔗 Pročitajte cijeli tehnički roadmap (ROADMAP.md)
 
-## 🗺️ Project Evolution & Strategic Roadmap
-
-To explore the long-term decentralized vision, permissionless peer networks, and upcoming database historization milestones, review our official core architecture blueprint:
-
-🔗 **[Read the Full Technical Roadmap (ROADMAP.md)](ROADMAP.md)**
-
-Release status
+Status izdanja
 v1.0.0-MVP — Initial Open-Source Civic Audit Core
-We are proud to announce that the #BajteBrothers Citizen Budget Intelligence Platform has successfully completed its initial validation cycle.
+S ponosom objavljujemo da je #BajteBrothers Citizen Budget Intelligence Platform uspješno završio svoj početni validacijski ciklus.
 
-The project now includes a deterministic forensic core based on Benford’s Law and Shannon Entropy, along with automatic financial-column detection, a Streamlit dashboard, and publication-ready PDF reporting. By removing external monolithic dependencies, the analytical architecture is resilient, transparent, and fully reproducible.
+Projekt sada uključuje determinističku forenzičku jezgru temeljenu na Benfordovom zakonu i Shannonovoj entropiji, zajedno s automatskom detekcijom financijskih stupaca, Streamlit dashboardom i PDF izvještavanjem spremnim za objavu. Uklanjanjem vanjskih monolitnih ovisnosti, analitička arhitektura je otporna, transparentna i potpuno reproducibilna.
 
-The successful zero-error execution over the complete 2025 fiscal ledger of Grad Labin (Croatia) demonstrates that transparent civic audit workflows do not require centralized gatekeepers. They require rigorous logic, public traceability, and mathematically consistent evidence.
+Uspješno izvršavanje bez grešaka nad kompletnim fiskalnim ledgerom Grada Labina (Hrvatska) za 2025. godinu pokazuje da transparentni civic audit workflowi ne zahtijevaju centralizirane čuvare. Zahtijevaju rigoroznu logiku, javnu sljedivost i matematički konzistentne dokaze.
 
-This release includes the full MVP foundation:
+Ovo izdanje uključuje puni MVP temelj:
 
 forensic_core.py
 auto_adapter.py
@@ -297,35 +261,35 @@ pdf_generator.py
 .gitignore
 LICENSE
 ROADMAP.md
-The project is now formally open source under the MIT License, with a documented roadmap for future registry and peer-to-peer validation work.
+Projekt je sada formalno open source pod MIT licencom, s dokumentiranim roadmapom za budući rad na registru i peer-to-peer validaciji.
 
-This concludes the current development cycle. The code now belongs to the public.
+Ovime završava trenutni razvojni ciklus. Kod sada pripada javnosti.
 
-Release note / publish text
+Napomena o izdanju / tekst za objavu
 
 Sound of Freedom — MVP Polish Pass
-This release finalizes the forensic audit MVP for civic budget review and strengthens the platform’s credibility, reproducibility, and public transparency.
+Ovo izdanje finalizira forenzički audit MVP za civic budget review i jača kredibilitet, reproducibilnost i javnu transparentnost platforme.
 
-What changed
-finalized the dashboard language and messaging for a formal, audit-grade presentation
-standardized the public-facing vocabulary to consistent, professional English
-synchronized provenance metadata across the UI, report flow, and JSON manifest export
-improved the audit output structure with explicit file hash tracking and deterministic manifest metadata
-preserved the local-first workflow while keeping the implementation lightweight and dependency-safe
-refined the risk explanation layer to distinguish statistical indicators from human review requirements
-ensured the archived export package remains traceable and ready for public review
-Included in this version
+Što se promijenilo
+finaliziran je jezik i poruke dashboarda za formalnu, audit-grade prezentaciju
+standardiziran je javni vokabular na konzistentan, profesionalan engleski
+sinkronizirani provenance metapodaci kroz UI, report flow i JSON manifest export
+poboljšana struktura audit outputa s eksplicitnim praćenjem file hasha i determinističkim manifest metapodacima
+zadržan local-first workflow uz očuvanje lagane i dependency-safe implementacije
+rafiniran sloj objašnjenja rizika kako bi se razlikovali statistički indikatori od zahtjeva za ljudskim pregledom
+osigurano da arhivirani export paket ostane sljediv i spreman za javni pregled
+Uključeno u ovu verziju
 CSV upload workflow
-AutoAdapter-based amount-column detection
-forensic scoring and integrity indicators
-chart generation for risk visualization
-PDF forensic certificate export
-structured JSON audit manifest export
-provenance metadata capture for source, jurisdiction, year, uploader, and file hash
+AutoAdapter-based detekcija amount-stupca
+forenzičko bodovanje i indikatori integriteta
+generiranje grafikona za vizualizaciju rizika
+PDF forenzički certifikat export
+strukturirani JSON audit manifest export
+provenance metadata capture za izvor, jurisdikciju, godinu, uploadera i file hash
 Status
-This is a polished MVP checkpoint for public-budget transparency workflows and is positioned as a ready-to-share foundation for continued civic audit and forensic review development.
+Ovo je polished MVP checkpoint za public-budget transparency workflowse i pozicioniran je kao spremna foundation za kontinuirani civic audit i forenzički razvoj.
 
-Finaler Commit-Message
+Finalna commit poruka
 feat: finalize MVP polish pass for civic audit dashboard
 
 standardize dashboard wording to formal audit-grade English
@@ -335,8 +299,8 @@ refine risk explanations and integrity messaging
 optimized local-first workflow with structured dataframe processing
 finalize export metadata structure and public audit report polish
 
-*Kopaj duboko*. 🤖🍏🍉🍒💪🏁🏆🎉🚀
+Kopaj duboko. 🤖🍏🍉🍒💪🏁🏆🎉🚀
 
+text
 
-
-
+---
