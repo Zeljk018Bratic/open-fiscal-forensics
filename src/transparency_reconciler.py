@@ -1,4 +1,3 @@
-```python
 #!/usr/bin/env python3
 """
 TransparencyDataReconciler
@@ -106,28 +105,25 @@ class LedgerBlock:
     block_hash: str
     payload: dict
 def append_hash_ledger(block_path: Path, payloads: tuple) -> list[LedgerBlock]:
-    blocks = []
-    previous_hash = "0" * 64  # Genesis sidro
-    
+    """Append-only: učitava postojeći lanac, dodaje nove blokove i zapisuje CIJELI lanac.
+    (Stara verzija je pregazila datoteku samo novim blokovima, pa je lanac gubio povijest.)"""
+    chain: list[LedgerBlock] = []
     if block_path.exists():
-        try:
-            with open(block_path, "r", encoding="utf-8") as f:
-                existing_data = json.load(f)
-                if existing_data:
-                    previous_hash = existing_data[-1]["block_hash"]
-        except Exception:
-            pass
+        with open(block_path, "r", encoding="utf-8") as f:
+            chain = [LedgerBlock(block_hash=b["block_hash"], payload=b["payload"]) for b in json.load(f)]
+        if not verify_chain(chain):
+            raise RuntimeError(f"Postojeći lanac {block_path.name} je narušen – odbijam dodavanje novih blokova.")
 
+    previous_hash = chain[-1].block_hash if chain else "0" * 64   # genesis sidro
     for payload in payloads:
         payload_string = json.dumps(payload, sort_keys=True)
-        data_to_hash = f"{payload_string}{previous_hash}".encode("utf-8")
-        current_hash = hashlib.sha256(data_to_hash).hexdigest()
-        
-        blocks.append(LedgerBlock(block_hash=current_hash, payload=payload))
+        current_hash = hashlib.sha256(f"{payload_string}{previous_hash}".encode("utf-8")).hexdigest()
+        chain.append(LedgerBlock(block_hash=current_hash, payload=payload))
         previous_hash = current_hash
-        
-    export_json(block_path, [asdict(block) for block in blocks])
-    return blocks
+
+    export_json(block_path, [asdict(block) for block in chain])
+    return chain
+
 
 def verify_chain(blocks: list) -> bool:
     if not blocks:
@@ -391,6 +387,11 @@ class TransparencyDataReconciler:
         }
 
 
+# Izvor: "Godišnji izvještaj o izvršenju proračuna Grada Labina za 2025. godinu", tablica 1.1.2.1
+# (ekonomska klasifikacija; stupci "Izvršenje 2024." i "Izvršenje 2025.") i UKUPNO rashodi i izdatci u čl. 1.
+# https://cms.labin.hr/assets/d0f07133-402b-42fb-94a7-d77eb16c1f49.pdf  (upiši SHA-256 preuzetog PDF-a u dosje)
+# Provjera stupaca: indeks 3/1 = Izvršenje 2025 / Izvršenje 2024 (npr. 3233: 57.513,02 / 63.102,72 = 91,14 %).
+# 0 = nema podatka u ovom izvještaju (nije "nula euro").
 HISTORICAL_LEDGER = (
     YearLedger(
         year=2023,
@@ -404,23 +405,23 @@ HISTORICAL_LEDGER = (
     ),
     YearLedger(
         year=2024,
-        total_realized_outflows=money("0"),
-        konto_32=money("0"),
-        konto_323=money("0"),
-        konto_3233_media=money("0"),
-        konto_3237_intellectual_consulting=money("0"),
-        konto_3238_software_it=money("0"),
-        mayor_office_media=money("0"),
+        total_realized_outflows=money("21481328.24"),   # rashodi 20.787.841,56 + izdaci 693.486,68
+        konto_32=money("6259486.07"),
+        konto_323=money("4176288.28"),
+        konto_3233_media=money("63102.72"),
+        konto_3237_intellectual_consulting=money("705827.65"),
+        konto_3238_software_it=money("156248.09"),
+        mayor_office_media=money("0"),                   # nije u izvještaju za 2025.
     ),
     YearLedger(
         year=2025,
         total_realized_outflows=money("25923989.48"),
         konto_32=money("6899673.65"),
-        konto_323=money("4176288.28"),
-        konto_3233_media=money("63102.72"),
-        konto_3237_intellectual_consulting=money("705827.65"),
-        konto_3238_software_it=money("156248.09"),
-        mayor_office_media=money("30869.58"),
+        konto_323=money("4579623.01"),
+        konto_3233_media=money("57513.02"),
+        konto_3237_intellectual_consulting=money("765852.86"),
+        konto_3238_software_it=money("176660.17"),
+        mayor_office_media=money("30869.58"),            # programska klasifikacija A100002, 3233
     ),
     YearLedger(
         year=2026,
@@ -537,19 +538,35 @@ SOURCE_REFERENCE = {
 }
 
 
-def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
-    output_dir.mkdir(parents=True, exist_ok=True)
+def konto_sums_from_csv(csv_path: Path) -> dict[str, float]:
+    """Zbrojevi po 4-znamenkastom kontu iz 'Ekonomska klasifikacija' (npr. '323410 ...' -> '3234')."""
+    df = pd.read_csv(csv_path, sep=";", encoding="utf-8-sig", dtype=str, keep_default_na=False)
+    amt = pd.to_numeric(df["Iznos na poziciji"], errors="coerce").fillna(0.0)
+    konto = df["Ekonomska klasifikacija"].str.extract(r"^(\d{4})")[0]
+    return {k: round(float(v), 2) for k, v in amt.groupby(konto).sum().items()}
 
+
+def run_offline_ingestion(output_dir: Path, declaration: Optional[Dict[str, str]] = None) -> dict[str, Any]:
+    """declaration (opcionalno) = {"konto","expected","observed","expected_source","observed_source"}.
+    Delta se računa SAMO iz izjave s navedenim izvorima; bez nje status je NOT_EVALUATED.
+    (Prije su 78102.72 / 63102.72 bili hardkodirani pa je svaki prolaz završavao s VARIANCE_DETECTED.)"""
+    output_dir.mkdir(parents=True, exist_ok=True)
     historical = build_historical_template(HISTORICAL_LEDGER)
 
-    audit_delta = calculate_audit_delta(
-        konto="3233",
-        expected="78102.72",
-        observed="63102.72",
-    )
+    if declaration:
+        for key in ("konto", "expected", "observed", "expected_source", "observed_source"):
+            if not str(declaration.get(key, "")).strip():
+                raise ValueError(f"declaration['{key}'] je obavezan – bez izvora nema nalaza.")
+        audit_delta = calculate_audit_delta(declaration["konto"], declaration["expected"], declaration["observed"])
+        status = "VARIANCE_DETECTED" if abs(audit_delta.delta) > 0.005 else "OK"
+    else:
+        audit_delta = AuditDelta(konto="NOT_EVALUATED", expected=0.0, observed=0.0, delta=0.0)
+        status = "NOT_EVALUATED"
 
     reconciliation_payload = {
         "audit_delta": audit_delta.to_json_dict(),
+        "declaration": declaration or None,
+        "status": status,
         "historical": historical,
         "ecological_indicators": [indicator.to_json_dict() for indicator in ECOLOGICAL_INDICATORS],
         "source_mapping": SOURCE_REFERENCE,
@@ -560,57 +577,79 @@ def run_offline_ingestion(output_dir: Path) -> dict[str, Any]:
     latest_block = blocks[-1]
 
     markdown = generate_scribehow_markdown(
-        audit_delta=audit_delta,
-        ecological_indicators=ECOLOGICAL_INDICATORS,
-        block=latest_block,
+        audit_delta=audit_delta, ecological_indicators=ECOLOGICAL_INDICATORS, block=latest_block,
     )
-
     (output_dir / "offf_audit_log.md").write_text(markdown, encoding="utf-8")
     export_json(output_dir / "historical_template.json", historical)
 
     audit_result = {
-        "status": "VARIANCE_DETECTED" if abs(audit_delta.delta) > 0 else "OK",
+        "status": status,
         "absolute_total_delta": abs(audit_delta.delta),
-        "deltas": {
-            "Konto 3233": {
-                "expected": audit_delta.expected,
-                "observed": audit_delta.observed,
-                "delta": audit_delta.delta,
-            }
-        },
+        "deltas": {f"Konto {audit_delta.konto}": {"expected": audit_delta.expected,
+                                                  "observed": audit_delta.observed, "delta": audit_delta.delta}},
     }
 
-    blockchain_result = None
-    reconciler = TransparencyDataReconciler(
-        rpc_url="http://127.0.0.1:8545",
-     private_key=os.getenv("BLOCKCHAIN_PRIVATE_KEY"),
-        blockchain_recipient="0x0000000000000000000000000000000000000000",
-    )
-
-    try:
-        blockchain_result = reconciler.dispatch_to_blockchain_ledger(
-            audit_result=audit_result,
-            contract_address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    blockchain_result: Any = {"status": "SKIPPED", "reason": "NOT_EVALUATED – nema izjave s izvorima"}
+    if status != "NOT_EVALUATED":
+        reconciler = TransparencyDataReconciler(
+            rpc_url="http://127.0.0.1:8545",
+            private_key=os.getenv("BLOCKCHAIN_PRIVATE_KEY"),
+            blockchain_recipient="0x0000000000000000000000000000000000000000",
         )
-    except ConnectionError as exc:
-        print(f"[BLOCKCHAIN LEDGER] Local RPC not running. Skipping on-chain publication: {exc}")
-        blockchain_result = {"status": "SKIPPED", "reason": str(exc)}
+        try:
+            blockchain_result = reconciler.dispatch_to_blockchain_ledger(
+                audit_result=audit_result,
+                contract_address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+            )
+        except ConnectionError as exc:
+            print(f"[BLOCKCHAIN LEDGER] Local RPC not running. Skipping on-chain publication: {exc}")
+            blockchain_result = {"status": "SKIPPED", "reason": str(exc)}
 
-    result = {
+    return {
         "status": "INGESTION_COMPLETE",
+        "audit_status": status,
         "engine": ENGINE_NAME,
         "version": ENGINE_VERSION,
         "block_hash": latest_block.block_hash,
+        "chain_length": len(blocks),
         "ledger_verified": verify_chain(blocks),
         "absolute_delta_eur": format(abs(audit_delta.delta), "f"),
         "historical_years": [2023, 2024, 2025, 2026],
         "blockchain": blockchain_result,
     }
 
-    return result
+
+def run_forensic_checks(csv_path: Path, output_dir: Path, ledger_first_seen_utc: Optional[str] = None,
+                        baseline_seen_utc: Optional[str] = None, threshold_eur: float = 26_540.0) -> dict[str, Any]:
+    """Spaja labin_adapter + anomaly_detectors + evidence_export; piše dokazni_sazetak.txt."""
+    from labin_adapter import load_labin_csv, update_ledger, split_procurement_v2, date_logic_flags
+    from anomaly_detectors import timestamp_tampering
+    from integrity_diff import sha256_file, IntegrityReport
+    from evidence_export import build_evidence_summary
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    df = load_labin_csv(Path(csv_path))
+    if ledger_first_seen_utc:
+        df = update_ledger(df, output_dir / "first_seen_ledger.jsonl", ledger_first_seen_utc)
+
+    anchor = SOURCE_REFERENCE["financial_dataset"]["required_audit_fields"]["sha256"]
+    actual = sha256_file(Path(csv_path))
+    integrity = [IntegrityReport(Path(csv_path).name, anchor, actual, actual == anchor.lower())]
+
+    split = split_procurement_v2(df, threshold=threshold_eur)
+    flags = date_logic_flags(df)
+    dates = df.loc[flags["racun_nakon_isplate"] | flags["flag_vrlo_kasno"],
+                   ["datum", "datum_racuna", "primatelj", "iznos", "broj_racuna"]]
+    tamper = (timestamp_tampering(df, baseline_seen_utc=baseline_seen_utc)
+              if "first_seen_utc" in df.columns else None)
+
+    summary = build_evidence_summary(integrity, split, dates, tamper, None, None,
+                                     params={"prag_eur": threshold_eur})
+    (output_dir / "dokazni_sazetak.txt").write_text(summary, encoding="utf-8")
+    return {"integrity_match": integrity[0].match, "split_findings": len(split),
+            "date_flags": len(dates), "summary_path": str(output_dir / "dokazni_sazetak.txt")}
 
 
 if __name__ == "__main__":
     result = run_offline_ingestion(Path("offf_output"))
     print(json.dumps(result, indent=2, sort_keys=True))
-```

@@ -197,16 +197,8 @@ class DatabaseRegistry:
         conn = self._get_connection()
         cursor = conn.cursor()
 
-        query = "SELECT * FROM audits ORDER BY registered_at_utc DESC"
-        params: tuple[Any, ...] = ()
-
-        if offset > 0:
-            query += " OFFSET ?"
-            params = (offset,)
-
-        if limit is not None:
-            query += " LIMIT ?"
-            params = params + (limit,) if params else (limit,)
+        query = "SELECT * FROM audits ORDER BY registered_at_utc DESC LIMIT ? OFFSET ?"
+        params: tuple[Any, ...] = (-1 if limit is None else int(limit), max(int(offset), 0))
 
         cursor.execute(query, params)
         rows = cursor.fetchall()

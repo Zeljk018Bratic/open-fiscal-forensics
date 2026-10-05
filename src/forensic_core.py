@@ -46,18 +46,12 @@ class BenfordTest:
         """
         import math
         
-        # Izolacija prve znamenke za strogo pozitivne vrijednosti iznad nule
+        # Izolacija prve značajne znamenke (radi i za 0.05 i za 1e-05)
         valid_digits = []
         for x in data_series:
-            if x > 0:
-                try:
-                    # Uklanjanje nula i decimalnih točaka da dobijemo prvu pravu znamenku
-                    s = str(abs(x)).lstrip('0').replace('.', '')
-                    if s:
-                        valid_digits.append(int(s[0]))
-                except (ValueError, IndexError):
-                    continue
-                    
+            if x and x > 0:
+                valid_digits.append(int(f"{abs(x):.15e}"[0]))
+
         N = len(valid_digits)
         critical_threshold = 15.507
         
@@ -67,7 +61,10 @@ class BenfordTest:
                 "passed": True,  # Prolazimo automatski ako nema dovoljno podataka da ne rušimo sustav
                 "sample_size": N,
                 "chi_square_score": 0.0,
+                "score": 0.0,
                 "critical_threshold": critical_threshold,
+                "critical_value": critical_threshold,
+                "distribution": {},
                 "risk_level": "UNKNOWN"
             }
             
@@ -89,11 +86,21 @@ class BenfordTest:
         # Usporedba s kritičnim pragom 15.507 za 8 stupnjeva slobode
         failed_test = chi_square_score > critical_threshold
         
+        distribution = {
+            str(d): {
+                "observed_pct": round(observed_counts[d] / N * 100, 2),
+                "expected_pct": round(expected_distribution[d] * 100, 2),
+            }
+            for d in range(1, 10)
+        }
         return {
             "passed": not failed_test,
             "sample_size": N,
             "chi_square_score": round(chi_square_score, 4),
+            "score": round(chi_square_score, 4),               # alias za app.py / print_report
             "critical_threshold": critical_threshold,
+            "critical_value": critical_threshold,              # alias za print_report
+            "distribution": distribution,                      # za csv_budget_visualizer
             "risk_level": "LOW_RISK" if not failed_test else "HIGH_RISK"
         }
 
@@ -147,11 +154,14 @@ class ForensicCore:
             risk_label = "Ein Test auffällig — manuelle Prüfung empfohlen"
         else:
             risk = "HIGH"
-            risk_label = "Beide Tests auffällig — starker Manipulationsverdacht"
+            risk_label = "Beide Tests auffällig — statistische Anomalie, kein Beweis für Manipulation; Einzelprüfung nötig"
         return {
             "label": label, "status": "SUCCESS", "valid_count": n,
             "rejected_count": rejected, "anomaly_detected": anomaly,
             "risk_level": risk, "risk_label": risk_label,
+            "metrics": {"chi_square": benford["score"],
+                        "shannon_entropy": shannon["score"],
+                        "observation_count": n},
             "tests": {"benford": benford, "shannon": shannon}
         }
 
