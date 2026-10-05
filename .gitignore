@@ -12,3 +12,8 @@ venv/
 temp_*
 test_*.csv
 signatures.db
+
+# API i privatni podaci
+offf_output/api_raw/
+data/private/
+.env
