@@ -168,7 +168,7 @@ class ForensicCore:
         print(f" Risikostufe           : {result['risk_level']} — {result['risk_label']}")
         print(f" Anomalie erkannt      : {'JA ⚠️' if result['anomaly_detected'] else 'NEIN ✓'}")
         print(f"\n ┌─ Benford's Law ──────────────────────────────┐")
-        print(f" │ Chi²-Score : {b['score']} (Schwelle: {b['critical_value']})")
+        print(f" │ Chi²-Score : {b['chi_square_score']} (Schwelle: {b['critical_threshold']})")
         print(f" │ Ergebnis   : {'✓ BESTANDEN' if b['passed'] else '✗ FEHLGESCHLAGEN'}")
         print(f" └──────────────────────────────────────────────┘")
         print(f"\n ┌─ Shannon-Entropie ────────────────────────────┐")
