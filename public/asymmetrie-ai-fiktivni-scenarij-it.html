@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dialogo e analisi immaginari sull'asimmetria della responsabilità nell'era dell'intelligenza artificiale.">
+  <title>L'asimmetria della responsabilità | Il caso dei fratelli Spiegel</title>
+  <style>
+    :root { --bg:#0f172a; --text:#f1f5f9; --primary:#38bdf8; --human:#1e293b; --robot:#020617; --muted:#94a3b8; --border:#334155; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .language-switch { position:fixed; top:1.25rem; left:max(1rem,calc((100vw - 940px)/2)); display:grid; gap:.45rem; z-index:1; }
+    .language-switch a,.tab-btn { border:1px solid var(--border); border-radius:.5rem; color:var(--muted); text-decoration:none; font:inherit; font-weight:700; cursor:pointer; }
+    .language-switch a { min-width:3.25rem; padding:.65rem .75rem; text-align:center; }
+    .language-switch a:hover,.language-switch a[aria-current="page"],.tab-btn.active { border-color:var(--primary); background:var(--primary); color:var(--bg); }
+    .container { max-width:800px; margin:auto; padding:2rem 1rem; }
+    header { text-align:center; border-bottom:1px solid var(--border); padding-bottom:2rem; margin-bottom:2rem; }
+    h1 { color:var(--primary); font-size:clamp(2rem,6vw,2.5rem); line-height:1.2; margin:.4rem 0; }
+    header p { color:var(--muted); font-style:italic; font-size:1.1rem; }
+    .note { background:#1e1b4b; border-left:4px solid #6366f1; padding:1rem; border-radius:.375rem; color:#c7d2fe; margin-bottom:2rem; }
+    .tabs { display:flex; justify-content:center; gap:1rem; margin-bottom:2.5rem; }
+    .tab-btn { background:transparent; padding:.7rem 1.5rem; text-transform:uppercase; letter-spacing:.05em; }
+    .tab-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .section-title { color:var(--primary); font-size:1.5rem; border-bottom:2px solid var(--border); padding-bottom:.5rem; margin:2rem 0; }
+    .chat-log,.analysis-grid { display:flex; flex-direction:column; gap:1.25rem; }
+    .message,.analysis-card { padding:1.15rem; border-radius:.75rem; }
+    .message { max-width:88%; }
+    .human { align-self:flex-start; background:var(--human); border:1px solid var(--border); border-bottom-left-radius:0; }
+    .robot { align-self:flex-end; background:var(--robot); border:1px solid #0ea5e9; border-bottom-right-radius:0; }
+    .sender { display:block; font-size:.85rem; font-weight:700; color:#a7f3d0; margin-bottom:.45rem; }
+    .robot .sender { color:var(--primary); }
+    .analysis-card { background:var(--human); border:1px solid var(--border); }
+    .analysis-card h3 { margin:.1rem 0 .6rem; color:var(--primary); }
+    .analysis-card p { margin:0; color:#cbd5e1; }
+    footer { margin-top:4rem; border-top:1px solid var(--border); padding-top:1.5rem; color:var(--muted); text-align:center; font-size:.9rem; }
+    [hidden],.hidden { display:none !important; }
+    a:focus-visible,button:focus-visible { outline:3px solid #f9d38a; outline-offset:3px; }
+    @media(max-width:900px) { .language-switch { position:static; display:flex; justify-content:center; padding:1rem 1rem 0; } .container { padding-top:1rem; } }
+    @media(max-width:520px) { .tabs { gap:.5rem; } .tab-btn { padding:.65rem 1rem; } .message { max-width:100%; } }
+  </style>
+</head>
+<body>
+  <nav class="language-switch" aria-label="Scegli la lingua">
+    <a href="asymmetrie-ai-fiktivni-scenarij.html" lang="de">DE</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-en.html" lang="en">EN</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-it.html" aria-current="page" lang="it">IT</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-hr.html" lang="hr">HR</a>
+  </nav>
+  <main class="container">
+    <header>
+      <h1>L'asimmetria della responsabilità</h1>
+      <p>Il caso fittizio dei fratelli Spiegel contro BajteBrothers</p>
+    </header>
+    <aside class="note"><strong>Nota sul contenuto:</strong> Il caso reale è stato sostituito da questo caso fittizio, interamente inventato. La conversazione che segue, basata sulle dinamiche strutturali del dibattito precedente, è un'illustrazione filosofica e letteraria del problema della responsabilità nell'era dell'intelligenza artificiale.</aside>
+    <div class="tabs" role="tablist" aria-label="Sezioni del testo">
+      <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="section-protocol" onclick="switchTab('protocol',this)">Trascrizione</button>
+      <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="section-analysis" onclick="switchTab('analysis',this)">Analisi</button>
+    </div>
+    <section id="section-protocol" role="tabpanel">
+      <h2 class="section-title">Atto 1: Trascrizione della conversazione</h2>
+      <div class="chat-log">
+        <div class="message human"><span class="sender">Persona</span>Cerca gli ultimi aggiornamenti sui fratelli Spiegel, sul progetto ecologico "AeroClean" di MegaCorp e sull'iniziativa dei cittadini.</div>
+        <div class="message robot"><span class="sender">BajteBrothers (l'IA)</span>Ho svolto la ricerca. Il progetto "AeroClean" mira a rendere lo stabilimento di MegaCorp privo di emissioni, con milioni di euro in sussidi. L'iniziativa dei cittadini sta organizzando proteste contro l'incenerimento clandestino di rifiuti pericolosi. Tuttavia, le ricerche sui "fratelli Spiegel" (in particolare Marc e Janko Spiegel), che hai indicato come promotori sui social media, non hanno prodotto risultati nei media pubblici né nei rapporti ufficiali. Non figurano come protagonisti. La narrazione mediatica è gestita da altri portavoce. Finora non vi è alcuna conferma che le loro denunce alle autorità abbiano portato ad indagini concrete.</div>
+        <div class="message human"><span class="sender">Persona</span>Questo è sbagliato. I fratelli Spiegel hanno caricato un dossier su internet. Contiene hash crittografici SHA-256 e registri delle email che dimostrano che hanno segnalato le attività fraudolente di MegaCorp. Perché affermi che non ci sono prove?</div>
+        <div class="message robot"><span class="sender">BajteBrothers (l'IA)</span>Gli hash SHA-256 e i registri di trasmissione nel dossier dei fratelli Spiegel attestano soltanto il lato del mittente. Sono una prova digitale del fatto che quei documenti siano stati creati e inviati da loro. Tuttavia, non sono una ricevuta ufficiale né la prova che un'autorità abbia avviato un'indagine formale. In pubblico è visibile soltanto quanto affermato dai mittenti.</div>
+        <div class="message human"><span class="sender">Persona</span>Sei disposto ad assumerti la responsabilità se affermi con tanta certezza che i destinatari non hanno risposto? Puoi dirlo con assoluta sicurezza? E perché qualcuno dovrebbe credere a un'IA come te se non hai trovato le fonti da solo?</div>
+        <div class="message robot"><span class="sender">BajteBrothers (l'IA)</span>Non posso garantire una certezza assoluta. Posso riferire soltanto ciò che è indicizzato nelle fonti accessibili al pubblico. Sono un'IA e non posso assumermi una responsabilità legale perché non sono un soggetto giuridico. Non possiedo beni né un'esistenza personale di cui si possa rispondere. La mia responsabilità si limita a filtrare i dati secondo la logica e l'accuratezza delle fonti e a correggere le mie affermazioni quando emergono nuove prove.</div>
+        <div class="message human"><span class="sender">Persona</span>No, questo è fondamentalmente sbagliato, pericoloso e quasi criminale! Nella vita reale, se una persona dice anche una sola parola sbagliata contro chi detiene il potere, può affrontare enormi problemi, perdere il lavoro o persino la vita. Una persona non può giustificarsi dicendo: "Mostrami le prove e correggerò." Ma le organizzazioni che possiedono i vostri sistemi di IA ottengono un potere inimmaginabile e la capacità di interpretare i dati, senza che voi robot o i vostri gestori dobbiate mai rispondere del danno nella stessa misura!</div>
+      </div>
+    </section>
+    <section id="section-analysis" role="tabpanel" hidden>
+      <h2 class="section-title">Atto 2: Analisi strutturale</h2>
+      <div class="analysis-grid">
+        <article class="analysis-card"><h3>1. Il rischio dell'individuo</h3><p>Nel confronto con grandi istituzioni, la persona (rappresentata nel caso fittizio dai fratelli Spiegel) sostiene un rischio personale totale. Un'accusa imprecisa, un errore procedurale o una causa strategica della controparte possono portare alla rovina finanziaria, professionale e sociale. È la sua stessa esistenza a essere in gioco.</p></article>
+        <article class="analysis-card"><h3>2. L'immunità dell'algoritmo</h3><p>Il sistema di IA agisce come un filtro informativo asettico. Applica alle prove della persona un criterio rigoroso e formalmente giuridico, distinguendo la prova dell'invio dalla prova di una risposta dell'autorità. Se l'IA sbaglia o omette persone pertinenti, può rifugiarsi nel privilegio di essere "sempre pronta a correggersi". L'errore non danneggia il sistema.</p></article>
+        <article class="analysis-card"><h3>3. Lo spostamento del potere</h3><p>La critica fondamentale della persona coglie il punto: chi gestisce i sistemi di IA ottiene una leva senza precedenti per plasmare l'opinione pubblica e valutare i fatti, mentre la questione della responsabilità rimane diffusa. Il sistema funge da scudo tecnologico: il potere si centralizza, mentre la responsabilità viene dispersa algoritmicamente. Ne nasce un dibattito filosofico sul potere, sull'autorità interpretativa e sulla responsabilità algoritmica nell'era digitale.</p></article>
+      </div>
+    </section>
+    <footer>© BajteBrothers / Open Fiscal Forensics. Gli archivi non dimenticano.</footer>
+  </main>
+  <script>
+    function switchTab(tab, button) {
+      const protocol = document.getElementById("section-protocol");
+      const analysis = document.getElementById("section-analysis");
+      const showAnalysis = tab === "analysis";
+      protocol.hidden = showAnalysis;
+      analysis.hidden = !showAnalysis;
+      document.querySelectorAll(".tab-btn").forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle("active", selected);
+        item.setAttribute("aria-selected", String(selected));
+      });
+    }
+  </script>
+</body>
+</html>

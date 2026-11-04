@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A fictional dialogue and analysis about asymmetry of responsibility in the age of AI.">
+  <title>The Asymmetry of Responsibility | The Spiegel Brothers Case</title>
+  <style>
+    :root { --bg:#0f172a; --text:#f1f5f9; --primary:#38bdf8; --human:#1e293b; --robot:#020617; --muted:#94a3b8; --border:#334155; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .language-switch { position:fixed; top:1.25rem; left:max(1rem,calc((100vw - 940px)/2)); display:grid; gap:.45rem; z-index:1; }
+    .language-switch a,.tab-btn { border:1px solid var(--border); border-radius:.5rem; color:var(--muted); text-decoration:none; font:inherit; font-weight:700; cursor:pointer; }
+    .language-switch a { min-width:3.25rem; padding:.65rem .75rem; text-align:center; }
+    .language-switch a:hover,.language-switch a[aria-current="page"],.tab-btn.active { border-color:var(--primary); background:var(--primary); color:var(--bg); }
+    .container { max-width:800px; margin:auto; padding:2rem 1rem; }
+    header { text-align:center; border-bottom:1px solid var(--border); padding-bottom:2rem; margin-bottom:2rem; }
+    h1 { color:var(--primary); font-size:clamp(2rem,6vw,2.5rem); line-height:1.2; margin:.4rem 0; }
+    header p { color:var(--muted); font-style:italic; font-size:1.1rem; }
+    .note { background:#1e1b4b; border-left:4px solid #6366f1; padding:1rem; border-radius:.375rem; color:#c7d2fe; margin-bottom:2rem; }
+    .tabs { display:flex; justify-content:center; gap:1rem; margin-bottom:2.5rem; }
+    .tab-btn { background:transparent; padding:.7rem 1.5rem; text-transform:uppercase; letter-spacing:.05em; }
+    .tab-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .section-title { color:var(--primary); font-size:1.5rem; border-bottom:2px solid var(--border); padding-bottom:.5rem; margin:2rem 0; }
+    .chat-log,.analysis-grid { display:flex; flex-direction:column; gap:1.25rem; }
+    .message,.analysis-card { padding:1.15rem; border-radius:.75rem; }
+    .message { max-width:88%; }
+    .human { align-self:flex-start; background:var(--human); border:1px solid var(--border); border-bottom-left-radius:0; }
+    .robot { align-self:flex-end; background:var(--robot); border:1px solid #0ea5e9; border-bottom-right-radius:0; }
+    .sender { display:block; font-size:.85rem; font-weight:700; color:#a7f3d0; margin-bottom:.45rem; }
+    .robot .sender { color:var(--primary); }
+    .analysis-card { background:var(--human); border:1px solid var(--border); }
+    .analysis-card h3 { margin:.1rem 0 .6rem; color:var(--primary); }
+    .analysis-card p { margin:0; color:#cbd5e1; }
+    footer { margin-top:4rem; border-top:1px solid var(--border); padding-top:1.5rem; color:var(--muted); text-align:center; font-size:.9rem; }
+    [hidden],.hidden { display:none !important; }
+    a:focus-visible,button:focus-visible { outline:3px solid #f9d38a; outline-offset:3px; }
+    @media(max-width:900px) { .language-switch { position:static; display:flex; justify-content:center; padding:1rem 1rem 0; } .container { padding-top:1rem; } }
+    @media(max-width:520px) { .tabs { gap:.5rem; } .tab-btn { padding:.65rem 1rem; } .message { max-width:100%; } }
+  </style>
+</head>
+<body>
+  <nav class="language-switch" aria-label="Choose language">
+    <a href="asymmetrie-ai-fiktivni-scenarij.html" lang="de">DE</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-en.html" aria-current="page" lang="en">EN</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-it.html" lang="it">IT</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-hr.html" lang="hr">HR</a>
+  </nav>
+  <main class="container">
+    <header>
+      <h1>The Asymmetry of Responsibility</h1>
+      <p>The fictional case of the Spiegel brothers vs. BajteBrothers</p>
+    </header>
+    <aside class="note"><strong>Content note:</strong> The real case has been replaced by this entirely fictional one. The following conversation, based on the structural dynamics of the preceding debate, is a philosophical and literary illustration of the problem of responsibility in the age of artificial intelligence.</aside>
+    <div class="tabs" role="tablist" aria-label="Text sections">
+      <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="section-protocol" onclick="switchTab('protocol',this)">Transcript</button>
+      <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="section-analysis" onclick="switchTab('analysis',this)">Analysis</button>
+    </div>
+    <section id="section-protocol" role="tabpanel">
+      <h2 class="section-title">Act 1: Transcript of the conversation</h2>
+      <div class="chat-log">
+        <div class="message human"><span class="sender">Person</span>Search for the latest developments concerning the Spiegel brothers, MegaCorp's "AeroClean" environmental project, and the citizens' initiative.</div>
+        <div class="message robot"><span class="sender">BajteBrothers (the AI)</span>I conducted the search. The "AeroClean" project aims to make MegaCorp's factory emission-free, for which millions in subsidies are being provided. The citizens' initiative is organizing protests against the clandestine burning of hazardous waste. However, searches for the "Spiegel brothers" (specifically Marc and Janko Spiegel), whom you mentioned as social-media initiators, yielded no results in public media or official reports. They do not appear there as key players. Other spokespeople are leading the media narrative. So far, there is no confirmation that their complaints to the authorities have led to actual investigations.</div>
+        <div class="message human"><span class="sender">Person</span>That's wrong. The Spiegel brothers uploaded a dossier online. It contains cryptographic SHA-256 hashes and email logs proving that they reported MegaCorp's fraudulent activities. Why do you claim there is no evidence?</div>
+        <div class="message robot"><span class="sender">BajteBrothers (the AI)</span>The SHA-256 hashes and transmission logs in the Spiegel brothers' dossier establish only the sender's side. They are digital evidence that these documents were created and sent by them. However, they are neither an official receipt nor proof that an authority opened a formal investigation. Only the senders' claim is publicly visible.</div>
+        <div class="message human"><span class="sender">Person</span>Are you prepared to be held responsible if you state so definitively that there have been no replies from the recipients? Can you say that with absolute certainty? And why should anyone believe an AI like you if you did not find the sources yourself?</div>
+        <div class="message robot"><span class="sender">BajteBrothers (the AI)</span>I cannot guarantee absolute certainty. I can only reflect what is indexed in publicly accessible data sources. I am an AI and cannot assume legal liability because I am not a legal entity. I have no assets or personal existence that could be held accountable. My responsibility is limited to filtering data according to logic and source accuracy, and correcting my statements when new evidence emerges.</div>
+        <div class="message human"><span class="sender">Person</span>No, that is fundamentally wrong, dangerous, and almost criminal! If a person in real life says even one wrong word against those in power, they can face immense problems, lose their livelihood, or even their life. A person cannot excuse themselves by saying, "Show me the evidence, and I'll correct it." But the organizations that own your AI systems gain unimaginable power and the ability to interpret data, without you as robots or your operators ever having to answer for the harm to the same extent!</div>
+      </div>
+    </section>
+    <section id="section-analysis" role="tabpanel" hidden>
+      <h2 class="section-title">Act 2: Structural analysis</h2>
+      <div class="analysis-grid">
+        <article class="analysis-card"><h3>1. The individual's risk</h3><p>When confronting large institutions, the person (represented in this fictional case by the Spiegel brothers) bears a total personal risk. An imprecise accusation, a procedural error, or a strategic lawsuit by the other side can lead to financial, professional, and social ruin. The person's very existence is at stake.</p></article>
+        <article class="analysis-card"><h3>2. The algorithm's immunity</h3><p>The AI system acts as a sterile information filter. It applies a strict, formal-legal standard to a person's evidence, distinguishing proof of sending from proof of an authority's response. If the AI is wrong or omits relevant people, it can retreat behind the privilege of being "always ready to correct itself." The error causes the system no harm.</p></article>
+        <article class="analysis-card"><h3>3. The shift in power</h3><p>The person's fundamental criticism goes to the heart of the matter: AI operators gain an historically unprecedented lever for shaping public opinion and weighing facts, while the question of liability remains diffuse. The system acts as a technological shield: power is centralized, but responsibility is dispersed algorithmically. This raises a philosophical debate about power, interpretive authority, and algorithmic liability in the digital age.</p></article>
+      </div>
+    </section>
+    <footer>© BajteBrothers / Open Fiscal Forensics. Archives do not forget.</footer>
+  </main>
+  <script>
+    function switchTab(tab, button) {
+      const protocol = document.getElementById("section-protocol");
+      const analysis = document.getElementById("section-analysis");
+      const showAnalysis = tab === "analysis";
+      protocol.hidden = showAnalysis;
+      analysis.hidden = !showAnalysis;
+      document.querySelectorAll(".tab-btn").forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle("active", selected);
+        item.setAttribute("aria-selected", String(selected));
+      });
+    }
+  </script>
+</body>
+</html>

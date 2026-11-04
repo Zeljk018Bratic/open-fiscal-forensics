@@ -31,6 +31,33 @@
             padding: 2rem 1rem;
         }
 
+        .language-switch {
+            position: fixed;
+            top: 1.25rem;
+            left: max(1rem, calc((100vw - 940px) / 2));
+            display: grid;
+            gap: 0.45rem;
+            z-index: 1;
+        }
+
+        .language-switch a {
+            min-width: 3.25rem;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            color: var(--muted);
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .language-switch a:hover,
+        .language-switch a[aria-current="page"] {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--bg-color);
+        }
+
         header {
             text-align: center;
             border-bottom: 1px solid #334155;
@@ -188,9 +215,29 @@
         .hidden {
             display: none !important;
         }
+
+        @media (max-width: 900px) {
+            .language-switch {
+                position: static;
+                display: flex;
+                justify-content: center;
+                padding: 1rem 1rem 0;
+            }
+
+            .container {
+                padding-top: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <nav class="language-switch" aria-label="Sprache wählen">
+        <a href="asymmetrie-ai-fiktivni-scenarij.html" aria-current="page" lang="de">DE</a>
+        <a href="asymmetrie-ai-fiktivni-scenarij-en.html" lang="en">EN</a>
+        <a href="asymmetrie-ai-fiktivni-scenarij-it.html" lang="it">IT</a>
+        <a href="asymmetrie-ai-fiktivni-scenarij-hr.html" lang="hr">HR</a>
+    </nav>
 
     <div class="container">
         <header>

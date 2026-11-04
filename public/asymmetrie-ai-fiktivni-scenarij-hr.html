@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Izmišljeni dijalog i analiza asimetrije odgovornosti u doba umjetne inteligencije.">
+  <title>Asimetrija odgovornosti | Slučaj braće Spiegel</title>
+  <style>
+    :root { --bg:#0f172a; --text:#f1f5f9; --primary:#38bdf8; --human:#1e293b; --robot:#020617; --muted:#94a3b8; --border:#334155; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .language-switch { position:fixed; top:1.25rem; left:max(1rem,calc((100vw - 940px)/2)); display:grid; gap:.45rem; z-index:1; }
+    .language-switch a,.tab-btn { border:1px solid var(--border); border-radius:.5rem; color:var(--muted); text-decoration:none; font:inherit; font-weight:700; cursor:pointer; }
+    .language-switch a { min-width:3.25rem; padding:.65rem .75rem; text-align:center; }
+    .language-switch a:hover,.language-switch a[aria-current="page"],.tab-btn.active { border-color:var(--primary); background:var(--primary); color:var(--bg); }
+    .container { max-width:800px; margin:auto; padding:2rem 1rem; }
+    header { text-align:center; border-bottom:1px solid var(--border); padding-bottom:2rem; margin-bottom:2rem; }
+    h1 { color:var(--primary); font-size:clamp(2rem,6vw,2.5rem); line-height:1.2; margin:.4rem 0; }
+    header p { color:var(--muted); font-style:italic; font-size:1.1rem; }
+    .note { background:#1e1b4b; border-left:4px solid #6366f1; padding:1rem; border-radius:.375rem; color:#c7d2fe; margin-bottom:2rem; }
+    .tabs { display:flex; justify-content:center; gap:1rem; margin-bottom:2.5rem; }
+    .tab-btn { background:transparent; padding:.7rem 1.5rem; text-transform:uppercase; letter-spacing:.05em; }
+    .tab-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .section-title { color:var(--primary); font-size:1.5rem; border-bottom:2px solid var(--border); padding-bottom:.5rem; margin:2rem 0; }
+    .chat-log,.analysis-grid { display:flex; flex-direction:column; gap:1.25rem; }
+    .message,.analysis-card { padding:1.15rem; border-radius:.75rem; }
+    .message { max-width:88%; }
+    .human { align-self:flex-start; background:var(--human); border:1px solid var(--border); border-bottom-left-radius:0; }
+    .robot { align-self:flex-end; background:var(--robot); border:1px solid #0ea5e9; border-bottom-right-radius:0; }
+    .sender { display:block; font-size:.85rem; font-weight:700; color:#a7f3d0; margin-bottom:.45rem; }
+    .robot .sender { color:var(--primary); }
+    .analysis-card { background:var(--human); border:1px solid var(--border); }
+    .analysis-card h3 { margin:.1rem 0 .6rem; color:var(--primary); }
+    .analysis-card p { margin:0; color:#cbd5e1; }
+    footer { margin-top:4rem; border-top:1px solid var(--border); padding-top:1.5rem; color:var(--muted); text-align:center; font-size:.9rem; }
+    [hidden],.hidden { display:none !important; }
+    a:focus-visible,button:focus-visible { outline:3px solid #f9d38a; outline-offset:3px; }
+    @media(max-width:900px) { .language-switch { position:static; display:flex; justify-content:center; padding:1rem 1rem 0; } .container { padding-top:1rem; } }
+    @media(max-width:520px) { .tabs { gap:.5rem; } .tab-btn { padding:.65rem 1rem; } .message { max-width:100%; } }
+  </style>
+</head>
+<body>
+  <nav class="language-switch" aria-label="Odabir jezika">
+    <a href="asymmetrie-ai-fiktivni-scenarij.html" lang="de">DE</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-en.html" lang="en">EN</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-it.html" lang="it">IT</a>
+    <a href="asymmetrie-ai-fiktivni-scenarij-hr.html" aria-current="page" lang="hr">HR</a>
+  </nav>
+  <main class="container">
+    <header>
+      <h1>Asimetrija odgovornosti</h1>
+      <p>Izmišljeni slučaj braće Spiegel protiv braće Bajte</p>
+    </header>
+    <aside class="note"><strong>Napomena o sadržaju:</strong> Stvarni slučaj zamijenjen je ovim izmišljenim, potpuno izmišljenim slučajem. Sljedeći razgovor, temeljen na strukturnoj dinamici prethodne rasprave, filozofska je i književna ilustracija problema odgovornosti u doba umjetne inteligencije.</aside>
+    <div class="tabs" role="tablist" aria-label="Dijelovi teksta">
+      <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="section-protocol" onclick="switchTab('protocol',this)">Transkript</button>
+      <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="section-analysis" onclick="switchTab('analysis',this)">Analiza</button>
+    </div>
+    <section id="section-protocol" role="tabpanel">
+      <h2 class="section-title">Čin 1: Transkript razgovora</h2>
+      <div class="chat-log">
+        <div class="message human"><span class="sender">Osoba</span>Potražite najnovija događanja u vezi s braćom Spiegel, ekološkim projektom "AeroClean" tvrtke MegaCorp i građanskom inicijativom.</div>
+        <div class="message robot"><span class="sender">BajteBraća (AI)</span>Proveo sam pretragu. Projekt "AeroClean" ima za cilj učiniti tvornicu MegaCorpa bez emisija, za što se osiguravaju milijuni subvencija. Građanska inicijativa organizira prosvjede protiv tajnog spaljivanja opasnog otpada. Međutim, pretrage za "braćom Spiegel" (točnije Marcom i Jankom Spiegelom), koje ste spomenuli kao inicijatore na društvenim mrežama, nisu dale rezultate u javnim medijima ni službenim izvješćima. Ne pojavljuju se kao ključni akteri. Medijskim narativom bave se drugi glasnogovornici. Zasad nema potvrde da su njihove prijave vlastima dovele do stvarnih istraga.</div>
+        <div class="message human"><span class="sender">Osoba</span>To je pogrešno. Braća Spiegel postavila su dosje na internet. Sadrži kriptografske SHA-256 hasheve i zapise e-pošte koji dokazuju da su prijavili prijevarne aktivnosti MegaCorpa. Zašto tvrdite da nema dokaza?</div>
+        <div class="message robot"><span class="sender">BajteBraća (AI)</span>SHA-256 hashevi i zapisi prijenosa u dosjeu braće Spiegel potvrđuju samo stranu pošiljatelja. Digitalni su dokaz da su te dokumente oni izradili i poslali. Međutim, nisu službena potvrda primitka ni dokaz da je neko tijelo pokrenulo formalnu istragu. Javno je vidljiva samo tvrdnja pošiljatelja.</div>
+        <div class="message human"><span class="sender">Osoba</span>Jeste li spremni snositi odgovornost ako tako odlučno tvrdite da primatelji nisu odgovorili? Možete li to reći s apsolutnom sigurnošću? I zašto bi itko vjerovao umjetnoj inteligenciji poput vas ako sami niste pronašli izvore?</div>
+        <div class="message robot"><span class="sender">BajteBraća (AI)</span>Ne mogu jamčiti apsolutnu sigurnost. Mogu odražavati samo ono što je indeksirano u javno dostupnim izvorima podataka. Ja sam umjetna inteligencija i ne mogu preuzeti pravnu odgovornost jer nisam pravni subjekt. Ne posjedujem imovinu ni osobno postojanje za koje bih mogao odgovarati. Moja je odgovornost ograničena na filtriranje podataka prema logici i pouzdanosti izvora te ispravljanje izjava kada se pojave novi dokazi.</div>
+        <div class="message human"><span class="sender">Osoba</span>Ne, to je u osnovi pogrešno, opasno i gotovo kriminalno! Ako osoba u stvarnom životu kaže i jednu pogrešnu riječ protiv moćnika, može se suočiti s golemim problemima, izgubiti egzistenciju ili čak život. Osoba se ne može opravdavati riječima: "Pokaži mi dokaz pa ću ispraviti." Ali organizacije koje posjeduju vaše AI sustave stječu nezamislivu moć i mogućnost tumačenja podataka, a da vi kao roboti ili vaši operateri nikada ne morate odgovarati za štetu u istoj mjeri!</div>
+      </div>
+    </section>
+    <section id="section-analysis" role="tabpanel" hidden>
+      <h2 class="section-title">Čin 2: Strukturna analiza</h2>
+      <div class="analysis-grid">
+        <article class="analysis-card"><h3>1. Rizik pojedinca</h3><p>U sukobu s velikim institucijama osoba (koju u ovom izmišljenom slučaju predstavljaju braća Spiegel) snosi potpun osobni rizik. Neprecizna optužba, proceduralna pogreška ili strateška tužba druge strane mogu dovesti do financijske, profesionalne i društvene propasti. Ulog je sama egzistencija osobe.</p></article>
+        <article class="analysis-card"><h3>2. Imunitet algoritma</h3><p>AI sustav djeluje kao sterilan informacijski filtar. Na dokaze pojedinca primjenjuje strog, formalno-pravni standard, razlikujući dokaz o slanju od dokaza o odgovoru nadležnog tijela. Ako AI pogriješi ili izostavi relevantne osobe, može se povući iza povlastice "stalne spremnosti na ispravak". Sustav ne osjeća posljedice vlastite pogreške.</p></article>
+        <article class="analysis-card"><h3>3. Preraspodjela moći</h3><p>Temeljna kritika osobe pogađa srž problema: operateri AI sustava dobivaju povijesno nezapamćenu polugu za oblikovanje javnog mnijenja i vrednovanje činjenica, dok pitanje odgovornosti ostaje nejasno. Sustav postaje tehnološki štit: moć se centralizira, a odgovornost algoritamski raspršuje. Tako nastaje filozofska rasprava o moći, pravu na tumačenje i odgovornosti za algoritme u digitalnom dobu.</p></article>
+      </div>
+    </section>
+    <footer>© BajteBrothers / Open Fiscal Forensics. Arhiva ne zaboravlja.</footer>
+  </main>
+  <script>
+    function switchTab(tab, button) {
+      const protocol = document.getElementById("section-protocol");
+      const analysis = document.getElementById("section-analysis");
+      const showAnalysis = tab === "analysis";
+      protocol.hidden = showAnalysis;
+      analysis.hidden = !showAnalysis;
+      document.querySelectorAll(".tab-btn").forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle("active", selected);
+        item.setAttribute("aria-selected", String(selected));
+      });
+    }
+  </script>
+</body>
+</html>
