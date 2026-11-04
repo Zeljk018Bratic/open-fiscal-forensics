@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Četverojezični, izvorima povezani pregled dokumentiranih pitanja o projektu KOdeCO Net Zero u Koromačnu.">
+  <meta name="theme-color" content="#0b1220">
+  <title>Asimetrija odgovornosti — Koromačno</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #111c2e;
+      --panel-2: #17243a;
+      --text: #edf3fa;
+      --muted: #a9b8cb;
+      --accent: #70d6ff;
+      --line: #2a3a51;
+      --warning: #f9d38a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--accent); }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--warning); outline-offset: 3px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 900px);
+      gap: 1.5rem;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    .language-switch {
+      position: sticky;
+      top: 1.25rem;
+      align-self: start;
+      display: grid;
+      gap: .45rem;
+      padding-top: .5rem;
+    }
+
+    .language-switch button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: .65rem;
+      background: var(--panel);
+      color: var(--muted);
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #07111d;
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--panel);
+    }
+
+    .hero-image {
+      display: block;
+      width: 100%;
+      max-height: 430px;
+      object-fit: cover;
+      object-position: center 38%;
+    }
+
+    .hero-copy { padding: clamp(1.25rem, 4vw, 2.5rem); }
+
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { margin: 0 0 .75rem; font-size: clamp(2rem, 5vw, 3.2rem); }
+    h2 { margin-top: 2rem; color: var(--accent); font-size: 1.45rem; }
+    h3 { margin-top: 1.5rem; font-size: 1.05rem; }
+    p { margin: .75rem 0; }
+
+    .kicker {
+      margin: 0 0 .4rem;
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .status-note {
+      margin: 1.25rem 0 0;
+      padding: 1rem 1.1rem;
+      border-left: 3px solid var(--warning);
+      border-radius: .35rem;
+      background: #282317;
+      color: #ffe8b5;
+    }
+
+    .content {
+      margin-top: 1.25rem;
+      padding: clamp(1.25rem, 4vw, 2rem);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--panel);
+    }
+
+    .content ul, .content ol { padding-left: 1.35rem; }
+    .content li { margin: .7rem 0; }
+    .source-list { display: grid; gap: .55rem; padding-left: 1.2rem; }
+    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: 1.5rem; }
+    .gallery img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 1px solid var(--line); border-radius: .7rem; }
+
+    .footer {
+      margin-top: 1rem;
+      padding: 1rem 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .footer p { margin: .4rem 0; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 650px) {
+      .layout { grid-template-columns: 1fr; gap: .75rem; padding: 1rem .75rem 3rem; }
+      .language-switch { position: static; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0; }
+      .hero-image { max-height: 300px; }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="language-switch" aria-label="Odabir jezika">
+      <button type="button" data-language="hr" aria-label="Hrvatski" aria-pressed="true">HR</button>
+      <button type="button" data-language="de" aria-label="Deutsch" aria-pressed="false">DE</button>
+      <button type="button" data-language="it" aria-label="Italiano" aria-pressed="false">IT</button>
+      <button type="button" data-language="en" aria-label="English" aria-pressed="false">EN</button>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <img class="hero-image" src="assets/bajte1.jpg" alt="BajteBrothers: vaga pravde i štit odgovornosti">
+        <div class="hero-copy">
+          <p class="kicker">BajteBrothers · dokumentirani pregled</p>
+          <section data-language-panel="hr">
+            <h1>Asimetrija odgovornosti</h1>
+            <p class="lead">Dokumentirani okvir za pitanja javnog interesa o projektu KOdeCO Net Zero i cementari u Koromačnu.</p>
+            <p class="status-note"><strong>Status:</strong> javnointeresni tekst i pitanja za provjeru — ne sudska odluka ni utvrđenje nezakonitosti.</p>
+          </section>
+          <section data-language-panel="de" hidden>
+            <h1>Asymmetrie der Verantwortung</h1>
+            <p class="lead">Dokumentierter Überblick zu Fragen des öffentlichen Interesses rund um KOdeCO Net Zero und das Zementwerk Koromačno.</p>
+            <p class="status-note"><strong>Status:</strong> Beitrag zum öffentlichen Interesse und Fragen zur Prüfung — kein Gerichtsurteil und keine Feststellung der Rechtswidrigkeit.</p>
+          </section>
+          <section data-language-panel="it" hidden>
+            <h1>Asimmetria della responsabilità</h1>
+            <p class="lead">Quadro documentale delle questioni di interesse pubblico sul progetto KOdeCO Net Zero e sul cementificio di Koromačno.</p>
+            <p class="status-note"><strong>Stato:</strong> contributo di interesse pubblico e domande da verificare — non è una sentenza né un accertamento di illegittimità.</p>
+          </section>
+          <section data-language-panel="en" hidden>
+            <h1>Asymmetry of accountability</h1>
+            <p class="lead">A documented brief on public-interest questions concerning KOdeCO Net Zero and the cement plant in Koromačno.</p>
+            <p class="status-note"><strong>Status:</strong> a public-interest brief and questions for verification — not a court ruling or a finding of illegality.</p>
+          </section>
+        </div>
+      </section>
+
+      <article class="content" data-language-panel="hr">
+        <p>Tekst razdvaja podatke iz službenih dokumenata, javno iznesene navode i otvorena pitanja. Ne tvrdi da su utvrđeni kazneno djelo, korupcija ili namjerno onečišćenje. Evidencijska matrica je sekundarni indeks autora dosjea; gdje je moguće, treba provjeriti izvorni akt, podatke i metodologiju.</p>
+
+        <h2>Što dokumenti i indeks bilježe</h2>
+        <ul>
+          <li><strong>Studija i planirana oporaba otpada:</strong> E-056 navodi cjelovitu Studiju utjecaja na okoliš od 801 stranice, s opisom projektiranog doziranja goriva iz otpada do 4 t/h kroz glavni gorionik i 15 t/h kroz pretkalcinator. Navodi i dozvolu za pokusni rad R1/R13 za neopasni otpad KB 19 12 10, KLASA UP/I-351-04/24-09/7, URBROJ 517-04-2-1-25-8, izdanu 14.03.2025. To opisuje plan i dozvolu, a ne dokazuje stvarno korištenje kapaciteta ili kršenje uvjeta.</li>
+          <li><strong>Javno sudjelovanje:</strong> E-060 bilježi službenu obavijest o javnoj raspravi od 17.08. do 16.09.2026., KLASA UP/I-351-03/25-08/46, i javno izlaganje najavljeno za 03.09.2026. E-044 sažima medijski izvještaj o povlačenju zahtjeva i obustavi postupka 28.08.2026. Za zaključak o postupku treba provjeriti izvorno rješenje i službeno izvješće o raspravi te obradu zaprimljenih primjedbi.</li>
+          <li><strong>Stav lokalnog vijeća:</strong> E-105 bilježi jednoglasan zaključak Općinskog vijeća Raše (11/11) protiv projekta. To potvrđuje politički stav vijeća, a ne nezakonitost projekta ili dozvole.</li>
+          <li><strong>Provjerljivost mjerenja:</strong> E-122 opisuje API zapis mobilne postaje u Koromačnu s negativnim vrijednostima NO. To opravdava provjeru sirovih mjerenja, kalibracije, obrade i kontrole kvalitete. Sam zapis ne dokazuje uzrok anomalije, prekoračenje emisija ni kvar cijelog sustava.</li>
+        </ul>
+
+        <h2>Što ostaje otvoreno</h2>
+        <p>E-039/E-041 opisuju navod/opažanje da dio polusatnih podataka nije bio vidljiv na javnoj stranici u određenom razdoblju. Bez sirovih podataka i zapisa objave ne može se utvrditi razlog nedostupnosti niti zaključiti da su mjerenja bila prekinuta.</p>
+        <p>Navod o 148 prekoračenja TOC-a u E-006/E-058 nije popraćen izvornim AMS vrijednostima u evidencijskoj bilješci, pa ga ovdje ne predstavljamo kao potvrđenu činjenicu. Ne zaključujemo ni da je otpad iz Gospića zaprimljen ili spaljen u Koromačnu; za to su potrebni primarni zapisi o pošiljkama, vaganju, šiframa otpada i primateljima.</p>
+
+        <h2>Što tražimo od nadležnih tijela</h2>
+        <ol>
+          <li>Objavu izvornog rješenja o obustavi, izvješća o javnoj raspravi i evidencije zaprimljenih primjedbi.</li>
+          <li>Pristup sirovim AMS/CEMS podacima, zapisima objave i prekida, kalibracijskim i servisnim zapisima te pravilima validacije.</li>
+          <li>Neovisnu provjeru negativnih vrijednosti NO i objašnjenje njihove obrade prije uključivanja u agregirane pokazatelje.</li>
+          <li>Objavu važećih dozvola i uvjeta te usporedbu odobrenih aktivnosti sa Studijom i primjenjivim BAT zaključcima.</li>
+          <li>Ako se istražuje mogući tok otpada iz Gospića, prikaz primarnih zapisa za svaku pošiljku umjesto zaključivanja iz posrednih navoda.</li>
+        </ol>
+        <p>SHA-256 otisak može pomoći provjeriti jesu li dvije kopije datoteke jednake; sam po sebi ne potvrđuje istinitost sadržaja ni zaključaka.</p>
+
+        <h2>Izvori i evidencijski trag</h2>
+        <ul class="source-list">
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/evidence/Evidence_Matrix_CANON_v2.csv">Evidencijska matrica — E-039, E-041, E-044, E-056, E-060, E-105, E-122</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-14_DUBINSKA_PROVJERA_REGISTRI_I_STUDIJA.md">Dubinska provjera registara, rješenja i Studije</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/ZPPI-05/DOPUNA_2026-10-13_NEDOSTUPNOST_MJERENJA.md">Dopuna ZPPI-05 o dostupnosti mjerenja</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-13_ISZZ_NEDOSTUPNOST_ANALIZA.md">Analiza opažanja o dostupnosti podataka</a></li>
+          <li><a href="https://www.rasa.hr/wp-content/uploads/2026/10/Zakljucak-Opcinskog-vijeca-KodeCo-Net-Zero.pdf">Zaključak Općinskog vijeća Raše</a></li>
+          <li><a href="asimetrija-odgovornosti.md">Četverojezična tekstualna verzija</a></li>
+        </ul>
+        <div class="gallery" aria-label="Vizuali BajteBrothers">
+          <img src="assets/bajte.jpg" alt="BajteBrothers — ratnik uz digitalnog vuka">
+          <img src="assets/bajte2.jpg" alt="BajteBrothers — skupina digitalnih čuvara">
+          <img src="assets/bajte3.jpg" alt="BajteBrothers — ratnik i digitalni vuk">
+        </div>
+      </article>
+
+      <article class="content" data-language-panel="de" hidden>
+        <p>Dieser Text unterscheidet Angaben aus amtlichen Unterlagen, öffentliche Behauptungen und offene Fragen. Er behauptet nicht, dass Straftaten, Korruption oder vorsätzliche Umweltverschmutzung festgestellt wurden. Die Evidenzmatrix ist ein von den Dossierautoren erstellter Sekundärindex; soweit möglich, sind Originalbescheide, Daten und Methoden zu prüfen.</p>
+        <h2>Was Unterlagen und Index festhalten</h2>
+        <ul>
+          <li><strong>Studie und geplante Abfallverwertung:</strong> E-056 nennt eine 801-seitige Umweltverträglichkeitsstudie und eine geplante Zufuhr von Abfallbrennstoff mit bis zu 4 t/h über den Hauptbrenner und 15 t/h über den Kalzinator. Außerdem wird eine Genehmigung für den Probebetrieb R1/R13 für nicht gefährlichen Abfall mit Schlüssel 19 12 10 aufgeführt, KLASA UP/I-351-04/24-09/7, URBROJ 517-04-2-1-25-8, ausgestellt am 14.03.2025. Das beschreibt Planung und Genehmigung, nicht die tatsächliche Nutzung oder einen Auflagenverstoß.</li>
+          <li><strong>Öffentliche Beteiligung:</strong> E-060 dokumentiert eine amtliche Bekanntmachung der Konsultation vom 17.08. bis 16.09.2026, KLASA UP/I-351-03/25-08/46, und eine für den 03.09.2026 angekündigte Veranstaltung. E-044 fasst einen Medienbericht über den Rückzug des Antrags und die Einstellung des Verfahrens am 28.08.2026 zusammen. Zu prüfen sind der originale Bescheid, der offizielle Konsultationsbericht und die Behandlung der Stellungnahmen.</li>
+          <li><strong>Position des Gemeinderats:</strong> E-105 verzeichnet einen einstimmigen Beschluss des Gemeinderats Raša (11 von 11 Stimmen) gegen das Projekt. Das belegt die politische Position, nicht die Rechtswidrigkeit des Projekts oder einer Genehmigung.</li>
+          <li><strong>Überprüfbarkeit der Messungen:</strong> E-122 beschreibt einen API-Datensatz der mobilen Station in Koromačno mit negativen NO-Werten. Das rechtfertigt eine Prüfung der Rohmessungen, Kalibrierung, Verarbeitung und Qualitätskontrolle. Für sich genommen belegt es weder die Ursache noch Grenzwertüberschreitungen oder einen Ausfall des Gesamtsystems.</li>
+        </ul>
+        <h2>Was offen bleibt</h2>
+        <p>E-039/E-041 beschreiben die zeitweise Nichtverfügbarkeit bestimmter öffentlich dargestellter Halbstundenwerte als zeitlich begrenzte Behauptung/Beobachtung. Ohne Rohdaten und Veröffentlichungsprotokolle lässt sich weder der Grund noch eine Unterbrechung der Messung feststellen.</p>
+        <p>Die Behauptung von 148 TOC-Überschreitungen in E-006/E-058 ist laut Evidenzvermerk nicht durch originale AMS-Werte belegt und wird hier nicht als bestätigt dargestellt. Ebenso wird nicht behauptet, Abfälle aus Gospić seien in Koromačno angenommen oder verbrannt worden; dafür wären Primärdaten zu Sendungen, Verwiegung, Abfallschlüsseln und Empfängern nötig.</p>
+        <h2>Fragen an die zuständigen Behörden</h2>
+        <ol>
+          <li>Den originalen Einstellungsbescheid, den Konsultationsbericht und das Verzeichnis der eingegangenen Stellungnahmen veröffentlichen.</li>
+          <li>Zugang zu AMS/CEMS-Rohdaten, Veröffentlichungs- und Ausfallprotokollen, Kalibrierungs- und Wartungsnachweisen sowie Validierungsregeln ermöglichen.</li>
+          <li>Negative NO-Werte unabhängig prüfen und ihre Verarbeitung vor der Aufnahme in aggregierte Kennzahlen erläutern.</li>
+          <li>Geltende Genehmigungen und Auflagen veröffentlichen und mit der Studie sowie einschlägigen BAT-Schlussfolgerungen vergleichen.</li>
+          <li>Bei einer Untersuchung möglicher Abfalltransporte aus Gospić Primärnachweise für jede Sendung vorlegen.</li>
+        </ol>
+        <p>Ein SHA-256-Fingerabdruck kann die Identität zweier Dateikopien vergleichen; er bestätigt nicht die Wahrheit des Inhalts oder der Schlussfolgerungen.</p>
+        <h2>Quellen und Nachweisübersicht</h2>
+        <ul class="source-list">
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/evidence/Evidence_Matrix_CANON_v2.csv">Evidenzmatrix — E-039, E-041, E-044, E-056, E-060, E-105, E-122</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-14_DUBINSKA_PROVJERA_REGISTRI_I_STUDIJA.md">Vertiefte Prüfung von Registern, Bescheiden und Studie</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/ZPPI-05/DOPUNA_2026-10-13_NEDOSTUPNOST_MJERENJA.md">Ergänzung zum Informationsantrag ZPPI-05</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-13_ISZZ_NEDOSTUPNOST_ANALIZA.md">Analyse der Beobachtung zur Datenverfügbarkeit</a></li>
+          <li><a href="https://www.rasa.hr/wp-content/uploads/2026/10/Zakljucak-Opcinskog-vijeca-KodeCo-Net-Zero.pdf">Beschluss des Gemeinderats Raša</a></li>
+          <li><a href="asimetrija-odgovornosti.md">Textfassung in vier Sprachen</a></li>
+        </ul>
+        <div class="gallery" aria-label="BajteBrothers-Bilder">
+          <img src="assets/bajte.jpg" alt="BajteBrothers — Krieger mit digitalem Wolf">
+          <img src="assets/bajte2.jpg" alt="BajteBrothers — Gruppe digitaler Wächter">
+          <img src="assets/bajte3.jpg" alt="BajteBrothers — Krieger und digitaler Wolf">
+        </div>
+      </article>
+
+      <article class="content" data-language-panel="it" hidden>
+        <p>Questo testo distingue i dati contenuti in documenti ufficiali, le dichiarazioni pubbliche e le questioni aperte. Non afferma che siano stati accertati reati, corruzione o inquinamento intenzionale. La matrice delle prove è un indice secondario compilato dagli autori del dossier; ove possibile, vanno verificati gli atti originali, i dati e i metodi.</p>
+        <h2>Cosa riportano i documenti e l’indice</h2>
+        <ul>
+          <li><strong>Studio e recupero dei rifiuti previsto:</strong> E-056 indica uno Studio di impatto ambientale di 801 pagine e il sistema previsto per l’alimentazione di combustibile da rifiuti: fino a 4 t/h tramite il bruciatore principale e 15 t/h tramite il precalcinatore. Riporta anche un’autorizzazione per l’esercizio di prova R1/R13 per rifiuti non pericolosi, codice 19 12 10, KLASA UP/I-351-04/24-09/7, URBROJ 517-04-2-1-25-8, del 14.03.2025. Descrive piano e autorizzazione, non l’uso effettivo o una violazione delle condizioni.</li>
+          <li><strong>Partecipazione pubblica:</strong> E-060 registra un avviso ufficiale di consultazione dal 17.08 al 16.09.2026, KLASA UP/I-351-03/25-08/46, e un incontro previsto per il 03.09.2026. E-044 riassume un articolo di stampa sul ritiro della richiesta e la chiusura del procedimento il 28.08.2026. Occorre verificare il provvedimento originale, la relazione ufficiale e il trattamento delle osservazioni.</li>
+          <li><strong>Posizione del Consiglio comunale:</strong> E-105 registra una decisione unanime del Consiglio comunale di Raša (11 voti su 11) contraria al progetto. Documenta una posizione politica, non l’illegittimità del progetto o dell’autorizzazione.</li>
+          <li><strong>Verificabilità delle misurazioni:</strong> E-122 descrive un dato API della stazione mobile di Koromačno con valori negativi di NO. Ciò giustifica una verifica dei dati grezzi, della calibrazione, dell’elaborazione e del controllo di qualità. Da solo non dimostra la causa, il superamento dei limiti o un guasto dell’intero sistema.</li>
+        </ul>
+        <h2>Cosa resta da chiarire</h2>
+        <p>E-039/E-041 descrivono la temporanea indisponibilità di alcuni valori semiorari pubblicati come affermazione/osservazione circoscritta nel tempo. Senza dati grezzi e registri di pubblicazione non si può stabilire il motivo né concludere che le misurazioni siano state interrotte.</p>
+        <p>L’affermazione di 148 superamenti del TOC in E-006/E-058 non è supportata, secondo la nota probatoria, dai valori AMS originali e non è presentata qui come fatto confermato. Non si afferma neppure che rifiuti da Gospić siano stati ricevuti o bruciati a Koromačno: servono registrazioni primarie di spedizioni, pesature, codici dei rifiuti e destinatari.</p>
+        <h2>Richieste alle autorità competenti</h2>
+        <ol>
+          <li>Pubblicare il provvedimento originale di chiusura, la relazione della consultazione e il registro delle osservazioni ricevute.</li>
+          <li>Consentire l’accesso ai dati grezzi AMS/CEMS, ai registri di pubblicazione e interruzione, ai documenti di calibrazione e manutenzione e alle regole di validazione.</li>
+          <li>Verificare indipendentemente i valori negativi di NO e spiegare come sono stati elaborati prima dell’inclusione negli indicatori aggregati.</li>
+          <li>Pubblicare autorizzazioni e condizioni applicabili e confrontarle con lo Studio e le pertinenti conclusioni BAT.</li>
+          <li>Se si indaga un possibile flusso di rifiuti da Gospić, presentare registrazioni primarie per ogni spedizione.</li>
+        </ol>
+        <p>L’impronta SHA-256 può aiutare a verificare se due copie di un file sono identiche; non certifica la veridicità del contenuto o delle conclusioni.</p>
+        <h2>Fonti e tracciabilità delle prove</h2>
+        <ul class="source-list">
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/evidence/Evidence_Matrix_CANON_v2.csv">Matrice delle prove — E-039, E-041, E-044, E-056, E-060, E-105 ed E-122</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-14_DUBINSKA_PROVJERA_REGISTRI_I_STUDIJA.md">Verifica approfondita di registri, provvedimenti e Studio</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/ZPPI-05/DOPUNA_2026-10-13_NEDOSTUPNOST_MJERENJA.md">Integrazione della richiesta ZPPI-05</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-13_ISZZ_NEDOSTUPNOST_ANALIZA.md">Analisi sulla disponibilità dei dati</a></li>
+          <li><a href="https://www.rasa.hr/wp-content/uploads/2026/10/Zakljucak-Opcinskog-vijeca-KodeCo-Net-Zero.pdf">Decisione del Consiglio comunale di Raša</a></li>
+          <li><a href="asimetrija-odgovornosti.md">Versione testuale in quattro lingue</a></li>
+        </ul>
+        <div class="gallery" aria-label="Immagini BajteBrothers">
+          <img src="assets/bajte.jpg" alt="BajteBrothers — guerriero con lupo digitale">
+          <img src="assets/bajte2.jpg" alt="BajteBrothers — gruppo di guardiani digitali">
+          <img src="assets/bajte3.jpg" alt="BajteBrothers — guerriero e lupo digitale">
+        </div>
+      </article>
+
+      <article class="content" data-language-panel="en" hidden>
+        <p>This text distinguishes information in official documents, public statements, and open questions. It does not claim that crimes, corruption, or intentional pollution have been established. The evidence matrix is a secondary index compiled by the dossier authors; original decisions, data, and methods should be checked wherever possible.</p>
+        <h2>What the records and index report</h2>
+        <ul>
+          <li><strong>Study and proposed waste recovery:</strong> E-056 lists an 801-page environmental impact study and a proposed waste-derived fuel feed system of up to 4 t/h through the main burner and 15 t/h through the precalciner. It also lists a trial-operation R1/R13 permit for non-hazardous waste code 19 12 10, KLASA UP/I-351-04/24-09/7, URBROJ 517-04-2-1-25-8, issued on 14 March 2025. This describes the proposal and permit; it does not establish actual use or a breach of conditions.</li>
+          <li><strong>Public participation:</strong> E-060 records an official consultation notice for 17 August–16 September 2026, KLASA UP/I-351-03/25-08/46, and a public meeting scheduled for 3 September 2026. E-044 summarizes a media report that the application was withdrawn and the procedure discontinued on 28 August 2026. The original decision, official consultation report, and treatment of comments should be verified.</li>
+          <li><strong>Position of the municipal council:</strong> E-105 records a unanimous Raša Municipal Council resolution (11 of 11 votes) opposing the project. This documents a political position, not the illegality of the project or a permit.</li>
+          <li><strong>Verifiability of monitoring:</strong> E-122 describes an API record from the Koromačno mobile station containing negative NO values. This warrants review of the raw measurements, calibration, processing, and quality control. On its own, it establishes neither the cause, an emissions-limit exceedance, nor failure of the entire system.</li>
+        </ul>
+        <h2>What remains unresolved</h2>
+        <p>E-039/E-041 describe temporary unavailability of some publicly displayed half-hourly values as a time-bounded claim/observation. Without raw data and publication logs, neither the reason nor a measurement outage can be established.</p>
+        <p>The claim of 148 TOC exceedances in E-006/E-058 is not supported by original AMS values in the evidence note, so this brief does not present it as confirmed. It also does not conclude that waste from Gospić was received or burned in Koromačno; primary shipment, weighing, waste-code, and recipient records would be required.</p>
+        <h2>Questions for the competent authorities</h2>
+        <ol>
+          <li>Publish the original discontinuation decision, the public-consultation report, and the register of comments received.</li>
+          <li>Provide access to raw AMS/CEMS data, publication and outage logs, calibration and maintenance records, and validation rules.</li>
+          <li>Independently review negative NO values and explain their processing before inclusion in aggregate indicators.</li>
+          <li>Publish applicable permits and conditions and compare authorized activities with the Study and relevant BAT conclusions.</li>
+          <li>If investigating a possible waste route from Gospić, provide primary records for each shipment.</li>
+        </ol>
+        <p>A SHA-256 fingerprint can help verify whether two file copies are identical; it does not establish the truth of the content or conclusions.</p>
+        <h2>Sources and evidence trail</h2>
+        <ul class="source-list">
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/evidence/Evidence_Matrix_CANON_v2.csv">Evidence matrix — E-039, E-041, E-044, E-056, E-060, E-105, and E-122</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-14_DUBINSKA_PROVJERA_REGISTRI_I_STUDIJA.md">Detailed review of registers, decisions, and the Study</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/ZPPI-05/DOPUNA_2026-10-13_NEDOSTUPNOST_MJERENJA.md">ZPPI-05 supplement on monitoring-data availability</a></li>
+          <li><a href="https://github.com/Zeljk018Bratic/dosje-koromacno/blob/main/docs/Forenzika/2026-10-13_ISZZ_NEDOSTUPNOST_ANALIZA.md">Analysis of the reported data-availability issue</a></li>
+          <li><a href="https://www.rasa.hr/wp-content/uploads/2026/10/Zakljucak-Opcinskog-vijeca-KodeCo-Net-Zero.pdf">Raša Municipal Council resolution</a></li>
+          <li><a href="asimetrija-odgovornosti.md">Four-language text version</a></li>
+        </ul>
+        <div class="gallery" aria-label="BajteBrothers artwork">
+          <img src="assets/bajte.jpg" alt="BajteBrothers — warrior with a digital wolf">
+          <img src="assets/bajte2.jpg" alt="BajteBrothers — group of digital guardians">
+          <img src="assets/bajte3.jpg" alt="BajteBrothers — warrior and digital wolf">
+        </div>
+      </article>
+
+      <footer class="footer">
+        <p><a href="asimetrija-odgovornosti.md">Tekstualna verzija / Textfassung / Versione testuale / Text version</a></p>
+        <p><a href="asymmetrie-ai-fiktivni-scenarij.html">Odvojeni izvorni njemački fikcionalni tekst o odgovornosti AI-ja</a></p>
+        <p>#BajteBrothers · Izvori su povezani radi provjere; iznesena pitanja nisu pravni nalaz.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const languageButtons = document.querySelectorAll("[data-language]");
+    const languagePanels = document.querySelectorAll("[data-language-panel]");
+
+    function setLanguage(language) {
+      const selectedPanel = document.querySelector(`[data-language-panel="${language}"]`);
+      if (!selectedPanel) {
+        return;
+      }
+
+      const pageTitles = {
+        hr: "Asimetrija odgovornosti — Koromačno",
+        de: "Asymmetrie der Verantwortung — Koromačno",
+        it: "Asimmetria della responsabilità — Koromačno",
+        en: "Asymmetry of accountability — Koromačno"
+      };
+      const heroAlts = {
+        hr: "BajteBrothers: vaga pravde i štit odgovornosti",
+        de: "BajteBrothers: Waage der Gerechtigkeit und Schutzschild der Verantwortung",
+        it: "BajteBrothers: bilancia della giustizia e scudo della responsabilità",
+        en: "BajteBrothers: scales of justice and shield of accountability"
+      };
+
+      document.documentElement.lang = language;
+      document.title = pageTitles[language];
+      document.querySelector(".hero-image").alt = heroAlts[language];
+      languagePanels.forEach((panel) => {
+        panel.hidden = panel.dataset.languagePanel !== language;
+      });
+      languageButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.language === language));
+      });
+    }
+
+    languageButtons.forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.language));
+    });
+
+    const requestedLanguage = new URLSearchParams(window.location.search).get("lang");
+    if (requestedLanguage) {
+      setLanguage(requestedLanguage === "bs" ? "hr" : requestedLanguage);
+    }
+  </script>
+</body>
+</html>
